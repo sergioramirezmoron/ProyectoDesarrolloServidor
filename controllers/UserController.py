@@ -6,44 +6,48 @@ class UserController:
     
     @staticmethod
     def login():
-        if 'user_id' in session:
+        if 'userId' in session:
             return redirect(url_for('index'))
 
         if request.method == 'POST':
-            username = request.form['username']
-            password = request.form['password']
+            email = request.form.get('email')
+            password = request.form.get('password')
             
-            usuario = User.query.filter_by(username=username).first()
+            user = User.query.filter_by(email=email).first()
             
-            if usuario and check_password_hash(usuario.password, password):
-                session['username'] = usuario.username
-                session['user_id'] = usuario.id
-                session['role'] = usuario.role 
-                session['is_admin'] = usuario.is_admin
+            if user and check_password_hash(user.password, password):
+                session['email'] = user.email
+                session['userId'] = user.id
+                session['role'] = user.role 
+                session['isAdmin'] = user.isAdmin
                 
                 return redirect(url_for('index'))
             else:
-                return render_template('login.html', error="Credenciales inválidas")
+                return render_template('login.html', error="Invalid email or password")
                 
         return render_template('login.html')
 
     @staticmethod
     def register():
-        if 'user_id' in session:
+        if 'userId' in session:
             return redirect(url_for('index'))
 
         if request.method == 'POST':
-            username = request.form['username']
-            password = request.form['password']
+            name = request.form.get('name')
+            email = request.form.get('email')
+            password = request.form.get('password')
             
-            if User.query.filter_by(username=username).first():
-                return render_template('register.html', error="El usuario ya existe")
+            if not email or not password:
+                return render_template('register.html')
             
-            hashed_pw = generate_password_hash(password)
+            if User.query.filter_by(email=email).first():
+                return render_template('register.html', error="User with this email already exists")
             
-            nuevo_usuario = User(username=username, password=hashed_pw)
+            hashedPassword = generate_password_hash(password)
             
-            db.session.add(nuevo_usuario)
+            newUser = User(name=name, email=email, password=hashedPassword)
+            
+            db.session.add(newUser)
             db.session.commit()
             
             return redirect(url_for('login'))
