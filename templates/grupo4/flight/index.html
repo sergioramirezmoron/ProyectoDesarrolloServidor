@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Flight List</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .btn {
+        padding: 5px 10px;
+        text-decoration: none;
+        border: 1px solid #ccc;
+        background: #eee;
+      }
+      .btn-green {
+        background: #d4edda;
+      }
+      .btn-red {
+        background: #f8d7da;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Flights</h1>
+
+    <p>
+      Logged in as: {{ session['user_name'] }} ({{ session['role'] }}) |
+      <a href="/logout">Logout</a>
+    </p>
+
+    <!-- Only Companies or Admin can add new flights -->
+    {% if user_role == 'company' or user_role == 'admin' %}
+    <p><a href="/flights/new" class="btn btn-green">Add New Flight</a></p>
+    {% endif %}
+
+    <!-- Table Headers -->
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Aeroline</th>
+          <th>Start Location (ID)</th>
+          <th>End Location (ID)</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Price</th>
+          <th>Max Occupants</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Loop through the 'flights' list passed from the controller -->
+        {% for flight in flights %}
+        <tr>
+          <!-- Accessing attributes of the Flight object using dot notation -->
+          <td>{{ flight.id }}</td>
+          <td>{{ flight.aeroline }}</td>
+          <td>{{ flight.startLocation }}</td>
+          <td>{{ flight.endLocation }}</td>
+          <td>{{ flight.startDate }}</td>
+          <td>{{ flight.endDate }}</td>
+          <td>{{ flight.price }}</td>
+          <td>{{ flight.maxOccupants }}</td>
+          <td>
+            <!-- Actions for Admin or Owner -->
+            {% if user_role == 'admin' or (user_role == 'company' and
+            flight.idCompany == session.user_id) %}
+            <a href="/flights/edit/{{ flight.id }}" class="btn">Edit</a>
+            <a
+              href="/flights/delete/{{ flight.id }}"
+              class="btn btn-red"
+              onclick="return confirm('Are you sure?');"
+              >Delete</a
+            >
+            {% endif %}
+
+            <!-- Actions for User: Book -->
+            {% if user_role == 'user' %}
+            <a href="/flights/book/{{ flight.id }}" class="btn btn-green"
+              >Book Flight</a
+            >
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9">No flights found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>

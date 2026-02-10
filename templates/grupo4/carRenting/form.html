@@ -1,0 +1,84 @@
+{% extends "base.html" %} {% block title %}Rent form{% endblock %} {% block
+content %}
+<div class="container">
+  {% if not current_user.is_authenticated or current_user.role != "ADMIN" %}
+  <p>You do not have permission to access this page.</p>
+  <a href="{{ url_for('carRenting.list_rents') }}">Back</a>
+  {% else %}
+
+  <h1>{% if rent %}Edit{% else %}Create{% endif %} Rent</h1>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %}
+  <ul>
+    {% for category, message in messages %}
+    <li><strong>{{ category }}:</strong> {{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} {% endwith %}
+
+  <form
+    method="post"
+    action="{% if rent %}
+                {{ url_for('carRenting.update_rent', idRent=rent.idRent) }}
+              {% else %}
+                {{ url_for('carRenting.create_rent') }}
+              {% endif %}"
+  >
+    <label>brand</label><br />
+    <input
+      name="brand"
+      value="{{ rent.brand if rent else '' }}"
+      required
+    /><br /><br />
+
+    <label>model</label><br />
+    <input
+      name="model"
+      value="{{ rent.model if rent else '' }}"
+      required
+    /><br /><br />
+
+    <label>maxPeople</label><br />
+    <input
+      type="number"
+      name="maxPeople"
+      min="1"
+      value="{{ rent.maxPeople if rent else 1 }}"
+      required
+    /><br /><br />
+
+    <label>startDate (yyyy/mm/dd hh:mm:ss)</label><br />
+    <input
+      name="startDate"
+      value="{{ rent.startDate.strftime('%Y/%m/%d %H:%M:%S') if rent else '' }}"
+      required
+    /><br /><br />
+
+    <label>endDate (yyyy/mm/dd hh:mm:ss)</label><br />
+    <input
+      name="endDate"
+      value="{{ rent.endDate.strftime('%Y/%m/%d %H:%M:%S') if rent else '' }}"
+      required
+    /><br /><br />
+
+    <label>price</label><br />
+    <input
+      type="number"
+      step="0.01"
+      name="price"
+      value="{{ rent.price if rent else '' }}"
+      required
+    /><br /><br />
+
+    <label>image</label><br />
+    <input name="image" value="{{ rent.image if rent else '' }}" /><br /><br />
+
+    <button type="submit">Save</button>
+    <a href="{{ url_for('carRenting.list_rents') }}">Cancel</a>
+  </form>
+
+  {% endif %}
+</div>
+{% endblock %}

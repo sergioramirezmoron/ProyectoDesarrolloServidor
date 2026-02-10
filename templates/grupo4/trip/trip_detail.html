@@ -1,0 +1,84 @@
+{% extends "base.html" %} {% block title %}Trip Details - Travel Booking{%
+endblock %} {% block extra_css %} {% endblock %} {% block content %}
+<div class="detail-container">
+  <div class="detail-header">
+    <h2>Trip Details #{{ trip.idTrip }}</h2>
+    <div class="detail-actions">
+      {% if user_role == 'ADMIN' or (user_role == 'COMPANY' and trip.idCompany == current_user_id) %}
+      <a
+        href="{{ url_for('trip.edit_trip', id=trip.idTrip) }}"
+        class="btn btn-primary"
+        >Edit</a
+      >
+      <form
+        method="POST"
+        action="{{ url_for('trip.delete_trip', id=trip.idTrip) }}"
+        style="display: inline"
+        onsubmit="return confirm('Are you sure you want to delete this trip?');"
+      >
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="trip-card">
+    <div class="trip-route">
+      {{ trip.start_location_ref.name if trip.start_location_ref else 'N/A' }}
+      <span>-></span>
+      {{ trip.end_location_ref.name if trip.end_location_ref else 'N/A' }}
+    </div>
+    <div style="text-align: center; font-size: 1.1em; opacity: 0.9">
+      {{ trip.start_location_ref.country if trip.start_location_ref else 'N/A' }}
+      to
+      {{ trip.end_location_ref.country if trip.end_location_ref else 'N/A' }}
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-item">
+      <label>Start Date</label>
+      <div class="value">
+        {{ trip.startDate.strftime('%Y/%m/%d %H:%M:%S') }}
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <label>End Date</label>
+      <div class="value">{{ trip.endDate.strftime('%Y/%m/%d %H:%M:%S') }}</div>
+    </div>
+
+    <div class="detail-item">
+      <label>Driver</label>
+      <div class="value">
+        {{ trip.company_ref.name if trip.company_ref else 'N/A' }}
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <label>Number of People</label>
+      <div class="value">
+        {{ trip.occupants }} person{{ 's' if trip.occupants > 1 else '' }}
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <label>Price per Person</label>
+      <div class="value">€{{ "%.2f"|format(trip.price) }}</div>
+    </div>
+
+    <div class="detail-item highlight" style="grid-column: span 2">
+      <label>Total Price</label>
+      <div class="value">€{{ "%.2f"|format(trip.totalPrice) }}</div>
+      <div style="font-size: 0.9em; margin-top: 10px; color: #155724">
+        ({{ trip.occupants }} people x €{{ "%.2f"|format(trip.price) }} per
+        person)
+      </div>
+    </div>
+  </div>
+
+  <a href="{{ url_for('trip.list_trips') }}" class="back-link"
+    >← Back to Trips List</a
+  >
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %} {% block title %}Car Renting{% endblock %} {% block
+content %}
+<div class="container">
+  <h1>Car Renting</h1>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %}
+  <ul>
+    {% for category, message in messages %}
+    <li><strong>{{ category }}:</strong> {{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} {% endwith %}
+
+  <!-- Only ADMIN can create -->
+  {% if current_user.is_authenticated and current_user.role == "ADMIN" %}
+  <a href="{{ url_for('carRenting.show_create_form') }}">Create new rent</a>
+  {% endif %}
+
+  <table border="1" cellpadding="6">
+    <tr>
+      <th>idRent</th>
+      <th>brand</th>
+      <th>model</th>
+      <th>maxPeople</th>
+      <th>startDate</th>
+      <th>endDate</th>
+      <th>price</th>
+      <th>actions</th>
+    </tr>
+
+    {% for rent in rents %}
+    <tr>
+      <td>{{ rent.idRent }}</td>
+      <td>{{ rent.brand }}</td>
+      <td>{{ rent.model }}</td>
+      <td>{{ rent.maxPeople }}</td>
+      <td>{{ rent.startDate.strftime("%Y/%m/%d %H:%M:%S") }}</td>
+      <td>{{ rent.endDate.strftime("%Y/%m/%d %H:%M:%S") }}</td>
+      <td>{{ rent.price }}</td>
+      <td>
+        <a href="{{ url_for('carRenting.view_rent', idRent=rent.idRent) }}"
+          >view</a
+        >
+
+        {% if current_user.is_authenticated and current_user.role == "ADMIN" %}
+        |
+        <a href="{{ url_for('carRenting.show_edit_form', idRent=rent.idRent) }}"
+          >edit</a
+        >
+        <form
+          action="{{ url_for('carRenting.delete_rent', idRent=rent.idRent) }}"
+          method="post"
+          style="display: inline"
+        >
+          <button type="submit">delete</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

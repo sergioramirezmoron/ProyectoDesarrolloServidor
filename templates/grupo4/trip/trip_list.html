@@ -1,0 +1,89 @@
+{% extends "base.html" %} {% block title %}Trip List - Travel Booking{% endblock
+%} {% block extra_css %} {% endblock %} {% block content %}
+<div class="page-header">
+  <h2>Trips</h2>
+  {% if user_role in ['ADMIN', 'COMPANY'] %}
+  <a href="{{ url_for('trip.create_trip') }}" class="btn btn-primary"
+    >+ Create Trip</a
+  >
+  {% endif %}
+</div>
+
+{% if trips %}
+<table class="trips-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Origin</th>
+      <th>Destination</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+      <th>Driver</th>
+      <th>People</th>
+      <th>Price/Person</th>
+      <th>Total Price</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for trip in trips %}
+    <tr>
+      <td>#{{ trip.idTrip }}</td>
+      <td>
+        {{ trip.start_location_ref.name if trip.start_location_ref else 'N/A' }}
+      </td>
+      <td>
+        {{ trip.end_location_ref.name if trip.end_location_ref else 'N/A' }}
+      </td>
+      <td>{{ trip.startDate.strftime('%Y/%m/%d %H:%M') }}</td>
+      <td>{{ trip.endDate.strftime('%Y/%m/%d %H:%M') }}</td>
+      <td>{{ trip.company_ref.name if trip.company_ref else 'N/A' }}</td>
+      <td>{{ trip.occupants }}</td>
+      <td class="price-tag">€{{ "%.2f"|format(trip.price) }}</td>
+      <td class="price-tag">€{{ "%.2f"|format(trip.totalPrice) }}</td>
+      <td>
+        <div class="action-buttons">
+          <a
+            href="{{ url_for('trip.view_trip', id=trip.idTrip) }}"
+            class="btn btn-primary btn-sm"
+            >View</a
+          >
+          {% if user_role == 'ADMIN' or (user_role == 'COMPANY' and
+          trip.idCompany == current_user_id) %}
+          <a
+            href="{{ url_for('trip.edit_trip', id=trip.idTrip) }}"
+            class="btn btn-secondary btn-sm"
+            >Edit</a
+          >
+          <form
+            method="POST"
+            action="{{ url_for('trip.delete_trip', id=trip.idTrip) }}"
+            style="display: inline"
+            onsubmit="
+              return confirm('Are you sure you want to delete this trip?');
+            "
+          >
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty-state">
+  <div style="font-size: 4em">Trip</div>
+  <h3>No trips found</h3>
+  <p>Start by creating your first trip.</p>
+  {% if user_role in ['ADMIN', 'COMPANY'] %}
+  <a
+    href="{{ url_for('trip.create_trip') }}"
+    class="btn btn-primary"
+    style="margin-top: 20px"
+    >Create Trip</a
+  >
+  {% endif %}
+</div>
+{% endif %} {% endblock %}

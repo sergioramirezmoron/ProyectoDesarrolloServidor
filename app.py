@@ -30,6 +30,8 @@ def register():
 def logout():
     return UserController.logout()
 
+
+
 # --- CREAR BASE DE DATOS ---
 if __name__ == '__main__':
     with app.app_context():

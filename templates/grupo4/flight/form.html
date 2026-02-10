@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if flight %}Edit{% else %}Add{% endif %} Flight</title>
+</head>
+<body>
+    <h1>{% if flight %}Edit{% else %}Add{% endif %} Flight</h1>
+    
+    <form action="{% if flight %}/flights/edit/{{ flight.id }}{% else %}/flights/new{% endif %}" method="post">
+        <!-- Aeroline -->
+        <div>
+            <label for="aeroline">Aeroline:</label>
+            <input type="text" id="aeroline" name="aeroline" value="{{ flight.aeroline if flight else '' }}" required>
+        </div>
+
+        <!-- Start Location (Dropdown) -->
+        <div>
+            <label for="startLocation">Start Location:</label>
+            <select id="startLocation" name="startLocation" required>
+                <option value="">Select Origin</option>
+                {% for loc in locations %}
+                <option value="{{ loc['id'] }}" {% if flight and flight.startLocation == loc['id'] %}selected{% endif %}>
+                    {{ loc['city'] }}, {{ loc['country'] }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- End Location (Dropdown) -->
+        <div>
+            <label for="endLocation">End Location:</label>
+            <select id="endLocation" name="endLocation" required>
+                <option value="">Select Destination</option>
+                {% for loc in locations %}
+                <option value="{{ loc['id'] }}" {% if flight and flight.endLocation == loc['id'] %}selected{% endif %}>
+                    {{ loc['city'] }}, {{ loc['country'] }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Dates -->
+        <div>
+            <label for="startDate">Start Date (yyyy/mm/dd hh:mm:ss):</label>
+            <input type="text" id="startDate" name="startDate" value="{{ flight.startDate if flight else '' }}" placeholder="2026/12/31 10:00:00" required>
+        </div>
+        <div>
+            <label for="endDate">End Date (yyyy/mm/dd hh:mm:ss):</label>
+            <input type="text" id="endDate" name="endDate" value="{{ flight.endDate if flight else '' }}" placeholder="2026/12/31 14:00:00" required>
+        </div>
+
+        <!-- Price & Occupants -->
+        <div>
+            <label for="price">Price:</label>
+            <input type="number" step="0.01" id="price" name="price" value="{{ flight.price if flight else '' }}" required>
+        </div>
+        <div>
+            <label for="maxOccupants">Max Occupants:</label>
+            <input type="number" id="maxOccupants" name="maxOccupants" value="{{ flight.maxOccupants if flight else '' }}" required>
+        </div>
+
+        <br>
+        <button type="submit">Save Flight</button>
+    </form>
+    
+    <br>
+    <a href="/flights">Back to List</a>
+</body>
+</html>

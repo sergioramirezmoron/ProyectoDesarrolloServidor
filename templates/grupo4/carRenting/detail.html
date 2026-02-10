@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Rent {{ rent.idRent }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Rent {{ rent.idRent }}</h1>
+
+  <p><strong>brand:</strong> {{ rent.brand }}</p>
+  <p><strong>model:</strong> {{ rent.model }}</p>
+  <p><strong>maxPeople:</strong> {{ rent.maxPeople }}</p>
+  <p>
+    <strong>startDate:</strong> {{ rent.startDate.strftime("%Y/%m/%d
+    %H:%M:%S") }}
+  </p>
+  <p>
+    <strong>endDate:</strong> {{ rent.endDate.strftime("%Y/%m/%d %H:%M:%S") }}
+  </p>
+  <p><strong>price:</strong> {{ rent.price }}</p>
+
+  {% if rent.image %}
+  <img src="{{ rent.image }}" width="300" />
+  {% endif %}
+
+  <br /><br />
+
+  <a href="{{ url_for('carRenting.list_rents') }}">Back</a>
+
+  {% if current_user.is_authenticated and current_user.role == "ADMIN" %} |
+  <a href="{{ url_for('carRenting.show_edit_form', idRent=rent.idRent) }}">Edit</a>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends "base.html" %} {% block title %}Edit Trip - Travel Booking{% endblock
+%} {% block extra_css %} {% endblock %} {% block content %}
+<div class="form-container">
+  <div class="form-header">
+    <h2>Edit Trip #{{ trip.idTrip }}</h2>
+    <p>Update the trip details</p>
+  </div>
+
+  <form
+    method="POST"
+    action="{{ url_for('trip.edit_trip', id=trip.idTrip) }}"
+    id="tripForm"
+  >
+    <div class="form-row">
+      <div class="form-group">
+        <label for="startLocation">Origin *</label>
+        <select name="startLocation" id="startLocation" required>
+          <option value="">Select start location</option>
+          {% for location in locations %}
+          <option
+            value="{{ location.idLocation }}"
+            {% if location.idLocation == trip.startLocation %}selected{% endif %}
+          >
+            {{ location.name }}, {{ location.country }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="endLocation">Destination *</label>
+        <select name="endLocation" id="endLocation" required>
+          <option value="">Select end location</option>
+          {% for location in locations %}
+          <option
+            value="{{ location.idLocation }}"
+            {% if location.idLocation == trip.endLocation %}selected{% endif %}
+          >
+            {{ location.name }}, {{ location.country }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="startDate">Start Date *</label>
+        <input
+          type="datetime-local"
+          name="startDate"
+          id="startDate"
+          value="{{ trip.startDate.strftime('%Y-%m-%dT%H:%M') }}"
+          required
+        />
+        <div class="helper-text">Format: yyyy/mm/dd hh:mm:ss</div>
+      </div>
+
+      <div class="form-group">
+        <label for="endDate">End Date *</label>
+        <input
+          type="datetime-local"
+          name="endDate"
+          id="endDate"
+          value="{{ trip.endDate.strftime('%Y-%m-%dT%H:%M') }}"
+          required
+        />
+        <div class="helper-text">Format: yyyy/mm/dd hh:mm:ss</div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="occupants">Number of People *</label>
+        <input
+          type="number"
+          name="occupants"
+          id="occupants"
+          min="1"
+          value="{{ trip.occupants }}"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price per Person (€) *</label>
+        <input
+          type="number"
+          name="price"
+          id="price"
+          step="0.01"
+          min="0"
+          value="{{ trip.price }}"
+          required
+        />
+      </div>
+    </div>
+
+    {% if user_role == 'ADMIN' %}
+    <div class="form-group">
+      <label for="idCompany">Driver *</label>
+      <select name="idCompany" id="idCompany" required>
+        <option value="">Select driver</option>
+        {% for company in companies %}
+        <option
+          value="{{ company.idUser }}"
+          {% if company.idUser == trip.idCompany %}selected{% endif %}
+        >
+          {{ company.name }} ({{ company.email }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    {% elif user_role == 'COMPANY' %}
+    <div class="form-group">
+      <label>Driver</label>
+      <input
+        type="text"
+        value="{{ current_user.username if current_user else '' }}"
+        readonly
+      />
+    </div>
+    {% endif %}
+
+    <div class="price-preview">
+      <h3>Price Summary</h3>
+      <div class="price-item">
+        <span>Price per person:</span>
+        <span id="pricePerPerson">€{{ "%.2f"|format(trip.price) }}</span>
+      </div>
+      <div class="price-item">
+        <span>Number of people:</span>
+        <span id="numOccupants">{{ trip.occupants }}</span>
+      </div>
+      <div class="price-item price-total">
+        <span>Total Price:</span>
+        <span id="totalPrice">€{{ "%.2f"|format(trip.totalPrice) }}</span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Update Trip</button>
+      <a
+        href="{{ url_for('trip.view_trip', id=trip.idTrip) }}"
+        class="btn btn-secondary"
+        >Cancel</a
+      >
+    </div>
+  </form>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  // Convert datetime-local to required format
+  document.getElementById("tripForm").addEventListener("submit", function (e) {
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+
+    if (startDate) {
+      const formattedStart = startDate.replace("T", " ") + ":00";
+      document.getElementById("startDate").value = formattedStart.replace(
+        /-/g,
+        "/",
+      );
+    }
+
+    if (endDate) {
+      const formattedEnd = endDate.replace("T", " ") + ":00";
+      document.getElementById("endDate").value = formattedEnd.replace(
+        /-/g,
+        "/",
+      );
+    }
+  });
+
+  // Real-time price calculation
+  function updatePricePreview() {
+    const price = parseFloat(document.getElementById("price").value) || 0;
+    const occupants = parseInt(document.getElementById("occupants").value) || 0;
+    const total = price * occupants;
+
+    document.getElementById("pricePerPerson").textContent =
+      "€" + price.toFixed(2);
+    document.getElementById("numOccupants").textContent = occupants;
+    document.getElementById("totalPrice").textContent = "€" + total.toFixed(2);
+  }
+
+  document
+    .getElementById("price")
+    .addEventListener("input", updatePricePreview);
+  document
+    .getElementById("occupants")
+    .addEventListener("input", updatePricePreview);
+</script>
+{% endblock %}
