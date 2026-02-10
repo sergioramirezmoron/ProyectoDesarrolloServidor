@@ -8,7 +8,7 @@ app = Flask(__name__)
 # --- CONFIGURACIÓN ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@192.168.70.80:3306/proyecto_desarrollo_web'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'clave_secret'
+app.config['SECRET_KEY'] = 'secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 db.init_app(app)
@@ -30,4 +30,6 @@ if __name__ == '__main__':
         # db.drop_all() # Descomenta esto SOLO si necesitas borrar todo y empezar de cero por errores de FK
         db.create_all()
     
-    app.run(debug=True, host='0.0.0.0') # host='0.0.0.0' para que sea accesible en red
+    app.run(debug=True)
+    
+    
