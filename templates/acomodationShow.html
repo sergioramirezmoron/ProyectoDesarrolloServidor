@@ -89,7 +89,7 @@
                                 <span class="text-muted small">/ night</span>
                             </div>
 
-                            {% if g.user or session.get('userId') %}
+                            {% if g.user or session.get('user_id') %}
                             <button onclick="openBookingModal('{{ room.id }}', '{{ room.type }}', '{{ room.priceNight }}')"
                                 class="btn btn-primary">
                                 Book Now
@@ -136,7 +136,7 @@
             </div>
 
             <form action="{{ url_for('booking.book_accommodation') }}" method="POST">
-                <input type="hidden" name="userId" value="{{ g.user.id }}">
+                <input type="hidden" name="user_id" value="{{ g.user.id }}">
                 <input type="hidden" name="accommodationId" value="{{ accommodation.id }}">
                 <input type="hidden" name="roomId" id="modalRoomId">
                 <input type="hidden" name="totalPrice" id="modalTotalPriceInput">

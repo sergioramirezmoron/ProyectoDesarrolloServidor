@@ -3,11 +3,17 @@
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models import db, CarRenting
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from models import db, CarRenting, User
 
 # This blueprint groups all routes for car renting.
 carRentingBlueprint = Blueprint("carRenting", __name__, url_prefix="/car-renting")
+
+def get_current_user():
+    user_id = session.get("user_id")
+    if not user_id:
+        return None
+    return User.query.get(user_id)
 
 
 # This function converts a text date into a datetime object.
@@ -25,12 +31,19 @@ def list_rents():
 # This route shows the create form.
 @carRentingBlueprint.get("/create")
 def show_create_form():
-    return render_template("carRenting/form.html", rent=None)
+    user = get_current_user()
+    if not user or user.role != "company":
+        flash("Solo las compañías pueden crear coches.")
+        return redirect(url_for("userBp.login"))
+    return render_template("carRenting/form.html", rent=None, user=user)
 
 
 # This route creates a new rent from the form data.
 @carRentingBlueprint.post("/create")
 def create_rent():
+    user = get_current_user()
+    if not user or user.role != "company":
+        return redirect(url_for("userBp.login"))
     try:
         rent = CarRenting(
             maxPeople=int(request.form["maxPeople"]),
@@ -64,13 +77,20 @@ def view_rent(idRent: int):
 # This route shows the edit form for one rent.
 @carRentingBlueprint.get("/<int:idRent>/edit")
 def show_edit_form(idRent: int):
+    user = get_current_user()
+    if not user or user.role != "company":
+        flash("Permiso denegado.")
+        return redirect(url_for("userBp.login"))
     rent = CarRenting.query.get_or_404(idRent)
-    return render_template("carRenting/form.html", rent=rent)
+    return render_template("carRenting/form.html", rent=rent, user=user)
 
 
 # This route updates one rent using the form data.
 @carRentingBlueprint.post("/<int:idRent>/edit")
 def update_rent(idRent: int):
+    user = get_current_user()
+    if not user or user.role != "company":
+        return redirect(url_for("userBp.login"))
     rent = CarRenting.query.get_or_404(idRent)
 
     try:
@@ -97,6 +117,9 @@ def update_rent(idRent: int):
 # This route deletes one rent by its id.
 @carRentingBlueprint.post("/<int:idRent>/delete")
 def delete_rent(idRent: int):
+    user = get_current_user()
+    if not user or user.role != "company":
+        return redirect(url_for("userBp.login"))
     rent = CarRenting.query.get_or_404(idRent)
 
     try:

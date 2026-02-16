@@ -68,10 +68,12 @@ def create_cruise():
         endDate = datetime.strptime(request.form["endDate"], "%Y-%m-%dT%H:%M")
         description = request.form["description"]
         
-        # 1. Crear el Crucero
-        cruise = Cruise(idShip=idShip, startDate=startDate, endDate=endDate, description=description, idCompany=user.idUser)
-        db.session.add(cruise)
-        db.session.flush() 
+        # 1. El Crucero/Barco ya existe (se selecciona del dropdown 'ships')
+        # Buscamos el barco seleccionado
+        ship = Cruise.query.get(idShip)
+        if not ship:
+            flash("Barco no encontrado.", "danger")
+            return redirect(url_for("cruise.create_cruise"))
 
         # --- PROCESAR PARADAS ---
         stops_data = []
@@ -94,16 +96,14 @@ def create_cruise():
         # Validar que hay al menos 2 paradas para definir ruta
         if len(stops_data) < 2:
             flash("Debe definir al menos 2 paradas para crear la ruta.", "warning")
-            db.session.rollback()
             return render_template("cruise_form.html", ships=ships, user=user, locations=locations)
 
         # 2. Crear la Ruta (CruiseRoute)
-        # Asumimos que la primera parada es el inicio y la última el fin
         sorted_stops = sorted(stops_data, key=lambda x: x['stopOrder'])
-        from models.CruiseRoute import CruiseRoute # Importar aquí para evitar circular imports si los hubiera
+        from models.CruiseRoute import CruiseRoute
         
         route = CruiseRoute(
-            idCruise=cruise.idCruise,
+            idCruise=ship.idCruise,
             startDate=startDate,
             endDate=endDate,
             idStartLocation=sorted_stops[0]['idLocation'],
@@ -111,14 +111,14 @@ def create_cruise():
             description=description
         )
         db.session.add(route)
-        db.session.flush() # Para obtener idCruiseRoute
+        db.session.flush() 
 
         # 3. Crear los CruiseStops vinculados a la Ruta
         created_stops_objs = []
         for stop_info in sorted_stops:
             stop = CruiseStops(
-                idCruiseStop=None, # Auto-increment
-                idCruiseRoute=route.idCruiseRoute, # Usar el ID de la ruta creada
+                idCruiseStop=None,
+                idCruiseRoute=route.idCruiseRoute,
                 idLocation=stop_info['idLocation'],
                 stopOrder=stop_info['stopOrder'],
                 arrivalDate=stop_info['arrivalDate'],
@@ -140,14 +140,14 @@ def create_cruise():
                 dest_order = int(dest_order_str)
                 price = float(price_str)
                 
-                # Buscar los IDs de los stops recien creados
                 stop_origin = next((s for s in created_stops_objs if s.stopOrder == origin_order), None)
                 stop_dest = next((s for s in created_stops_objs if s.stopOrder == dest_order), None)
                 
                 if stop_origin and stop_dest:
+                    from models.CruiseSegment import CruiseSegment
                     segment = CruiseSegment(
-                        idCruise=cruise.idCruise, # Algunos modelos vinculan segmento a crucero
-                        idRoute=route.idCruiseRoute, # Otros a la ruta
+                        idCruise=ship.idCruise,
+                        idRoute=route.idCruiseRoute,
                         idStopOrigin=stop_origin.idCruiseStop,
                         idStopDestination=stop_dest.idCruiseStop,
                         price=price
@@ -155,8 +155,8 @@ def create_cruise():
                     db.session.add(segment)
 
         db.session.commit()
-        flash("¡Crucero creado con éxito!", "success")
-        return redirect(url_for("cruise.my_cruises"))
+        flash("¡Ruta de crucero creada con éxito!", "success")
+        return redirect(url_for("cruise.list_cruises"))
         
     return render_template("cruise_form.html", ships=ships, user=user, locations=locations)
 

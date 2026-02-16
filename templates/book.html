@@ -29,8 +29,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="userId" class="form-label fw-bold">Usuario</label>
-                            <select name="userId" id="userId" class="form-select" required>
+                            <label for="user_id" class="form-label fw-bold">Usuario</label>
+                            <select name="user_id" id="user_id" class="form-select" required>
                                 <option value="" disabled selected>Selecciona un usuario</option>
                                 {% for user in users %}
                                 <option value="{{ user.idUser }}">{{ user.name }} ({{ user.email }})</option>

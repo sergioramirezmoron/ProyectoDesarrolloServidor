@@ -30,7 +30,7 @@ def admin_dashboard():
 def manage_hotels():
     if "user_id" not in session or session.get("role") != "company":
          flash('Access denied.')
-         return redirect(url_for('login'))
+         return redirect(url_for('userBp.login'))
          
     accommodations = Accommodation.query.filter_by(idCompany=session["user_id"]).all()
     return render_template('manage_hotels.html', accommodations=accommodations)
@@ -69,7 +69,7 @@ def create():
 
     if "user_id" not in session:
         flash('Debes iniciar sesión')
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
 
     if session.get("role") not in ["company", "admin"]:
         flash('No tienes permisos')
@@ -119,7 +119,7 @@ def delete(id):
 
     if "user_id" not in session:
         flash('Debes iniciar sesión')
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
 
     accommodation = Accommodation.query.get_or_404(id)
 
@@ -140,7 +140,7 @@ def edit(id):
 
     if "user_id" not in session:
         flash('Debes iniciar sesión')
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
 
     accommodation = Accommodation.query.get_or_404(id)
 
@@ -168,7 +168,7 @@ def edit(id):
 @acomodation_bp.route('/acomodation/<int:id>/rooms', methods=['GET'])
 def manage_rooms(id):
     if "user_id" not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
         
     accommodation = Accommodation.query.get_or_404(id)
     
@@ -182,7 +182,7 @@ def manage_rooms(id):
 @acomodation_bp.route('/acomodation/<int:id>/rooms/add', methods=['POST'])
 def add_room(id):
     if "user_id" not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
         
     accommodation = Accommodation.query.get_or_404(id)
     
@@ -207,7 +207,7 @@ def add_room(id):
 @acomodation_bp.route('/acomodation/rooms/delete/<int:id>', methods=['POST'])
 def delete_room(id):
     if "user_id" not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
         
     # Corrected import
     room = Room.query.get_or_404(id)

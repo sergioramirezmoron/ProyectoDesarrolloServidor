@@ -7,13 +7,13 @@ flight_bp = Blueprint('flight', __name__, url_prefix='/flights')
 @flight_bp.route('/', methods=['GET'])
 def list_flights():
     flights = Flight.query.all()
-    user_id = session.get('userId')
+    user_id = session.get('user_id')
     user = User.query.get(user_id) if user_id else None
     return render_template('flight/index.html', flights=flights, user=user)
 
 @flight_bp.route('/create', methods=['GET', 'POST'])
 def create_flight():
-    user_id = session.get('userId')
+    user_id = session.get('user_id')
     if not user_id:
         flash("Debes iniciar sesión", "warning")
         return redirect(url_for('userBp.login'))

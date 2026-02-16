@@ -20,7 +20,7 @@
                                 <select name="idShip" class="form-select" required>
                                     <option value="" disabled selected>Seleccione un barco...</option>
                                     {% for ship in ships %}
-                                    <option value="{{ ship.idShip }}">{{ ship.cruiseName }} (Capacidad: {{ ship.capacity }})</option>
+                                    <option value="{{ ship.idCruise }}">{{ ship.cruiseName }} (Capacidad: {{ ship.capacity }})</option>
                                     {% endfor %}
                                 </select>
                             </div>

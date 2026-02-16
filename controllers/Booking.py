@@ -10,7 +10,7 @@ booking_bp = Blueprint('booking', __name__, template_folder='../templates')
 @booking_bp.route('/company/bookings', methods=['GET'])
 def company_bookings():
     if "user_id" not in session or session.get("role") != "company":
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
 
     # Fetch accommodations owned by the company
     company_accommodations = Accommodation.query.filter_by(idCompany=session["user_id"]).with_entities(Accommodation.id).all()
@@ -28,7 +28,7 @@ def company_bookings():
 @booking_bp.route('/booking/cancel/<int:id>', methods=['POST'])
 def cancel_booking(id):
     if "user_id" not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
 
     booking = AccommodationBookingLine.query.get_or_404(id)
     accommodation = Accommodation.query.get(booking.idAccommodation)
@@ -61,7 +61,7 @@ def cancel_booking(id):
 @booking_bp.route('/book', methods=['GET', 'POST'])
 def book_accommodation():
     if request.method == 'POST':
-        user_id = request.form.get('userId')
+        user_id = request.form.get('user_id') or session.get('user_id')
         accommodation_id = request.form.get('accommodationId')
         room_id = request.form.get('roomId') # Added roomId
         start_date = request.form.get('startDate')
@@ -104,7 +104,7 @@ def book_accommodation():
 @booking_bp.route('/review', methods=['GET', 'POST'])
 def add_review():
     if request.method == 'POST':
-        user_id = request.form.get('idUser')
+        user_id = request.form.get('user_id') or session.get('user_id')
         accommodation_id = request.form.get('idAccommodation')
         rating = request.form.get('ratingStars')
         comment = request.form.get('reviewComment')

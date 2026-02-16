@@ -139,7 +139,7 @@
           </ul>
 
           <div class="d-flex align-items-center gap-2">
-            {% if session.get('userId') %}
+            {% if session.get('user_id') %}
             <div class="dropdown">
               <button
                 class="btn btn-outline-light dropdown-toggle d-flex align-items-center gap-2"
@@ -189,7 +189,7 @@
                 <li>
                   <a
                     class="dropdown-item"
-                    href="{{ url_for('booking.list_user_bookings_html', user_id=session.get('userId')) }}"
+                    href="{{ url_for('booking.list_user_bookings_html', user_id=session.get('user_id')) }}"
                     ><i class="fas fa-suitcase me-2"></i>Mis Viajes</a
                   >
                 </li>
