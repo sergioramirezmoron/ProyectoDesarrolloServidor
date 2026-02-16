@@ -99,6 +99,35 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-11">
+                    {% if session.get('role') == 'company' %}
+                    <div class="alert bg-white shadow-lg border-0 mb-4 p-4 animate__animated animate__fadeInDown" style="border-left: 5px solid var(--accent-color) !important;">
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <h4 class="fw-bold text-secondary mb-1">Centro de Control de Empresa</h4>
+                                <p class="text-muted small mb-0">Gestiona tus servicios y reservas de forma rápida.</p>
+                            </div>
+                            <div class="col-md-5 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end">
+                                <a href="{{ url_for('userBp.company_dashboard') }}" class="btn btn-primary rounded-pill px-4">
+                                    <i class="fas fa-th-large me-2"></i>Panel Completo
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-plus me-2"></i>Crear Nuevo
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                                        <li><a class="dropdown-item" href="{{ url_for('aco.create') }}"><i class="fas fa-hotel me-2"></i>Alojamiento</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('cruise.create_cruise') }}"><i class="fas fa-ship me-2"></i>Crucero</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('ship.create_ship') }}"><i class="fas fa-anchor me-2"></i>Nuevo Barco</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('flight.create_flight') }}"><i class="fas fa-plane me-2"></i>Vuelo</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('tour.create_tour') }}"><i class="fas fa-ticket-alt me-2"></i>Tour</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('transport.create_transport') }}"><i class="fas fa-bus me-2"></i>Transporte</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <h1 class="hero-title display-4 fw-bold">¿A dónde te llevará tu próximo sueño?</h1>
                     
                     <ul class="nav nav-tabs nav-tabs-custom" id="travelTabs" role="tablist">
@@ -139,6 +168,13 @@
                                             <label><i class="fas fa-plane-arrival text-muted me-2"></i>Destino</label>
                                         </div>
                                     </div>
+                                    {% if session.get('role') == 'company' %}
+                                    <div class="col-md-4 d-flex align-items-center px-3">
+                                        <div class="text-muted small">
+                                            <i class="fas fa-info-circle me-1"></i>Como empresa, puedes gestionar tus vuelos <a href="{{ url_for('flight.list_flights') }}" class="fw-bold">aquí</a>.
+                                        </div>
+                                    </div>
+                                    {% else %}
                                     <div class="col-md-2">
                                         <div class="form-floating">
                                             <input type="date" class="form-control" id="flightDate">
@@ -151,6 +187,7 @@
                                             <label>Vuelta</label>
                                         </div>
                                     </div>
+                                    {% endif %}
                                     <div class="col-md-2 d-grid">
                                         <button type="submit" class="btn btn-search h-100">Buscar</button>
                                     </div>
@@ -177,9 +214,15 @@
                                             <label>Salida</label>
                                         </div>
                                     </div>
+                                    {% if session.get('role') == 'company' %}
+                                    <div class="col-md-3 d-flex align-items-center justify-content-center">
+                                        <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline-primary w-100 py-3">Gestionar Mis Hoteles</a>
+                                    </div>
+                                    {% else %}
                                     <div class="col-md-2 d-grid">
                                         <button type="submit" class="btn btn-search h-100">Buscar</button>
                                     </div>
+                                    {% endif %}
                                 </form>
                             </div>
 
@@ -189,8 +232,11 @@
                                         <h5 class="mb-1"><i class="fas fa-anchor text-primary me-2"></i>Diseña tu travesía</h5>
                                         <p class="text-muted mb-0 small">Elige dónde subir y dónde bajar. Precios por tramos disponibles.</p>
                                     </div>
-                                    <div class="col-md-3 d-grid">
-                                        <a href="{{ url_for('cruise.list_cruises') }}" class="btn btn-info text-white fw-bold py-3">Ver Rutas</a>
+                                    <div class="col-md-3 d-grid gap-2">
+                                        <a href="{{ url_for('cruise.list_cruises') }}" class="btn btn-info text-white fw-bold">Ver Rutas</a>
+                                        {% if session.get('role') == 'company' %}
+                                        <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-outline-info btn-sm">Gestionar Mis Cruceros</a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -215,8 +261,11 @@
                                             <label>Destino</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 d-grid">
+                                    <div class="col-md-3 d-grid gap-2">
                                         <a href="{{ url_for('transport.list_transports') }}" class="btn btn-search d-flex align-items-center justify-content-center">Buscar Billete</a>
+                                        {% if session.get('role') == 'company' %}
+                                        <a href="{{ url_for('transport.my_transports') }}" class="btn btn-outline-warning btn-sm text-dark">Mis Rutas</a>
+                                        {% endif %}
                                     </div>
                                 </form>
                             </div>
