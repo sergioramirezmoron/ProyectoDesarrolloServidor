@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
-from models.BusTrain import BusTrain
+from models import BusTrain
 from models import db, Location, User
 
 transport_bp = Blueprint("transport", __name__, url_prefix="/transports")

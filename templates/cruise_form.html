@@ -1,83 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Crucero | TravelDream{% endblock %}
+
 {% block content %}
-<h1>Crear Crucero</h1>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-ship me-2"></i>Crear Nuevo Crucero</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <!-- Información General -->
+                        <h5 class="text-primary mb-3 border-bottom pb-2">Información General</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label for="idShip" class="form-label fw-bold">Barco</label>
+                                <select name="idShip" class="form-select" required>
+                                    <option value="" disabled selected>Seleccione un barco...</option>
+                                    {% for ship in ships %}
+                                    <option value="{{ ship.idShip }}">{{ ship.cruiseName }} (Capacidad: {{ ship.capacity }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="startDate" class="form-label fw-bold">Fecha de inicio</label>
+                                <input type="datetime-local" name="startDate" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endDate" class="form-label fw-bold">Fecha de fin</label>
+                                <input type="datetime-local" name="endDate" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="description" class="form-label fw-bold">Descripción</label>
+                                <textarea name="description" class="form-control" rows="3" placeholder="Descripción del viaje..."></textarea>
+                            </div>
+                        </div>
 
-<form method="post">
-    <fieldset>
-        <legend>Información General</legend>
-        <label for="idShip">Barco:</label>
-        <select name="idShip" required>
-            {% for ship in ships %}
-            <option value="{{ ship.idShip }}">{{ ship.cruiseName }} (Capacidad: {{ ship.capacity }})</option>
-            {% endfor %}
-        </select><br>
+                        <!-- Ruta de Paradas -->
+                        <h5 class="text-primary mb-3 border-bottom pb-2">Ruta de Paradas</h5>
+                        <p class="text-muted small mb-3"><i class="fas fa-info-circle me-1"></i>Defina el itinerario. Complete al menos las dos primeras paradas.</p>
+                        
+                        <div class="accordion mb-4" id="stopsAccordion">
+                            {% for i in range(1, 6) %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ i }}">
+                                    <button class="accordion-button {% if i > 2 %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ i }}" aria-expanded="{{ 'true' if i <= 2 else 'false' }}" aria-controls="collapse{{ i }}">
+                                        Parada {{ i }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ i }}" class="accordion-collapse collapse {% if i <= 2 %}show{% endif %}" aria-labelledby="heading{{ i }}">
+                                    <div class="accordion-body bg-light">
+                                        <div class="row g-3">
+                                            <div class="col-md-12">
+                                                <label class="form-label small">Ubicación</label>
+                                                <select name="stop_location_{{ i }}" class="form-select">
+                                                    <option value="">-- No incluir esta parada --</option>
+                                                    {% for location in locations %}
+                                                    <option value="{{ location.idLocation }}">{{ location.city }}, {{ location.country }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <input type="hidden" name="stop_order_{{ i }}" value="{{ i }}">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label small">Llegada</label>
+                                                <input name="stop_arrival_{{ i }}" type="datetime-local" class="form-control">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label small">Salida</label>
+                                                <input name="stop_departure_{{ i }}" type="datetime-local" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
 
-        <label for="startDate">Fecha de inicio:</label>
-        <input type="datetime-local" name="startDate" required><br>
+                        <!-- Segmentos de Precio -->
+                        <h5 class="text-primary mb-3 border-bottom pb-2">Precios por Trayecto</h5>
+                        <p class="text-muted small mb-3">Defina los precios entre paradas (Ej: De Parada 1 a Parada 2).</p>
 
-        <label for="endDate">Fecha de fin:</label>
-        <input type="datetime-local" name="endDate" required><br>
+                        <div class="row g-3 mb-4">
+                            {% for j in range(1, 5) %}
+                            <div class="col-md-6">
+                                <div class="card h-100 bg-light border-0">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-secondary">Segmento {{ j }}</h6>
+                                        <div class="row g-2">
+                                            <div class="col-4">
+                                                <input name="segment_origin_{{ j }}" type="number" class="form-control form-control-sm" min="1" max="5" placeholder="Orig. #">
+                                            </div>
+                                            <div class="col-4">
+                                                <input name="segment_dest_{{ j }}" type="number" class="form-control form-control-sm" min="1" max="5" placeholder="Dest. #">
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="input-group input-group-sm">
+                                                    <input name="segment_price_{{ j }}" type="number" class="form-control" step="0.01" min="0" placeholder="€">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
 
-        <label for="description">Descripción:</label>
-        <textarea name="description"></textarea>
-    </fieldset>
-
-    <hr>
-
-    <h3>Ruta de Paradas</h3>
-    <p><small>Complete al menos las primeras dos paradas.</small></p>
-    
-    {% for i in range(1, 6) %}
-    <fieldset style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px;">
-        <legend>Parada {{ i }}</legend>
-        
-        <label>Ubicación:
-            <select name="stop_location_{{ i }}">
-                <option value="">-- No incluir esta parada --</option>
-                {% for location in locations %}
-                <option value="{{ location.idLocation }}">{{ location.city }}, {{ location.country }}</option>
-                {% endfor %}
-            </select>
-        </label><br>
-
-        {# Campo oculto para stop_order_i que requiere tu backend #}
-        <input type="hidden" name="stop_order_{{ i }}" value="{{ i }}">
-
-        <label>Llegada: 
-            <input name="stop_arrival_{{ i }}" type="datetime-local">
-        </label>
-        <label>Salida: 
-            <input name="stop_departure_{{ i }}" type="datetime-local">
-        </label>
-    </fieldset>
-    {% endfor %}
-
-    <hr>
-
-    <h3>Segmentos de Precio</h3>
-    <p><small>Defina los tramos vendibles (Ej: De Parada 1 a Parada 2).</small></p>
-
-    {% for j in range(1, 5) %}
-    <fieldset style="border: 1px solid #ddd; margin-bottom: 10px; padding: 10px;">
-        <legend>Segmento {{ j }}</legend>
-        
-        <label>Parada Origen (Orden): 
-            <input name="segment_origin_{{ j }}" type="number" min="1" max="5" placeholder="Ej: 1">
-        </label>
-
-        <label>Parada Destino (Orden): 
-            <input name="segment_dest_{{ j }}" type="number" min="1" max="5" placeholder="Ej: 2">
-        </label>
-
-        <label>Precio (€): 
-            <input name="segment_price_{{ j }}" type="number" step="0.01" min="0">
-        </label>
-    </fieldset>
-    {% endfor %}
-
-    <div style="margin-top: 20px;">
-        <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px;">
-            Guardar Crucero Completo
-        </button>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-light me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>Guardar Crucero</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-</form>
+</div>
 {% endblock %}

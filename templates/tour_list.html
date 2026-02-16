@@ -1,31 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Tours Disponibles | TravelDream{% endblock %}
+
 {% block content %}
-<h1>Todos los Tours</h1>
-{% if user and user.role == 'company' %}
-    <a href="{{ url_for('tour.create_tour') }}">Crear Tour</a>
-    <a href="{{ url_for('tour.my_tours') }}">Mis Tours</a>
-{% endif %}
-<table border="1">
-    <thead>
-        <tr>
-            <th>Título</th>
-            <th>Descripción</th>
-            <th>Ubicación</th>
-            <th>Precio</th>
-            <th>Fecha de inicio</th>
-            <th>Fecha de fin</th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-map-marked-alt me-2 text-primary"></i>Tours y Actividades</h1>
+        {% if user and user.role == 'company' %}
+        <div>
+            <a href="{{ url_for('tour.create_tour') }}" class="btn btn-primary me-2">
+                <i class="fas fa-plus me-2"></i>Nuevo Tour
+            </a>
+            <a href="{{ url_for('tour.my_tours') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-list me-2"></i>Mis Tours
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-4">
         {% for tour in tours %}
-        <tr>
-            <td>{{ tour.title }}</td>
-            <td>{{ tour.description }}</td>
-            <td>{{ tour.location.city }}</td>
-            <td>{{ tour.price }} €</td>
-            <td>{{ tour.startDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
-            <td>{{ tour.endDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
-        </tr>
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-0">
+                {% if tour.image %}
+                <img src="{{ tour.image }}" class="card-img-top" alt="{{ tour.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-image fa-3x opacity-50"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">{{ tour.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ tour.location.city }}</h6>
+                    <p class="card-text text-truncate">{{ tour.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="text-primary fw-bold fs-5">{{ tour.price }}€</span>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt me-1"></i>{{ tour.startDate.strftime('%d/%m/%Y') }}
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0 pb-3">
+                    <a href="#" class="btn btn-outline-primary w-100">Ver Detalles</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-map-signs fa-3x text-muted mb-3 opacity-50"></i>
+            <p class="text-muted">No hay tours disponibles en este momento.</p>
+        </div>
         {% endfor %}
-    </tbody>
-</table>
+    </div>
+</div>
 {% endblock %}

@@ -1,24 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Cruceros | TravelDream{% endblock %}
+
 {% block content %}
-<h1>My Cruises</h1>
-<a href="{{ url_for('cruise.create_cruise') }}">Create New Cruise</a>
-<table border="1">
-    <thead>
-        <tr>
-            <th>Ship</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for cruise in cruises %}
-        <tr>
-            <td>{{ cruise.ship.cruiseName if cruise.ship else '-' }}</td>
-            <td>{{ cruise.startDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
-            <td>{{ cruise.endDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
-            <td>{{ cruise.description or '-' }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mis Cruceros</h1>
+        <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Crear Nuevo Crucero
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-3 px-4">Barco</th>
+                            <th class="py-3">Fecha Inicio</th>
+                            <th class="py-3">Fecha Fin</th>
+                            <th class="py-3">Descripción</th>
+                            <th class="py-3 text-end px-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cruise in cruises %}
+                        <tr>
+                            <td class="px-4 fw-bold text-primary">{{ cruise.ship.cruiseName if cruise.ship else '-' }}</td>
+                            <td>{{ cruise.startDate.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>{{ cruise.endDate.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>{{ cruise.description or '-' }}</td>
+                            <td class="text-end px-4">
+                                <a href="{{ url_for('cruise.cruise_detail', idCruise=cruise.idCruise) }}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">No has creado ningún crucero todavía.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

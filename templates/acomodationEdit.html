@@ -1,67 +1,80 @@
 {% extends 'base.html' %}
 
-{% block title %}Edit Property - HorizonStays{% endblock %}
+{% block title %}Editar Propiedad | TravelDream{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 800px;">
-    <div class="card">
-        <div class="card-body">
-            <h1 style="margin-bottom: var(--spacing-lg);">Edit Property</h1>
+<div class="container py-5" style="max-width: 800px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0"><i class="fas fa-edit me-2"></i>Editar Propiedad</h1>
+        </div>
+        <div class="card-body p-4">
 
             <form action="{{ url_for('aco.edit', id=accommodation.id) }}" method="POST">
-                <div class="grid grid-cols-2" style="gap: var(--spacing-md); grid-template-columns: 1fr 1fr;">
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label for="name" class="form-label">Property Name</label>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="name" class="form-label fw-bold">Nombre de la Propiedad</label>
                         <input type="text" id="name" name="name" class="form-control" value="{{ accommodation.name }}"
                             required>
                     </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label for="address" class="form-label">Address</label>
-                        <input type="text" id="address" name="address" class="form-control"
-                            value="{{ accommodation.address }}" required>
+                    <div class="col-12">
+                        <label for="address" class="form-label fw-bold">Dirección Completa</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            <input type="text" id="address" name="address" class="form-control"
+                                value="{{ accommodation.address }}" required>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="type" class="form-label">Property Type</label>
-                        <select id="type" name="type" class="form-control">
+                    <div class="col-md-6">
+                        <label for="type" class="form-label fw-bold">Tipo de Propiedad</label>
+                        <select id="type" name="type" class="form-select">
                             <option value="hotel" {% if accommodation.type=='hotel' %}selected{% endif %}>Hotel</option>
-                            <option value="house" {% if accommodation.type=='house' %}selected{% endif %}>House /
-                                Apartment</option>
+                            <option value="house" {% if accommodation.type=='house' %}selected{% endif %}>Casa / Apartamento</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="stars_quality" class="form-label">Quality (Stars)</label>
-                        <select id="stars_quality" name="stars_quality" class="form-control">
+                    <div class="col-md-6">
+                        <label for="stars_quality" class="form-label fw-bold">Calidad (Estrellas)</label>
+                        <select id="stars_quality" name="stars_quality" class="form-select">
                             {% for i in range(1, 6) %}
-                            <option value="{{ i }}" {% if accommodation.stars_quality==i %}selected{% endif %}>{{ i }}
-                                Star{{ 's' if i > 1 else '' }}</option>
+                            <option value="{{ i }}" {% if accommodation.stars_quality==i %}selected{% endif %}>
+                                {{ i }} Estrella{{ 's' if i > 1 else '' }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="phoneNumber" class="form-label">Phone Number</label>
-                        <input type="text" id="phoneNumber" name="phoneNumber" class="form-control"
-                            value="{{ accommodation.phoneNumber }}">
+                    <div class="col-md-6">
+                        <label for="phoneNumber" class="form-label fw-bold">Teléfono</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            <input type="text" id="phoneNumber" name="phoneNumber" class="form-control"
+                                value="{{ accommodation.phoneNumber }}">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="web" class="form-label">Website (Optional)</label>
-                        <input type="text" id="web" name="web" class="form-control" value="{{ accommodation.web }}">
+                    <div class="col-md-6">
+                        <label for="web" class="form-label fw-bold">Sitio Web (Opcional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                            <input type="text" id="web" name="web" class="form-control" value="{{ accommodation.web }}">
+                        </div>
                     </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label for="description" class="form-label">Description</label>
+                    <div class="col-12">
+                        <label for="description" class="form-label fw-bold">Descripción</label>
                         <textarea id="description" name="description" class="form-control" rows="5"
                             required>{{ accommodation.description }}</textarea>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center" style="margin-top: var(--spacing-lg);">
-                    <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Update Property</button>
+                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                    <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Actualizar Propiedad
+                    </button>
                 </div>
             </form>
         </div>

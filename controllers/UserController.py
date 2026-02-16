@@ -10,7 +10,7 @@ class UserController:
     @userBp.route('/login', methods=['GET', 'POST'])
     def login():
         if 'userId' in session:
-            return redirect(url_for('index'))
+            return redirect('/')
 
         if request.method == 'POST':
             email = request.form.get('email')
@@ -21,7 +21,7 @@ class UserController:
                 session['email'] = user.email
                 session['userId'] = user.idUser
                 session['role'] = user.role 
-                return redirect(url_for('index'))
+                return redirect('/')
             
             return render_template('login.html', error="Invalid email or password")
                 
@@ -55,3 +55,12 @@ class UserController:
     def logout():
         session.clear()
         return redirect(url_for('userBp.login'))
+
+    @staticmethod
+    @userBp.route('/company/dashboard')
+    def company_dashboard():
+        if 'userId' not in session or session.get('role') != 'company':
+            return redirect(url_for('userBp.login'))
+        
+        user = User.query.get(session['userId'])
+        return render_template('company_dashboard.html', user=user)

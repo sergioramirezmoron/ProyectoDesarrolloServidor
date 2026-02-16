@@ -1,24 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Tour | TravelDream{% endblock %}
+
 {% block content %}
-<h1>Create Tour</h1>
-<form method="post">
-    <label for="title">Title:</label>
-    <input type="text" name="title" required><br>
-    <label for="description">Description:</label>
-    <textarea name="description" required></textarea><br>
-    <label for="image">Image URL:</label>
-    <input type="text" name="image"><br>
-    <label for="price">Price:</label>
-    <input type="number" name="price" step="0.01" required><br>
-    <label for="startDate">Start Date:</label>
-    <input type="datetime-local" name="startDate" required><br>
-    <label for="endDate">End Date:</label>
-    <input type="datetime-local" name="endDate" required><br>
-    <label for="idLocation">Location:</label>
-    <select name="idLocation" required>
-        {% for loc in locations %}
-        <option value="{{ loc.idLocation }}">{{ loc.city }}</option>
-        {% endfor %}
-    </select><br>
-    <button type="submit">Create</button>
-</form>
+<div class="container py-5" style="max-width: 800px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0"><i class="fas fa-map-marked-alt me-2"></i>Crear Nuevo Tour</h1>
+        </div>
+        <div class="card-body p-4">
+
+            <form method="post">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="title" class="form-label fw-bold">Título del Tour</label>
+                        <input type="text" name="title" class="form-control" required
+                            placeholder="Ej: Aventura en los Alpes">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="idLocation" class="form-label fw-bold">Ubicación</label>
+                        <select name="idLocation" class="form-select" required>
+                            <option value="" disabled selected>Seleccione ubicación...</option>
+                            {% for loc in locations %}
+                            <option value="{{ loc.idLocation }}">{{ loc.city }} ({{ loc.country }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="price" class="form-label fw-bold">Precio (€)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" name="price" step="0.01" class="form-control" placeholder="0.00" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label fw-bold">Fecha de Inicio</label>
+                        <input type="datetime-local" name="startDate" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label fw-bold">Fecha de Fin</label>
+                        <input type="datetime-local" name="endDate" class="form-control" required>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="image" class="form-label fw-bold">URL de la Imagen (Opcional)</label>
+                        <input type="text" name="image" class="form-control" placeholder="https://ejemplo.com/imagen.jpg">
+                    </div>
+
+                    <div class="col-12">
+                        <label for="description" class="form-label fw-bold">Descripción</label>
+                        <textarea name="description" class="form-control" rows="5" required
+                            placeholder="Describa el itinerario y las actividades..."></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                    <a href="{{ url_for('tour.my_tours') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Guardar Tour
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

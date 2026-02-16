@@ -89,7 +89,8 @@ def create():
 
         db.session.add(accommodation)
         db.session.commit()
-        return redirect(url_for('aco.home'))
+        flash('Propiedad creada exitosamente', 'success')
+        return redirect(url_for('aco.manage_hotels'))
     
     return render_template('acomodationCreate.html')
 
@@ -158,6 +159,8 @@ def edit(id):
 
         db.session.commit()
         return redirect(url_for('aco.home'))
+        
+    return render_template('acomodationEdit.html', accommodation=accommodation)
 
 # =========================
 # MANAGE ROOMS
@@ -206,7 +209,7 @@ def delete_room(id):
     if "user_id" not in session:
         return redirect(url_for('login'))
         
-    from equipo3.models.Room import Room
+    # Corrected import
     room = Room.query.get_or_404(id)
     accommodation = Accommodation.query.get(room.idAccommodation)
     

@@ -70,38 +70,39 @@
             </form>
         </div>
 
-        <div class="grid grid-cols-3">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for room in accommodation.rooms %}
-            <div class="card">
-                <img src="https://placehold.co/400x250?text=Room+{{ room.roomNumber }}" alt="Room" class="card-img"
-                    style="height: 200px;">
-                <div class="card-body">
-                    <h3 class="card-title">{{ room.type }}</h3>
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: var(--spacing-sm);">
-                        <span class="badge"><i class="fa-solid fa-user"></i> {{ room.capacity }} Guests</span>
-                        <span class="badge"><i class="fa-solid fa-door-open"></i> No. {{ room.roomNumber }}</span>
-                    </div>
-
-                    <div class="flex justify-between items-center" style="margin-top: var(--spacing-md);">
-                        <div>
-                            <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${{
-                                room.priceNight }}</span>
-                            <span class="text-muted" style="font-size: 0.875rem;">/ night</span>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="https://placehold.co/400x250?text=Room+{{ room.roomNumber }}" alt="Room" class="card-img-top"
+                        style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h3 class="card-title h5">{{ room.type }}</h3>
+                        <div class="d-flex gap-2 mb-3">
+                            <span class="badge bg-secondary"><i class="fa-solid fa-user"></i> {{ room.capacity }} Guests</span>
+                            <span class="badge bg-secondary"><i class="fa-solid fa-door-open"></i> No. {{ room.roomNumber }}</span>
                         </div>
 
-                        {% if g.user %}
-                        <button onclick="openBookingModal('{{ room.id }}', '{{ room.type }}', '{{ room.priceNight }}')"
-                            class="btn btn-primary">
-                            Book Now
-                        </button>
-                        {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-outline">Login to Book</a>
-                        {% endif %}
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="fw-bold text-primary fs-5">${{ room.priceNight }}</span>
+                                <span class="text-muted small">/ night</span>
+                            </div>
+
+                            {% if g.user or session.get('userId') %}
+                            <button onclick="openBookingModal('{{ room.id }}', '{{ room.type }}', '{{ room.priceNight }}')"
+                                class="btn btn-primary">
+                                Book Now
+                            </button>
+                            {% else %}
+                            <a href="{{ url_for('userBp.login') }}" class="btn btn-outline-primary">Login to Book</a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
             {% else %}
-            <div style="grid-column: 1 / -1; text-align: center; padding: var(--spacing-xl);">
+            <div class="col-12 text-center py-5">
                 <p class="text-muted">No rooms available for this accommodation.</p>
             </div>
             {% endfor %}

@@ -1,42 +1,54 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Reseñas del Alojamiento</title>
-    <style>
-        table { border-collapse: collapse; width: 80%; margin: 20px auto; }
-        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
-        th { background-color: #f2f2f2; }
-    </style>
-</head>
-<body>
-    <h1 style="text-align:center;">Reseñas del Alojamiento</h1>
+{% extends 'base.html' %}
 
-    {% if reviews %}
-        <table>
-            <thead>
-                <tr>
-                    <th>ID Reseña</th>
-                    <th>ID Usuario</th>
-                    <th>Calificación</th>
-                    <th>Comentario</th>
-                    <th>Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in reviews %}
-                <tr>
-                    <td>{{ r.id }}</td>
-                    <td>{{ r.idUser }}</td>
-                    <td>{{ r.ratingStars }} ⭐</td>
-                    <td>{{ r.reviewComment }}</td>
-                    <td>{{ r.createdAt.strftime('%Y-%m-%d %H:%M') }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p style="text-align:center;">No hay reseñas para este alojamiento.</p>
-    {% endif %}
-</body>
-</html>
+{% block title %}Reseñas del Alojamiento | TravelDream{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4 text-center"><i class="fas fa-comments me-2 text-primary"></i>Reseñas del Alojamiento</h1>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            {% if reviews %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-3 px-4">ID Reseña</th>
+                            <th class="py-3">Usuario</th>
+                            <th class="py-3">Calificación</th>
+                            <th class="py-3" style="width: 40%;">Comentario</th>
+                            <th class="py-3 text-end px-4">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in reviews %}
+                        <tr>
+                            <td class="px-4 text-secondary">#{{ r.id }}</td>
+                            <td class="fw-bold"><i class="fas fa-user-circle me-1 text-secondary"></i>User {{ r.idUser }}</td>
+                            <td>
+                                <span class="text-warning">
+                                    {% for i in range(r.ratingStars) %}<i class="fas fa-star"></i>{% endfor %}
+                                    {% for i in range(5 - r.ratingStars) %}<i class="far fa-star"></i>{% endfor %}
+                                </span>
+                            </td>
+                            <td class="text-muted fst-italic">"{{ r.reviewComment }}"</td>
+                            <td class="text-end px-4 text-muted small">{{ r.createdAt.strftime('%d/%m/%Y %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="far fa-comment-dots fa-3x text-muted mb-3 opacity-50"></i>
+                <p class="text-muted mb-0">No hay reseñas para este alojamiento aún.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-4 text-center">
+        <a href="javascript:history.back()" class="btn btn-outline-primary"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+    </div>
+</div>
+{% endblock %}

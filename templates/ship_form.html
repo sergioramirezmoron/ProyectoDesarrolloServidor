@@ -1,10 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Barco | TravelDream{% endblock %}
+
 {% block content %}
-<h1>Create Ship</h1>
-<form method="post">
-    <label for="cruiseName">Name:</label>
-    <input type="text" name="cruiseName" required><br>
-    <label for="capacity">Capacity:</label>
-    <input type="number" name="capacity" required><br>
-    <button type="submit">Create</button>
-</form>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="mb-0 h5"><i class="fas fa-ship me-2"></i>Registrar Nuevo Barco</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="cruiseName" class="form-label fw-bold">Nombre del Barco</label>
+                            <input type="text" name="cruiseName" class="form-control" placeholder="Ej: Titanic II" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="capacity" class="form-label fw-bold">Capacidad de Pasajeros</label>
+                            <input type="number" name="capacity" class="form-control" min="1" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Registrar Barco</button>
+                            <a href="{{ url_for('ship.my_ships') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

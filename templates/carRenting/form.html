@@ -1,84 +1,88 @@
-{% extends "base.html" %} {% block title %}Rent form{% endblock %} {% block
-content %}
-<div class="container">
-  {% if not current_user.is_authenticated or current_user.role != "ADMIN" %}
-  <p>You do not have permission to access this page.</p>
-  <a href="{{ url_for('carRenting.list_rents') }}">Back</a>
-  {% else %}
+{% extends "base.html" %}
 
-  <h1>{% if rent %}Edit{% else %}Create{% endif %} Rent</h1>
+{% block title %}{% if rent %}Editar{% else %}Crear{% endif %} Alquiler | TravelDream{% endblock %}
 
-  <!-- Flash messages -->
-  {% with messages = get_flashed_messages(with_categories=true) %} {% if
-  messages %}
-  <ul>
-    {% for category, message in messages %}
-    <li><strong>{{ category }}:</strong> {{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %} {% endwith %}
+{% block content %}
+<div class="container py-5" style="max-width: 800px;">
+    {% if not current_user.is_authenticated or current_user.role != "ADMIN" %}
+    <div class="alert alert-danger shadow-sm" role="alert">
+        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Acceso Denegado</h4>
+        <p>No tienes permiso para acceder a esta página.</p>
+        <hr>
+        <a href="{{ url_for('carRenting.list_rents') }}" class="btn btn-outline-danger">Volver al listado</a>
+    </div>
+    {% else %}
 
-  <form
-    method="post"
-    action="{% if rent %}
-                {{ url_for('carRenting.update_rent', idRent=rent.idRent) }}
-              {% else %}
-                {{ url_for('carRenting.create_rent') }}
-              {% endif %}"
-  >
-    <label>brand</label><br />
-    <input
-      name="brand"
-      value="{{ rent.brand if rent else '' }}"
-      required
-    /><br /><br />
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0"><i class="fas fa-car me-2"></i>{% if rent %}Editar Alquiler #{{ rent.idRent }}{% else %}Registrar Nuevo Alquiler{% endif %}</h1>
+        </div>
+        <div class="card-body p-4">
 
-    <label>model</label><br />
-    <input
-      name="model"
-      value="{{ rent.model if rent else '' }}"
-      required
-    /><br /><br />
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
 
-    <label>maxPeople</label><br />
-    <input
-      type="number"
-      name="maxPeople"
-      min="1"
-      value="{{ rent.maxPeople if rent else 1 }}"
-      required
-    /><br /><br />
+            <form method="post" action="{% if rent %}{{ url_for('carRenting.update_rent', idRent=rent.idRent) }}{% else %}{{ url_for('carRenting.create_rent') }}{% endif %}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="brand" class="form-label fw-bold">Marca</label>
+                        <input type="text" id="brand" name="brand" class="form-control" value="{{ rent.brand if rent else '' }}" required placeholder="Ej: Toyota">
+                    </div>
 
-    <label>startDate (yyyy/mm/dd hh:mm:ss)</label><br />
-    <input
-      name="startDate"
-      value="{{ rent.startDate.strftime('%Y/%m/%d %H:%M:%S') if rent else '' }}"
-      required
-    /><br /><br />
+                    <div class="col-md-6">
+                        <label for="model" class="form-label fw-bold">Modelo</label>
+                        <input type="text" id="model" name="model" class="form-control" value="{{ rent.model if rent else '' }}" required placeholder="Ej: Corolla">
+                    </div>
 
-    <label>endDate (yyyy/mm/dd hh:mm:ss)</label><br />
-    <input
-      name="endDate"
-      value="{{ rent.endDate.strftime('%Y/%m/%d %H:%M:%S') if rent else '' }}"
-      required
-    /><br /><br />
+                    <div class="col-md-4">
+                        <label for="maxPeople" class="form-label fw-bold">Capacidad (Personas)</label>
+                        <input type="number" id="maxPeople" name="maxPeople" class="form-control" min="1" value="{{ rent.maxPeople if rent else 1 }}" required>
+                    </div>
 
-    <label>price</label><br />
-    <input
-      type="number"
-      step="0.01"
-      name="price"
-      value="{{ rent.price if rent else '' }}"
-      required
-    /><br /><br />
+                    <div class="col-md-8">
+                        <label for="price" class="form-label fw-bold">Precio (€)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="0.01" id="price" name="price" class="form-control" value="{{ rent.price if rent else '' }}" required placeholder="0.00">
+                        </div>
+                    </div>
 
-    <label>image</label><br />
-    <input name="image" value="{{ rent.image if rent else '' }}" /><br /><br />
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label fw-bold">Fecha Inicio</label>
+                        <input type="text" id="startDate" name="startDate" class="form-control" value="{{ rent.startDate.strftime('%Y/%m/%d %H:%M:%S') if rent else '' }}" required placeholder="YYYY/MM/DD HH:MM:SS">
+                        <div class="form-text">Formato: YYYY/MM/DD HH:MM:SS</div>
+                    </div>
 
-    <button type="submit">Save</button>
-    <a href="{{ url_for('carRenting.list_rents') }}">Cancel</a>
-  </form>
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label fw-bold">Fecha Fin</label>
+                        <input type="text" id="endDate" name="endDate" class="form-control" value="{{ rent.endDate.strftime('%Y/%m/%d %H:%M:%S') if rent else '' }}" required placeholder="YYYY/MM/DD HH:MM:SS">
+                        <div class="form-text">Formato: YYYY/MM/DD HH:MM:SS</div>
+                    </div>
 
-  {% endif %}
+                    <div class="col-12">
+                        <label for="image" class="form-label fw-bold">URL Imagen</label>
+                        <input type="text" id="image" name="image" class="form-control" value="{{ rent.image if rent else '' }}" placeholder="https://ejemplo.com/coche.jpg">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                    <a href="{{ url_for('carRenting.list_rents') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>{% if rent %}Guardar Cambios{% else %}Crear Alquiler{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

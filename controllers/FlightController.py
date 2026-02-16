@@ -1,90 +1,46 @@
-from models.repositories.FlightRepository import FlightRepository
-from models import Flight
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from models import db, Flight, User
 from datetime import datetime
 
-class FlightController:
-    """
-    Flight Controller
-    Handles business logic and user requests for Flights.
-    Interacts with the Repository and Session.
-    """
-    def __init__(self):
-        self.repository = FlightRepository()
+flight_bp = Blueprint('flight', __name__, url_prefix='/flights')
 
-    def index(self, user_role='user'):
-        """Encapsulates logic to list all flights."""
-        flights = self.repository.getAll()
-        return flights, user_role
+@flight_bp.route('/', methods=['GET'])
+def list_flights():
+    flights = Flight.query.all()
+    user_id = session.get('userId')
+    user = User.query.get(user_id) if user_id else None
+    return render_template('flight/index.html', flights=flights, user=user)
 
-    def book_flight(self, id, idClient):
-        """
-        Handles the booking of a flight.
-        """
-        flight = self.repository.getById(id)
-        if flight:
-            # Logic to create booking would go here
-            print(f"Flight {flight.id} booked for client {idClient}")
-            return True
-        return False
-
-    def create(self, data, idCompany):
-        """
-        Creates a new Flight from form data.
-        """
-        flight = Flight(
-            id=None,
-            aeroline=data.get('aeroline'),
-            startLocation=int(data.get('startLocation')),
-            endLocation=int(data.get('endLocation')),
-            startDate=data.get('startDate'),
-            endDate=data.get('endDate'),
-            price=float(data.get('price')),
-            maxOccupants=int(data.get('maxOccupants')),
-            idCompany=idCompany
-        )
-        self.repository.save(flight)
-        return flight
-
-    def edit(self, id, data, requester_role, requester_id):
-        """
-        Updates an existing Flight.
-        Checks if requester is Admin or the Owner of the flight.
-        """
-        flight = self.repository.getById(id)
-        if not flight:
-            return None
-
-        # Permission Check
-        if requester_role != 'admin' and flight.idCompany != requester_id:
-            return False # Unauthorized
-
-        flight.aeroline = data.get('aeroline')
-        flight.startLocation = int(data.get('startLocation'))
-        flight.endLocation = int(data.get('endLocation'))
-        flight.startDate = data.get('startDate')
-        flight.endDate = data.get('endDate')
-        flight.price = float(data.get('price'))
-        flight.maxOccupants = int(data.get('maxOccupants'))
+@flight_bp.route('/create', methods=['GET', 'POST'])
+def create_flight():
+    user_id = session.get('userId')
+    if not user_id:
+        flash("Debes iniciar sesión", "warning")
+        return redirect(url_for('userBp.login'))
         
-        self.repository.save(flight)
-        return flight
+    user = User.query.get(user_id)
+    if user.role != 'company' and user.role != 'admin':
+        flash("No tienes permisos", "danger")
+        return redirect(url_for('flight.list_flights'))
 
-    def delete(self, id, requester_role, requester_id):
-        """
-        Deletes a flight by ID.
-        Checks if requester is Admin or the Owner.
-        """
-        flight = self.repository.getById(id)
-        if not flight:
-            return False
+    if request.method == 'POST':
+        try:
+            flight = Flight(
+                aeroline=request.form.get('aeroline'),
+                startLocation=int(request.form.get('startLocation')),
+                endLocation=int(request.form.get('endLocation')),
+                startDate=datetime.strptime(request.form.get('startDate'), '%Y-%m-%dT%H:%M'),
+                endDate=datetime.strptime(request.form.get('endDate'), '%Y-%m-%dT%H:%M'),
+                price=float(request.form.get('price')),
+                maxOccupants=int(request.form.get('maxOccupants')),
+                idCompany=user.idUser
+            )
+            db.session.add(flight)
+            db.session.commit()
+            flash("Vuelo creado correctamente", "success")
+            return redirect(url_for('flight.list_flights'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error al crear vuelo: {str(e)}", "danger")
 
-        # Permission Check
-        if requester_role != 'admin' and flight.idCompany != requester_id:
-            return False # Unauthorized
-
-        self.repository.delete(id)
-        return True
-    
-    def get_flight(self, id):
-        """Helper to get a single flight for editing."""
-        return self.repository.getById(id)
+    return render_template('flight/form.html', user=user)

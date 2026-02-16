@@ -1,7 +1,48 @@
-<form method="POST" action="/accommodation/review">
-    <input type="number" name="idUser" placeholder="ID Usuario" required>
-    <input type="number" name="idAccommodation" placeholder="ID Alojamiento" required>
-    <input type="number" name="ratingStars" min="1" max="5" placeholder="Estrellas" required>
-    <textarea name="reviewComment" placeholder="Comentario" required></textarea>
-    <button type="submit">Enviar Reseña</button>
-</form>
+{% extends 'base.html' %}
+
+{% block title %}Escribir Reseña | TravelDream{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 600px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0"><i class="fas fa-star me-2"></i>Escribir Reseña</h1>
+        </div>
+        <div class="card-body p-4">
+
+            <form method="POST" action="/accommodation/review">
+                <!-- Hidden inputs for IDs if they are passed dynamically, otherwise kept as inputs for now based on original -->
+                <div class="mb-3">
+                    <label for="idUser" class="form-label fw-bold">ID Usuario</label>
+                    <input type="number" id="idUser" name="idUser" class="form-control" placeholder="ID Usuario" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="idAccommodation" class="form-label fw-bold">ID Alojamiento</label>
+                    <input type="number" id="idAccommodation" name="idAccommodation" class="form-control" placeholder="ID Alojamiento" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ratingStars" class="form-label fw-bold">Calificación (Estrellas)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-star text-warning"></i></span>
+                        <input type="number" id="ratingStars" name="ratingStars" class="form-control" min="1" max="5" placeholder="1-5" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="reviewComment" class="form-label fw-bold">Tu Comentario</label>
+                    <textarea id="reviewComment" name="reviewComment" class="form-control" rows="4" placeholder="Comparte tu experiencia..." required></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar Reseña
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

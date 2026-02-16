@@ -1,67 +1,80 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Property - HorizonStays{% endblock %}
+{% block title %}Añadir Propiedad | TravelDream{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 800px;">
-    <div class="card">
-        <div class="card-body">
-            <h1 style="margin-bottom: var(--spacing-lg);">Add New Property</h1>
+<div class="container py-5" style="max-width: 800px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0"><i class="fas fa-hotel me-2"></i>Añadir Nueva Propiedad</h1>
+        </div>
+        <div class="card-body p-4">
 
             <form action="{{ url_for('aco.create') }}" method="POST">
-                <div class="grid grid-cols-2" style="gap: var(--spacing-md); grid-template-columns: 1fr 1fr;">
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label for="name" class="form-label">Property Name</label>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="name" class="form-label fw-bold">Nombre de la Propiedad</label>
                         <input type="text" id="name" name="name" class="form-control" required
-                            placeholder="e.g. Ocean View Resort">
+                            placeholder="Ej: Ocean View Resort">
                     </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label for="address" class="form-label">Address</label>
-                        <input type="text" id="address" name="address" class="form-control" required
-                            placeholder="Full address">
+                    <div class="col-12">
+                        <label for="address" class="form-label fw-bold">Dirección Completa</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            <input type="text" id="address" name="address" class="form-control" required
+                                placeholder="Calle, Número, Ciudad, País">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="type" class="form-label">Property Type</label>
-                        <select id="type" name="type" class="form-control">
+                    <div class="col-md-6">
+                        <label for="type" class="form-label fw-bold">Tipo de Propiedad</label>
+                        <select id="type" name="type" class="form-select">
                             <option value="hotel">Hotel</option>
-                            <option value="house">House / Apartment</option>
+                            <option value="house">Casa / Apartamento</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="stars_quality" class="form-label">Quality (Stars)</label>
-                        <select id="stars_quality" name="stars_quality" class="form-control">
-                            <option value="1">1 Star</option>
-                            <option value="2">2 Stars</option>
-                            <option value="3">3 Stars</option>
-                            <option value="4">4 Stars</option>
-                            <option value="5" selected>5 Stars</option>
+                    <div class="col-md-6">
+                        <label for="stars_quality" class="form-label fw-bold">Calidad (Estrellas)</label>
+                        <select id="stars_quality" name="stars_quality" class="form-select">
+                            <option value="1">1 Estrella</option>
+                            <option value="2">2 Estrellas</option>
+                            <option value="3">3 Estrellas</option>
+                            <option value="4">4 Estrellas</option>
+                            <option value="5" selected>5 Estrellas</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="phoneNumber" class="form-label">Phone Number</label>
-                        <input type="text" id="phoneNumber" name="phoneNumber" class="form-control"
-                            placeholder="+1 234 567 890">
+                    <div class="col-md-6">
+                        <label for="phoneNumber" class="form-label fw-bold">Teléfono</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            <input type="text" id="phoneNumber" name="phoneNumber" class="form-control"
+                                placeholder="+1 234 567 890">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="web" class="form-label">Website (Optional)</label>
-                        <input type="text" id="web" name="web" class="form-control" placeholder="https://example.com">
+                    <div class="col-md-6">
+                        <label for="web" class="form-label fw-bold">Sitio Web (Opcional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                            <input type="text" id="web" name="web" class="form-control" placeholder="https://ejemplo.com">
+                        </div>
                     </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label for="description" class="form-label">Description</label>
+                    <div class="col-12">
+                        <label for="description" class="form-label fw-bold">Descripción</label>
                         <textarea id="description" name="description" class="form-control" rows="5" required
-                            placeholder="Describe your property..."></textarea>
+                            placeholder="Describa su propiedad, servicios, entorno..."></textarea>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center" style="margin-top: var(--spacing-lg);">
-                    <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Create Property</button>
+                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                    <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Crear Propiedad
+                    </button>
                 </div>
             </form>
         </div>

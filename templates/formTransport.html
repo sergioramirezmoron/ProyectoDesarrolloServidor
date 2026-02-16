@@ -1,29 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Transporte | TravelDream{% endblock %}
+
 {% block content %}
-<h1>Create Bus/Train</h1>
-<form method="post">
-    <label for="type">Type:</label>
-    <select name="type" required>
-        <option value="bus">Bus</option>
-        <option value="train">Train</option>
-    </select><br>
-    <label for="idLocationStart">Origin:</label>
-    <select name="idLocationStart" required>
-        {% for loc in locations %}
-        <option value="{{ loc.idLocation }}">{{ loc.city }}</option>
-        {% endfor %}
-    </select><br>
-    <label for="idLocationEnd">Destination:</label>
-    <select name="idLocationEnd" required>
-        {% for loc in locations %}
-        <option value="{{ loc.idLocation }}">{{ loc.city }}</option>
-        {% endfor %}
-    </select><br>
-    <label for="startDate">Start Date:</label>
-    <input type="datetime-local" name="startDate" required><br>
-    <label for="endDate">End Date:</label>
-    <input type="datetime-local" name="endDate" required><br>
-    <label for="price">Price:</label>
-    <input type="number" name="price" step="0.01" required><br>
-    <button type="submit">Create</button>
-</form>
+<div class="container py-5" style="max-width: 800px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0"><i class="fas fa-bus me-2"></i>Registrar Transporte (Bus/Tren)</h1>
+        </div>
+        <div class="card-body p-4">
+
+            <form method="post">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label for="type" class="form-label fw-bold">Tipo de Transporte</label>
+                        <select name="type" class="form-select" required>
+                            <option value="bus">Autobús</option>
+                            <option value="train">Tren</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="idLocationStart" class="form-label fw-bold">Origen</label>
+                        <select name="idLocationStart" class="form-select" required>
+                            <option value="" disabled selected>Seleccione origen...</option>
+                            {% for loc in locations %}
+                            <option value="{{ loc.idLocation }}">{{ loc.city }} ({{ loc.country }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="idLocationEnd" class="form-label fw-bold">Destino</label>
+                        <select name="idLocationEnd" class="form-select" required>
+                            <option value="" disabled selected>Seleccione destino...</option>
+                            {% for loc in locations %}
+                            <option value="{{ loc.idLocation }}">{{ loc.city }} ({{ loc.country }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label fw-bold">Fecha/Hora Salida</label>
+                        <input type="datetime-local" name="startDate" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label fw-bold">Fecha/Hora Llegada</label>
+                        <input type="datetime-local" name="endDate" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="price" class="form-label fw-bold">Precio (€)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" name="price" step="0.01" class="form-control" placeholder="0.00" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                    <a href="{{ url_for('transport.my_transports') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Guardar Transporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

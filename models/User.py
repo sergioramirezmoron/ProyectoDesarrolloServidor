@@ -7,7 +7,16 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.Enum('user', 'admin', 'company'), default='user', nullable=False)
+    
+    # Relaciones existentes
     accommodations = db.relationship('Accommodation', back_populates='owner')
+    bookings = db.relationship('AccommodationBookingLine', back_populates='user')
+    
+    # --- AÑADE ESTA LÍNEA AQUÍ ---
+    reviews = db.relationship('Review', back_populates='user')
+    # -----------------------------
+
+    # ... resto de tus métodos (@property, toDict, etc.)
 
     @property
     def isAdmin(self):

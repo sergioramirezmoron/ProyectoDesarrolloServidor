@@ -15,6 +15,8 @@ class CruiseRoute(db.Model):
     idEndLocation = db.Column(db.Integer, db.ForeignKey("location.idLocation"), nullable=False)
     
     description = db.Column(db.String(255), nullable=False)
+    
+    stops = db.relationship("CruiseStops", back_populates="cruiseRoute", cascade="all, delete-orphan")
 
     def __init__(self, idCruise, startDate, endDate, idStartLocation, idEndLocation, description):
         self.idCruise = idCruise

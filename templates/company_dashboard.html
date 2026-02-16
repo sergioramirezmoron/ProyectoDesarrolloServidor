@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Empresa | TravelDream{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h1 class="fw-bold text-secondary">Panel de Gestión</h1>
+            <p class="text-muted">Bienvenido, {{ user.name }}. Aquí puedes gestionar todos tus servicios.</p>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">Cuenta de Empresa</span>
+        </div>
+    </div>
+
+    <!-- Stats Summary (Optional/Placeholder) -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-light">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-white p-3 rounded-circle me-3 text-primary shadow-sm">
+                        <i class="fas fa-calendar-check fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small text-uppercase fw-bold">Reservas Activas</h6>
+                        <h3 class="fw-bold mb-0">-</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Add more stats here if backend supports it -->
+    </div>
+
+    <h4 class="fw-bold text-secondary mb-3">Mis Servicios</h4>
+    <div class="row g-4">
+        
+        <!-- Alojamientos -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-card transition-all">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-primary">
+                        <i class="fas fa-hotel fa-3x"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Alojamientos</h5>
+                    <p class="card-text text-muted small">Gestiona tus hoteles, apartamentos y habitaciones disponibles.</p>
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline-primary">Ver Mis Alojamientos</a>
+                        <a href="{{ url_for('aco.create') }}" class="btn btn-primary btn-sm">Crear Nuevo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cruceros -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-card transition-all">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-info">
+                        <i class="fas fa-ship fa-3x"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Cruceros</h5>
+                    <p class="card-text text-muted small">Administra tu flota de barcos y rutas de crucero.</p>
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-outline-info">Ver Mis Cruceros</a>
+                        <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-info text-white btn-sm">Crear Nuevo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transportes -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-card transition-all">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-warning">
+                        <i class="fas fa-bus fa-3x"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Transporte</h5>
+                    <p class="card-text text-muted small">Gestiona rutas de autobús y tren.</p>
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{{ url_for('transport.my_transports') }}" class="btn btn-outline-warning text-dark">Ver Transportes</a>
+                        <a href="{{ url_for('transport.create_transport') }}" class="btn btn-warning text-dark btn-sm">Crear Nuevo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tours -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-card transition-all">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-success">
+                        <i class="fas fa-map-marked-alt fa-3x"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Tours</h5>
+                    <p class="card-text text-muted small">Organiza experiencias y visitas guiadas.</p>
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{{ url_for('tour.my_tours') }}" class="btn btn-outline-success">Ver Mis Tours</a>
+                        <a href="{{ url_for('tour.create_tour') }}" class="btn btn-success btn-sm">Crear Nuevo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vuelos (Placeholder if specialized) -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-card transition-all">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-danger">
+                        <i class="fas fa-plane fa-3x"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Vuelos</h5>
+                    <p class="card-text text-muted small">Gestiona tus ofertas de vuelos.</p>
+                    <div class="d-grid gap-2 mt-4">
+                        <!-- Assuming flight listing exists, modify if needed -->
+                        <a href="{{ url_for('flight.list_flights') }}" class="btn btn-outline-danger">Ver Vuelos</a>
+                        <a href="{{ url_for('flight.create_flight') }}" class="btn btn-danger btn-sm">Crear Nuevo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservas Recibidas -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-card transition-all bg-secondary text-white">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-book-open fa-3x text-white-50"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Reservas Recibidas</h5>
+                    <p class="card-text text-white-50 small">Consulta y gestiona las reservas de tus clientes.</p>
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{{ url_for('booking.company_bookings') }}" class="btn btn-light text-secondary fw-bold">Ir a Reservas</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}

@@ -6,23 +6,29 @@
 <div class="container">
     <h1 style="margin-bottom: var(--spacing-lg);">Admin Dashboard</h1>
 
-    <div class="grid grid-cols-3" style="gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
-        <div class="card">
-            <div class="card-body text-center">
-                <h2>{{ users_count }}</h2>
-                <p class="text-muted">Total Users</p>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="display-4 fw-bold text-primary">{{ users_count }}</h2>
+                    <p class="text-muted">Total Users</p>
+                </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body text-center">
-                <h2>{{ accommodations_count }}</h2>
-                <p class="text-muted">Total Properties</p>
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="display-4 fw-bold text-success">{{ accommodations_count }}</h2>
+                    <p class="text-muted">Total Properties</p>
+                </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body text-center">
-                <h2>{{ bookings_count }}</h2>
-                <p class="text-muted">Total Bookings</p>
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="display-4 fw-bold text-info">{{ bookings_count }}</h2>
+                    <p class="text-muted">Total Bookings</p>
+                </div>
             </div>
         </div>
     </div>

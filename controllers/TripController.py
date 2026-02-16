@@ -28,7 +28,7 @@ def list_trips():
     role = _current_role()
     user_id = _current_user_id()
     return render_template(
-        'grupo4/trip/trip_list.html',
+        'trip/trip_list.html',
         trips=trips,
         user_role=role,
         current_user_id=user_id,
@@ -82,7 +82,7 @@ def create_trip():
     companies = User.query.filter_by(role='COMPANY').all()
     current_user = User.query.get(user_id) if user_id else None
     return render_template(
-        'grupo4/trip/trip_create.html',
+        'trip/trip_create.html',
         locations=locations,
         companies=companies,
         user_role=role,
@@ -96,7 +96,7 @@ def view_trip(id):
     role = _current_role()
     user_id = _current_user_id()
     return render_template(
-        'grupo4/trip/trip_detail.html',
+        'trip/trip_detail.html',
         trip=trip,
         user_role=role,
         current_user_id=user_id,
@@ -144,7 +144,7 @@ def edit_trip(id):
     companies = User.query.filter_by(role='COMPANY').all()
     current_user = User.query.get(user_id) if user_id else None
     return render_template(
-        'grupo4/trip/trip_edit.html',
+        'trip/trip_edit.html',
         trip=trip,
         locations=locations,
         companies=companies,

@@ -6,6 +6,8 @@ class Location(db.Model):
     country = db.Column(db.String(50), unique=False, nullable=False)
     city = db.Column(db.String(50), unique=False, nullable=False)
     
+    stops = db.relationship("CruiseStops", back_populates="location")
+    
     def __init__(self, country, city):
         self.country = country
         self.city = city

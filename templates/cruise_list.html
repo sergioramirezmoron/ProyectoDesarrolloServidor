@@ -1,57 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Cruceros | TravelDream{% endblock %}
+
 {% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-9">
+            <h1 class="fw-bold">Explora nuestros Cruceros</h1>
+            <p class="text-muted">Descubre el mundo desde el mar con nuestras rutas exclusivas.</p>
+        </div>
+        {% if user and user.role == 'company' %}
+        <div class="col-md-3 text-end">
+            <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Crear Crucero</a>
+            <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-outline-secondary mt-2"><i class="fas fa-list me-2"></i>Mis Cruceros</a>
+        </div>
+        {% endif %}
+    </div>
 
-<h1>All Cruises</h1>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" action="{{ url_for('cruise.list_cruises') }}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="from" class="form-label fw-bold small">Origen</label>
+                    <select name="from" id="from" class="form-select">
+                        <option value="">Cualquier origen</option>
+                        {% for loc in locations %}
+                        <option value="{{ loc.idLocation }}" {% if request.args.get('from') == loc.idLocation|string %}selected{% endif %}>{{ loc.city }} ({{ loc.country }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="to" class="form-label fw-bold small">Destino</label>
+                    <select name="to" id="to" class="form-select">
+                        <option value="">Cualquier destino</option>
+                        {% for loc in locations %}
+                        <option value="{{ loc.idLocation }}" {% if request.args.get('to') == loc.idLocation|string %}selected{% endif %}>{{ loc.city }} ({{ loc.country }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-2"></i>Filtrar</button>
+                </div>
+                 <div class="col-md-2">
+                    <a href="{{ url_for('cruise.list_cruises') }}" class="btn btn-light w-100">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
 
-
-<form method="get" action="{{ url_for('cruise.list_cruises') }}">
-    <label for="from">From:</label>
-    <select name="from" id="from">
-        <option value="">Any</option>
-        {% for loc in locations %}
-        <option value="{{ loc.idLocation }}" {% if request.args.get('from') == loc.idLocation|string %}selected{% endif %}>{{ loc.city }} ({{ loc.country }})</option>
-        {% endfor %}
-    </select>
-    <label for="to">To:</label>
-    <select name="to" id="to">
-        <option value="">Any</option>
-        {% for loc in locations %}
-        <option value="{{ loc.idLocation }}" {% if request.args.get('to') == loc.idLocation|string %}selected{% endif %}>{{ loc.city }} ({{ loc.country }})</option>
-        {% endfor %}
-    </select>
-    <button type="submit">Filter</button>
-</form>
-
-{% if user and user.role == 'company' %}
-    <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-primary">Create Cruise</a>
-    <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-secondary">My Cruises</a>
-{% endif %}
-
-<hr>
-
-<table border="1">
-    <thead>
-        <tr>
-            <th>Ship</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for c in cruises %}
-        <tr>
-            <td>{% if c.cruise is defined %}{{ c.cruise.ship.cruiseName if c.cruise.ship else '-' }}{% else %}{{ c.ship.cruiseName if c.ship else '-' }}{% endif %}</td>
-            <td>{% if c.cruise is defined %}{{ c.cruise.startDate.strftime('%Y/%m/%d %H:%M:%S') }}{% else %}{{ c.startDate.strftime('%Y/%m/%d %H:%M:%S') }}{% endif %}</td>
-            <td>{% if c.cruise is defined %}{{ c.cruise.endDate.strftime('%Y/%m/%d %H:%M:%S') }}{% else %}{{ c.endDate.strftime('%Y/%m/%d %H:%M:%S') }}{% endif %}</td>
-            <td>{% if c.cruise is defined %}{{ c.cruise.description or '-' }}{% else %}{{ c.description or '-' }}{% endif %}</td>
-            <td>{% if c.price is defined %}{{ c.price }} €{% else %}-{% endif %}</td>
-            <td>
-                <a href="{{ url_for('cruise.cruise_detail', idCruise=(c.cruise.idCruise if c.cruise is defined else c.idCruise), from=request.args.get('from'), to=request.args.get('to')) }}">Details</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="table-responsive bg-white rounded shadow-sm">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="py-3 px-4">Barco</th>
+                    <th class="py-3">Salida</th>
+                    <th class="py-3">Llegada</th>
+                    <th class="py-3">Descripción</th>
+                    <th class="py-3">Precio</th>
+                    <th class="py-3 px-4">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in cruises %}
+                <tr>
+                    <td class="px-4 fw-bold">
+                        {% if c.cruise is defined %}{{ c.cruise.ship.cruiseName if c.cruise.ship else '-' }}{% else %}{{ c.ship.cruiseName if c.ship else '-' }}{% endif %}
+                    </td>
+                    <td>
+                        <i class="far fa-calendar-alt text-muted me-2"></i>
+                        {% if c.cruise is defined %}{{ c.cruise.startDate.strftime('%d/%m/%Y') }}{% else %}{{ c.startDate.strftime('%d/%m/%Y') }}{% endif %}
+                    </td>
+                    <td>
+                        <i class="far fa-calendar-check text-muted me-2"></i>
+                        {% if c.cruise is defined %}{{ c.cruise.endDate.strftime('%d/%m/%Y') }}{% else %}{{ c.endDate.strftime('%d/%m/%Y') }}{% endif %}
+                    </td>
+                    <td>
+                        <small class="text-muted">
+                        {% if c.cruise is defined %}{{ c.cruise.description or '-' }}{% else %}{{ c.description or '-' }}{% endif %}
+                        </small>
+                    </td>
+                    <td class="fw-bold text-success">
+                        {% if c.price is defined %}{{ c.price }} €{% else %}-{% endif %}
+                    </td>
+                    <td class="px-4">
+                        <a href="{{ url_for('cruise.cruise_detail', idCruise=(c.cruise.idCruise if c.cruise is defined else c.idCruise), from=request.args.get('from'), to=request.args.get('to')) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                            Ver Detalles
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">No se encontraron cruceros disponibles con estos filtros.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
