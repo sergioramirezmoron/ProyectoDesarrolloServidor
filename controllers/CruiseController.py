@@ -76,23 +76,27 @@ def create_cruise():
             flash("Barco no encontrado.", "danger")
             return redirect(url_for("cruise.create_cruise"))
 
-        # --- PROCESAR PARADAS ---
+        # --- PROCESAR PARADAS DINÁMICAS ---
         stops_data = []
-        for i in range(1, 6):
-            loc_id = request.form.get(f'stop_location_{i}')
-            if not loc_id or loc_id == "":
-                continue
+        for key in request.form:
+            if key.startswith('stop_location_'):
+                idx = key.split('_')[-1]
+                loc_id = request.form.get(key)
                 
-            arrival_str = request.form.get(f'stop_arrival_{i}')
-            departure_str = request.form.get(f'stop_departure_{i}')
-            
-            if arrival_str and departure_str:
-                stops_data.append({
-                    'idLocation': int(loc_id),
-                    'stopOrder': int(request.form[f'stop_order_{i}']),
-                    'arrivalDate': datetime.strptime(arrival_str, "%Y-%m-%dT%H:%M"),
-                    'departureDate': datetime.strptime(departure_str, "%Y-%m-%dT%H:%M")
-                })
+                if not loc_id or loc_id == "":
+                    continue
+                    
+                arrival_str = request.form.get(f'stop_arrival_{idx}')
+                departure_str = request.form.get(f'stop_departure_{idx}')
+                order_val = request.form.get(f'stop_order_{idx}')
+                
+                if arrival_str and departure_str:
+                    stops_data.append({
+                        'idLocation': int(loc_id),
+                        'stopOrder': int(order_val) if order_val else int(idx),
+                        'arrivalDate': datetime.strptime(arrival_str, "%Y-%m-%dT%H:%M"),
+                        'departureDate': datetime.strptime(departure_str, "%Y-%m-%dT%H:%M")
+                    })
         
         # Validar que hay al menos 2 paradas para definir ruta
         if len(stops_data) < 2:
@@ -130,29 +134,31 @@ def create_cruise():
         
         db.session.flush()
 
-        # 4. Crear los Segmentos (CruiseSegment)
-        for j in range(1, 5): 
-            origin_order_str = request.form.get(f'segment_origin_{j}')
-            dest_order_str = request.form.get(f'segment_dest_{j}')
-            price_str = request.form.get(f'segment_price_{j}')
+        # 4. Crear los Segmentos DINÁMICOS (CruiseSegment)
+        for key in request.form:
+            if key.startswith('segment_price_'):
+                idx = key.split('_')[-1]
+                price_str = request.form.get(key)
+                origin_order_str = request.form.get(f'segment_origin_{idx}')
+                dest_order_str = request.form.get(f'segment_dest_{idx}')
 
-            if origin_order_str and dest_order_str and price_str:
-                origin_order = int(origin_order_str)
-                dest_order = int(dest_order_str)
-                price = float(price_str)
-                
-                stop_origin = next((s for s in created_stops_objs if s.stopOrder == origin_order), None)
-                stop_dest = next((s for s in created_stops_objs if s.stopOrder == dest_order), None)
-                
-                if stop_origin and stop_dest:
-                    from models.CruiseSegment import CruiseSegment
-                    segment = CruiseSegment(
-                        idRoute=route.idCruiseRoute,
-                        idStopOrigin=stop_origin.idCruiseStop,
-                        idStopDestination=stop_dest.idCruiseStop,
-                        price=price
-                    )
-                    db.session.add(segment)
+                if origin_order_str and dest_order_str and price_str:
+                    origin_order = int(origin_order_str)
+                    dest_order = int(dest_order_str)
+                    price = float(price_str)
+                    
+                    stop_origin = next((s for s in created_stops_objs if s.stopOrder == origin_order), None)
+                    stop_dest = next((s for s in created_stops_objs if s.stopOrder == dest_order), None)
+                    
+                    if stop_origin and stop_dest:
+                        from models.CruiseSegment import CruiseSegment
+                        segment = CruiseSegment(
+                            idRoute=route.idCruiseRoute,
+                            idStopOrigin=stop_origin.idCruiseStop,
+                            idStopDestination=stop_dest.idCruiseStop,
+                            price=price
+                        )
+                        db.session.add(segment)
 
         db.session.commit()
         flash("¡Ruta de crucero creada con éxito!", "success")

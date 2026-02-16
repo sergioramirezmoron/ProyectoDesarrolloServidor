@@ -1,115 +1,146 @@
 {% extends 'base.html' %}
 
-{% block title %}Crear Crucero | TravelDream{% endblock %}
+{% block title %}Diseñar Crucero | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 3rem;
+        margin-bottom: 2rem;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #e9ecef;
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2.5rem;
+    }
+    .timeline-marker {
+        position: absolute;
+        left: -3rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        background: var(--primary-color);
+        border: 4px solid #fff;
+        box-shadow: 0 0 0 3px #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.7rem;
+        font-weight: bold;
+        z-index: 2;
+    }
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+    .stop-card {
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    .stop-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .remove-stop {
+        position: absolute;
+        right: -10px;
+        top: -10px;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .timeline-item:hover .remove-stop {
+        opacity: 1;
+    }
+    .segment-price-card {
+        border-left: 5px solid var(--accent-color) !important;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0"><i class="fas fa-ship me-2"></i>Crear Nuevo Crucero</h3>
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-ship fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0 fw-bold">Diseñador de Travesía</h3>
+                            <p class="mb-0 opacity-75">Define tu ruta y precios por tramos</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        <!-- Información General -->
-                        <h5 class="text-primary mb-3 border-bottom pb-2">Información General</h5>
-                        <div class="row g-3 mb-4">
+                
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" id="cruiseForm">
+                        <!-- Paso 1: Barco y Fechas -->
+                        <div class="row g-4 mb-5 pb-4 border-bottom">
                             <div class="col-md-12">
-                                <label for="idShip" class="form-label fw-bold">Barco</label>
-                                <select name="idShip" class="form-select" required>
-                                    <option value="" disabled selected>Seleccione un barco...</option>
+                                <h5 class="fw-bold mb-3 text-secondary text-uppercase small letter-spacing-1">1. Información General</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">Seleccionar Barco</label>
+                                <select name="idShip" class="form-select border-2" required>
+                                    <option value="" disabled selected>Escoge un barco de tu flota...</option>
                                     {% for ship in ships %}
                                     <option value="{{ ship.idCruise }}">{{ ship.cruiseName }} (Capacidad: {{ ship.capacity }})</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label for="startDate" class="form-label fw-bold">Fecha de inicio</label>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold small">Inicio del Viaje</label>
                                 <input type="datetime-local" name="startDate" class="form-control" required>
                             </div>
-                            <div class="col-md-6">
-                                <label for="endDate" class="form-label fw-bold">Fecha de fin</label>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold small">Fin del Viaje</label>
                                 <input type="datetime-local" name="endDate" class="form-control" required>
                             </div>
                             <div class="col-12">
-                                <label for="description" class="form-label fw-bold">Descripción</label>
-                                <textarea name="description" class="form-control" rows="3" placeholder="Descripción del viaje..."></textarea>
+                                <label class="form-label fw-bold small">Descripción de la Ruta</label>
+                                <textarea name="description" class="form-control" rows="2" placeholder="Describe los puntos fuertes de este crucero..."></textarea>
                             </div>
                         </div>
 
-                        <!-- Ruta de Paradas -->
-                        <h5 class="text-primary mb-3 border-bottom pb-2">Ruta de Paradas</h5>
-                        <p class="text-muted small mb-3"><i class="fas fa-info-circle me-1"></i>Defina el itinerario. Complete al menos las dos primeras paradas.</p>
-                        
-                        <div class="accordion mb-4" id="stopsAccordion">
-                            {% for i in range(1, 6) %}
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="heading{{ i }}">
-                                    <button class="accordion-button {% if i > 2 %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ i }}" aria-expanded="{{ 'true' if i <= 2 else 'false' }}" aria-controls="collapse{{ i }}">
-                                        Parada {{ i }}
-                                    </button>
-                                </h2>
-                                <div id="collapse{{ i }}" class="accordion-collapse collapse {% if i <= 2 %}show{% endif %}" aria-labelledby="heading{{ i }}">
-                                    <div class="accordion-body bg-light">
-                                        <div class="row g-3">
-                                            <div class="col-md-12">
-                                                <label class="form-label small">Ubicación</label>
-                                                <select name="stop_location_{{ i }}" class="form-select">
-                                                    <option value="">-- No incluir esta parada --</option>
-                                                    {% for location in locations %}
-                                                    <option value="{{ location.idLocation }}">{{ location.city }}, {{ location.country }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <input type="hidden" name="stop_order_{{ i }}" value="{{ i }}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small">Llegada</label>
-                                                <input name="stop_arrival_{{ i }}" type="datetime-local" class="form-control">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small">Salida</label>
-                                                <input name="stop_departure_{{ i }}" type="datetime-local" class="form-control">
-                                            </div>
-                                        </div>
-                                    </div>
+                        <!-- Paso 2: Línea de Tiempo de Paradas -->
+                        <div class="mb-5 pb-4 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="fw-bold mb-0 text-secondary text-uppercase small">2. Ruta del Crucero (Cronograma)</h5>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="addStop()">
+                                    <i class="fas fa-plus-circle me-1"></i>Añadir Parada
+                                </button>
+                            </div>
+
+                            <div id="timelineContainer" class="timeline">
+                                <!-- Las paradas se inyectarán aquí -->
+                            </div>
+                        </div>
+
+                        <!-- Paso 3: Precios por Segmento -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-4 text-secondary text-uppercase small">3. Configuración de Precios por Tramo</h5>
+                            <div id="segmentsContainer" class="row g-3">
+                                <div class="col-12 text-center py-4 bg-light rounded text-muted">
+                                    <i class="fas fa-info-circle me-2"></i>Añade al menos 2 paradas para configurar los precios.
                                 </div>
                             </div>
-                            {% endfor %}
                         </div>
 
-                        <!-- Segmentos de Precio -->
-                        <h5 class="text-primary mb-3 border-bottom pb-2">Precios por Trayecto</h5>
-                        <p class="text-muted small mb-3">Defina los precios entre paradas (Ej: De Parada 1 a Parada 2).</p>
-
-                        <div class="row g-3 mb-4">
-                            {% for j in range(1, 5) %}
-                            <div class="col-md-6">
-                                <div class="card h-100 bg-light border-0">
-                                    <div class="card-body">
-                                        <h6 class="card-title text-secondary">Segmento {{ j }}</h6>
-                                        <div class="row g-2">
-                                            <div class="col-4">
-                                                <input name="segment_origin_{{ j }}" type="number" class="form-control form-control-sm" min="1" max="5" placeholder="Orig. #">
-                                            </div>
-                                            <div class="col-4">
-                                                <input name="segment_dest_{{ j }}" type="number" class="form-control form-control-sm" min="1" max="5" placeholder="Dest. #">
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="input-group input-group-sm">
-                                                    <input name="segment_price_{{ j }}" type="number" class="form-control" step="0.01" min="0" placeholder="€">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-light me-md-2">Cancelar</a>
-                            <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>Guardar Crucero</button>
+                        <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+                            <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-link text-muted text-decoration-none">Cancelar y volver</a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 shadow rounded-pill">
+                                <i class="fas fa-save me-2"></i>Publicar Crucero
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -117,4 +148,146 @@
         </div>
     </div>
 </div>
+
+<!-- Template para Nueva Parada (Oculto) -->
+<template id="stopTemplate">
+    <div class="timeline-item animate__animated animate__fadeInLeft">
+        <div class="timeline-marker"></div>
+        <button type="button" class="btn btn-danger btn-sm rounded-circle remove-stop shadow-sm" onclick="removeStop(this)">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="stop-card card bg-white p-3">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Puerto / Destino</label>
+                    <select class="form-select stop-location" required onchange="updatePricingTable()">
+                        <option value="">Seleccionar puerto...</option>
+                        {% for loc in locations %}
+                        <option value="{{ loc.idLocation }}">{{ loc.city }}, {{ loc.country }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Llegada (Arrival)</label>
+                    <input type="datetime-local" class="form-control stop-arrival" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Salida (Departure)</label>
+                    <input type="datetime-local" class="form-control stop-departure" required>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" class="stop-order" value="">
+    </div>
+</template>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let stopCount = 0;
+
+    function addStop() {
+        stopCount++;
+        const container = document.getElementById('timelineContainer');
+        const template = document.getElementById('stopTemplate');
+        const clone = template.content.cloneNode(true);
+        
+        // Configurar IDs y Names únicos
+        const marker = clone.querySelector('.timeline-marker');
+        marker.textContent = stopCount;
+        
+        const locationSelect = clone.querySelector('.stop-location');
+        locationSelect.name = `stop_location_${stopCount}`;
+        
+        const arrivalInput = clone.querySelector('.stop-arrival');
+        arrivalInput.name = `stop_arrival_${stopCount}`;
+        
+        const departureInput = clone.querySelector('.stop-departure');
+        departureInput.name = `stop_departure_${stopCount}`;
+        
+        const orderInput = clone.querySelector('.stop-order');
+        orderInput.name = `stop_order_${stopCount}`;
+        orderInput.value = stopCount;
+
+        container.appendChild(clone);
+        updatePricingTable();
+    }
+
+    function removeStop(btn) {
+        const item = btn.closest('.timeline-item');
+        item.classList.add('animate__fadeOutLeft');
+        setTimeout(() => {
+            item.remove();
+            reindexStops();
+            updatePricingTable();
+        }, 300);
+    }
+
+    function reindexStops() {
+        const items = document.querySelectorAll('.timeline-item');
+        stopCount = items.length;
+        items.forEach((item, index) => {
+            const i = index + 1;
+            item.querySelector('.timeline-marker').textContent = i;
+            item.querySelector('.stop-location').name = `stop_location_${i}`;
+            item.querySelector('.stop-arrival').name = `stop_arrival_${i}`;
+            item.querySelector('.stop-departure').name = `stop_departure_${i}`;
+            item.querySelector('.stop-order').name = `stop_order_${i}`;
+            item.querySelector('.stop-order').value = i;
+        });
+    }
+
+    function updatePricingTable() {
+        const container = document.getElementById('segmentsContainer');
+        const stops = document.querySelectorAll('.timeline-item');
+        
+        if (stops.length < 2) {
+            container.innerHTML = '<div class="col-12 text-center py-4 bg-light rounded text-muted"><i class="fas fa-info-circle me-2"></i>Añade al menos 2 paradas para configurar los precios.</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        for (let i = 0; i < stops.length - 1; i++) {
+            const currentStop = stops[i];
+            const nextStop = stops[i+1];
+            
+            const currentLocSelect = currentStop.querySelector('.stop-location');
+            const nextLocSelect = nextStop.querySelector('.stop-location');
+            
+            const currentLocName = currentLocSelect.options[currentLocSelect.selectedIndex].text || `Parada ${i+1}`;
+            const nextLocName = nextLocSelect.options[nextLocSelect.selectedIndex].text || `Parada ${i+2}`;
+            
+            const segmentHtml = `
+                <div class="col-md-6 animate__animated animate__fadeInUp" style="animation-delay: ${i * 0.1}s">
+                    <div class="card h-100 segment-price-card shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="fw-bold text-primary mb-0">Tramo ${i+1}</h6>
+                                <span class="badge bg-light text-muted border">ID ${i+1}</span>
+                            </div>
+                            <div class="small text-muted mb-3 d-flex align-items-center">
+                                <span class="text-truncate" style="max-width: 120px;">${currentLocName}</span>
+                                <i class="fas fa-long-arrow-alt-right mx-2 text-warning"></i>
+                                <span class="text-truncate" style="max-width: 120px;">${nextLocName}</span>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-2">€</span>
+                                <input type="number" name="segment_price_${i+1}" class="form-control border-2" step="0.01" min="0" placeholder="0.00" required>
+                                <input type="hidden" name="segment_origin_${i+1}" value="${i+1}">
+                                <input type="hidden" name="segment_dest_${i+1}" value="${i+2}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', segmentHtml);
+        }
+    }
+
+    // Inicializar con 2 paradas por defecto
+    window.onload = () => {
+        addStop();
+        addStop();
+    };
+</script>
 {% endblock %}

@@ -52,18 +52,38 @@
             </div>
         </div>
 
-        <!-- Cruceros -->
-        <div class="col-md-6 col-lg-4">
+        <!-- Cruceros y Flota -->
+        <div class="col-md-6 col-lg-8">
             <div class="card h-100 border-0 shadow-sm hover-card transition-all">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3 text-info">
-                        <i class="fas fa-ship fa-3x"></i>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="text-info me-3">
+                            <i class="fas fa-ship fa-3x"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold mb-0">Cruceros y Flota</h5>
+                            <p class="card-text text-muted small">Administra tus barcos y diseña las rutas de tus cruceros.</p>
+                        </div>
                     </div>
-                    <h5 class="card-title fw-bold">Cruceros</h5>
-                    <p class="card-text text-muted small">Administra tu flota de barcos y rutas de crucero.</p>
-                    <div class="d-grid gap-2 mt-4">
-                        <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-outline-info">Ver Mis Cruceros</a>
-                        <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-info text-white btn-sm">Crear Nuevo</a>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded border-start border-info border-4">
+                                <h6 class="fw-bold"><i class="fas fa-anchor me-2"></i>Gestión de Flota</h6>
+                                <div class="d-grid gap-2 mt-2">
+                                    <a href="{{ url_for('ship.my_ships') }}" class="btn btn-sm btn-outline-info">Ver Mis Barcos</a>
+                                    <a href="{{ url_for('ship.create_ship') }}" class="btn btn-sm btn-info text-white">Registrar Nuevo Barco</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded border-start border-primary border-4">
+                                <h6 class="fw-bold"><i class="fas fa-route me-2"></i>Itinerarios y Viajes</h6>
+                                <div class="d-grid gap-2 mt-2">
+                                    <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-sm btn-outline-primary">Ver Mis Cruceros</a>
+                                    <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-sm btn-primary">Crear Nueva Ruta</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
