@@ -41,7 +41,8 @@ def create_tour():
         startDate = datetime.strptime(request.form["startDate"], "%Y-%m-%dT%H:%M")
         endDate = datetime.strptime(request.form["endDate"], "%Y-%m-%dT%H:%M")
         idLocation = request.form["idLocation"]
-        tour = Tour(title=title, description=description, image=image, price=price, startDate=startDate, endDate=endDate, idLocation=idLocation, idCompany=user.idUser)
+        occupants = int(request.form["occupants"])
+        tour = Tour(title=title, description=description, image=image, price=price, startDate=startDate, endDate=endDate, idLocation=idLocation, occupants=occupants, idCompany=user.idUser)
         db.session.add(tour)
         db.session.commit()
         flash("¡Tour creado!")
