@@ -1,0 +1,57 @@
+{% block content %}
+
+<h1>All Cruises</h1>
+
+
+<form method="get" action="{{ url_for('cruise.list_cruises') }}">
+    <label for="from">From:</label>
+    <select name="from" id="from">
+        <option value="">Any</option>
+        {% for loc in locations %}
+        <option value="{{ loc.idLocation }}" {% if request.args.get('from') == loc.idLocation|string %}selected{% endif %}>{{ loc.city }} ({{ loc.country }})</option>
+        {% endfor %}
+    </select>
+    <label for="to">To:</label>
+    <select name="to" id="to">
+        <option value="">Any</option>
+        {% for loc in locations %}
+        <option value="{{ loc.idLocation }}" {% if request.args.get('to') == loc.idLocation|string %}selected{% endif %}>{{ loc.city }} ({{ loc.country }})</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+{% if user and user.role == 'company' %}
+    <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-primary">Create Cruise</a>
+    <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-secondary">My Cruises</a>
+{% endif %}
+
+<hr>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Ship</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in cruises %}
+        <tr>
+            <td>{% if c.cruise is defined %}{{ c.cruise.ship.cruiseName if c.cruise.ship else '-' }}{% else %}{{ c.ship.cruiseName if c.ship else '-' }}{% endif %}</td>
+            <td>{% if c.cruise is defined %}{{ c.cruise.startDate.strftime('%Y/%m/%d %H:%M:%S') }}{% else %}{{ c.startDate.strftime('%Y/%m/%d %H:%M:%S') }}{% endif %}</td>
+            <td>{% if c.cruise is defined %}{{ c.cruise.endDate.strftime('%Y/%m/%d %H:%M:%S') }}{% else %}{{ c.endDate.strftime('%Y/%m/%d %H:%M:%S') }}{% endif %}</td>
+            <td>{% if c.cruise is defined %}{{ c.cruise.description or '-' }}{% else %}{{ c.description or '-' }}{% endif %}</td>
+            <td>{% if c.price is defined %}{{ c.price }} €{% else %}-{% endif %}</td>
+            <td>
+                <a href="{{ url_for('cruise.cruise_detail', idCruise=(c.cruise.idCruise if c.cruise is defined else c.idCruise), from=request.args.get('from'), to=request.args.get('to')) }}">Details</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

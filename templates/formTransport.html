@@ -1,0 +1,29 @@
+{% block content %}
+<h1>Create Bus/Train</h1>
+<form method="post">
+    <label for="type">Type:</label>
+    <select name="type" required>
+        <option value="bus">Bus</option>
+        <option value="train">Train</option>
+    </select><br>
+    <label for="idLocationStart">Origin:</label>
+    <select name="idLocationStart" required>
+        {% for loc in locations %}
+        <option value="{{ loc.idLocation }}">{{ loc.city }}</option>
+        {% endfor %}
+    </select><br>
+    <label for="idLocationEnd">Destination:</label>
+    <select name="idLocationEnd" required>
+        {% for loc in locations %}
+        <option value="{{ loc.idLocation }}">{{ loc.city }}</option>
+        {% endfor %}
+    </select><br>
+    <label for="startDate">Start Date:</label>
+    <input type="datetime-local" name="startDate" required><br>
+    <label for="endDate">End Date:</label>
+    <input type="datetime-local" name="endDate" required><br>
+    <label for="price">Price:</label>
+    <input type="number" name="price" step="0.01" required><br>
+    <button type="submit">Create</button>
+</form>
+{% endblock %}

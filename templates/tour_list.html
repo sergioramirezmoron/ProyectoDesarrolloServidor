@@ -1,0 +1,31 @@
+{% block content %}
+<h1>Todos los Tours</h1>
+{% if user and user.role == 'company' %}
+    <a href="{{ url_for('tour.create_tour') }}">Crear Tour</a>
+    <a href="{{ url_for('tour.my_tours') }}">Mis Tours</a>
+{% endif %}
+<table border="1">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Ubicación</th>
+            <th>Precio</th>
+            <th>Fecha de inicio</th>
+            <th>Fecha de fin</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tour in tours %}
+        <tr>
+            <td>{{ tour.title }}</td>
+            <td>{{ tour.description }}</td>
+            <td>{{ tour.location.city }}</td>
+            <td>{{ tour.price }} €</td>
+            <td>{{ tour.startDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
+            <td>{{ tour.endDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% block content %}
+<h1>My Cruises</h1>
+<a href="{{ url_for('cruise.create_cruise') }}">Create New Cruise</a>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Ship</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cruise in cruises %}
+        <tr>
+            <td>{{ cruise.ship.cruiseName if cruise.ship else '-' }}</td>
+            <td>{{ cruise.startDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
+            <td>{{ cruise.endDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
+            <td>{{ cruise.description or '-' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

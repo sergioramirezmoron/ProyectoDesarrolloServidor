@@ -1,0 +1,30 @@
+{% block content %}
+<h1>Detalles del Crucero</h1>
+<p><strong>Barco:</strong> {{ cruise.ship.cruiseName if cruise.ship else '-' }}</p>
+<p><strong>Fecha de inicio:</strong> {{ cruise.startDate.strftime('%Y/%m/%d %H:%M:%S') }}</p>
+<p><strong>Fecha de fin:</strong> {{ cruise.endDate.strftime('%Y/%m/%d %H:%M:%S') }}</p>
+<p><strong>Descripción:</strong> {{ cruise.description or '-' }}</p>
+
+<h3>Paradas</h3>
+<ul>
+    {% for stop in stops %}
+        <li>{{ stop.stopOrder }}. {{ stop.location.city }} ({{ stop.location.country }})
+            - Llegada: {{ stop.arrivalDate.strftime('%Y/%m/%d %H:%M') }}
+            - Salida: {{ stop.departureDate.strftime('%Y/%m/%d %H:%M') }}
+        </li>
+    {% endfor %}
+</ul>
+
+<h3>Segmentos</h3>
+<ul>
+    {% for seg in segments %}
+        <li>
+            From: {{ seg.stop_origin.stopOrder }} ({{ seg.stop_origin.location.city }})
+            To: {{ seg.stop_destination.stopOrder }} ({{ seg.stop_destination.location.city }})
+            - Price: {{ seg.price }} €
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('cruise.list_cruises') }}">Back to list</a>
+{% endblock %}

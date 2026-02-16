@@ -1,0 +1,20 @@
+{% block content %}
+<h1>My Ships</h1>
+<a href="{{ url_for('ship.create_ship') }}">Create New Ship</a>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Capacity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ship in ships %}
+        <tr>
+            <td>{{ ship.cruiseName }}</td>
+            <td>{{ ship.capacity }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

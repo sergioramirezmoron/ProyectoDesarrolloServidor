@@ -1,0 +1,31 @@
+{% block content %}
+<h1>All Bus/Train Trips</h1>
+{% if user and user.role == 'company' %}
+    <a href="{{ url_for('transport.create_transport') }}">Create Transport</a>
+    <a href="{{ url_for('transport.my_transports') }}">My Transports</a>
+{% endif %}
+<table border="1">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transport in transports %}
+        <tr>
+            <td>{{ transport.type }}</td>
+            <td>{{ transport.locationStart.city }}</td>
+            <td>{{ transport.locationEnd.city }}</td>
+            <td>{{ transport.startDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
+            <td>{{ transport.endDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
+            <td>{{ transport.price }} €</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

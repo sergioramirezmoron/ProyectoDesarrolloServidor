@@ -1,0 +1,28 @@
+{% block content %}
+<h1>My Tours</h1>
+<a href="{{ url_for('tour.create_tour') }}">Create New Tour</a>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Location</th>
+            <th>Price</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tour in tours %}
+        <tr>
+            <td>{{ tour.title }}</td>
+            <td>{{ tour.description }}</td>
+            <td>{{ tour.location.city }}</td>
+            <td>{{ tour.price }} €</td>
+            <td>{{ tour.startDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
+            <td>{{ tour.endDate.strftime('%Y/%m/%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
