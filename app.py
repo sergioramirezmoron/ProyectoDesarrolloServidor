@@ -6,7 +6,7 @@ from controllers.UserController import userBp
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN ---
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@192.168.70.80:3306/proyecto_desarrollo_web'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@127.0.0.1:3306/proyecto_desarrollo_web'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
