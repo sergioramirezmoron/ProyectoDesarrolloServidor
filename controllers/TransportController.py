@@ -3,7 +3,7 @@ from datetime import datetime
 from models import BusTrain
 from models import db, Location, User
 
-transport_bp = Blueprint("transport", __name__, url_prefix="/transports")
+transport_bp = Blueprint("transport", __name__)
 
 def get_current_user():
     user_id = session.get("user_id")
