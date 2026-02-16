@@ -12,4 +12,17 @@ class CruiseStops(db.Model):
     stopOrder = db.Column(db.Integer, nullable=False)
     arrivalDate = db.Column(db.DateTime, nullable=False) #Cuando un pasajero sube al barco
     departureDate = db.Column(db.DateTime, nullable=False)
+
+    cruiseRoute = db.relationship("CruiseRoute", back_populates="stops")
+    location = db.relationship("Location", back_populates="stops")
+
+    def toDict(self):
+        return {
+            "idCruiseStop": self.idCruiseStop,
+            "idCruiseRoute": self.idCruiseRoute,
+            "idLocation": self.idLocation,
+            "stopOrder": self.stopOrder,
+            "arrivalDate": self.arrivalDate,
+            "departureDate": self.departureDate
+        }
     
