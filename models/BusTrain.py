@@ -11,8 +11,8 @@ class BusTrain(db.Model):
     idLocationStart = db.Column(db.Integer, db.ForeignKey('location.idLocation'), nullable=False)
     idLocationEnd = db.Column(db.Integer, db.ForeignKey('location.idLocation'), nullable=False)
     company = db.relationship('User', foreign_keys=[idCompany])
-    origin = db.relationship('Location', foreign_keys=[idLocationStart])
-    destination = db.relationship('Location', foreign_keys=[idLocationEnd])
+    locationStart = db.relationship('Location', foreign_keys=[idLocationStart])
+    locationEnd = db.relationship('Location', foreign_keys=[idLocationEnd])
 
     def toDict(self):
         return {
