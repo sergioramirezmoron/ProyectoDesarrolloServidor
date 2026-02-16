@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Bookings - HorizonStays{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="flex justify-between items-center" style="margin-bottom: var(--spacing-lg);">
+        <h1 style="margin: 0;">Manage Bookings</h1>
+        <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline">My Properties</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if bookings %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color);">
+                            <th style="padding: var(--spacing-sm);">ID</th>
+                            <th style="padding: var(--spacing-sm);">Property</th>
+                            <th style="padding: var(--spacing-sm);">Guest</th>
+                            <th style="padding: var(--spacing-sm);">Room</th>
+                            <th style="padding: var(--spacing-sm);">Check-in</th>
+                            <th style="padding: var(--spacing-sm);">Check-out</th>
+                            <th style="padding: var(--spacing-sm);">Total</th>
+                            <th style="padding: var(--spacing-sm);">Status</th>
+                            <th style="padding: var(--spacing-sm);">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: var(--spacing-sm);">#{{ booking.id }}</td>
+                            <td style="padding: var(--spacing-sm);">{{ booking.accommodation.name }}</td>
+                            <td style="padding: var(--spacing-sm);">{{ booking.user.name }}</td>
+                            <td style="padding: var(--spacing-sm);">
+                                {% if booking.room %}
+                                {{ booking.room.type }} (No. {{ booking.room.roomNumber }})
+                                {% else %}
+                                N/A
+                                {% endif %}
+                            </td>
+                            <td style="padding: var(--spacing-sm);">{{ booking.startDate }}</td>
+                            <td style="padding: var(--spacing-sm);">{{ booking.endDate }}</td>
+                            <td style="padding: var(--spacing-sm); font-weight: 700;">${{ booking.totalPrice }}</td>
+                            <td style="padding: var(--spacing-sm);">
+                                {% if booking.status == 'confirmed' %}
+                                <span class="badge badge-secondary">Confirmed</span>
+                                {% elif booking.status == 'cancelled' %}
+                                <span class="badge badge-danger">Cancelled</span>
+                                {% else %}
+                                <span class="badge badge-accent">{{ booking.status|capitalize }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: var(--spacing-sm);">
+                                {% if booking.status != 'cancelled' %}
+                                <form action="{{ url_for('booking.cancel_booking', id=booking.id) }}" method="POST"
+                                    onsubmit="return confirm('Cancel this reservation?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: var(--spacing-xl);">
+                <p class="text-muted">No bookings found for your properties.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

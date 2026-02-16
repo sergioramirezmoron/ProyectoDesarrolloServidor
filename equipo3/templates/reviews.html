@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reseñas del Alojamiento</title>
+    <style>
+        table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Reseñas del Alojamiento</h1>
+
+    {% if reviews %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Reseña</th>
+                    <th>ID Usuario</th>
+                    <th>Calificación</th>
+                    <th>Comentario</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reviews %}
+                <tr>
+                    <td>{{ r.id }}</td>
+                    <td>{{ r.idUser }}</td>
+                    <td>{{ r.ratingStars }} ⭐</td>
+                    <td>{{ r.reviewComment }}</td>
+                    <td>{{ r.createdAt.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="text-align:center;">No hay reseñas para este alojamiento.</p>
+    {% endif %}
+</body>
+</html>

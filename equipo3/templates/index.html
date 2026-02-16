@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}HorizonStays - Find Your Perfect Stay{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1>Find your next stay</h1>
+        <p>Search low prices on hotels, homes and much more...</p>
+
+        <div class="search-box card"
+            style="background: white; color: var(--text-main); margin-top: var(--spacing-lg); padding: var(--spacing-md); max-width: 900px; margin-left: auto; margin-right: auto;">
+            <form action="{{ url_for('aco.search') }}" method="GET" class="search-form"
+                style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                <div class="form-group" style="flex: 2; min-width: 200px; text-align: left;">
+                    <label class="form-label"><i class="fa-solid fa-location-dot"></i> Where are you going?</label>
+                    <input type="text" name="location" class="form-control" placeholder="City, Hotel, Address" required>
+                </div>
+                <!-- Date inputs optional for search query, but good for UI -->
+                <div class="form-group" style="flex: 1; min-width: 150px; text-align: left;">
+                    <label class="form-label"><i class="fa-regular fa-calendar"></i> Check-in</label>
+                    <input type="date" name="checkin" class="form-control">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 150px; text-align: left;">
+                    <label class="form-label"><i class="fa-regular fa-calendar"></i> Check-out</label>
+                    <input type="date" name="checkout" class="form-control">
+                </div>
+                <div class="form-group" style="flex: 0 0 auto;">
+                    <label class="form-label" style="visibility: hidden;">Search</label>
+                    <button type="submit" class="btn btn-primary" style="height: 42px; width: 100%;">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="featured container">
+    <h2 style="margin-bottom: var(--spacing-md); font-weight: 700;">Featured Stays</h2>
+
+    <div class="grid grid-cols-3">
+        {% for stay in accommodations %}
+        <a href="{{ url_for('aco.show', id=stay.id) }}" class="card-link">
+            <div class="card">
+                <!-- Placeholder image since we don't have images in DB yet -->
+                <img src="https://placehold.co/600x400?text={{ stay.name }}" alt="{{ stay.name }}" class="card-img">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <h3 class="card-title">{{ stay.name }}</h3>
+                        <span class="badge badge-accent">
+                            <i class="fa-solid fa-star" style="font-size: 0.7rem;"></i> {{ stay.stars_quality }}
+                        </span>
+                    </div>
+                    <p class="card-text"><i class="fa-solid fa-map-pin"></i> {{ stay.address }}</p>
+                    <p class="card-text" style="font-size: 0.9rem;">
+                        {{ stay.description[:100] }}...
+                    </p>
+                    <div
+                        style="margin-top: var(--spacing-sm); display: flex; justify-content: space-between; align-items: center;">
+                        <span class="badge badge-primary">{{ stay.type|capitalize }}</span>
+                        <!-- Price placeholder or range if available -->
+                        <span style="font-weight: 600; color: var(--primary);">View Details &rarr;</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: var(--spacing-xl);">
+            <p class="text-muted">No accommodations found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Additional Marketing / Benefits Section -->
+<section class="benefits container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+    <div class="grid grid-cols-3">
+        <div class="text-center" style="padding: var(--spacing-md);">
+            <i class="fa-solid fa-headset"
+                style="font-size: 2rem; color: var(--primary); margin-bottom: var(--spacing-sm);"></i>
+            <h3 style="font-weight: 600; margin-bottom: 0.5rem;">24/7 Support</h3>
+            <p class="text-muted">We are here to help you anytime, anywhere.</p>
+        </div>
+        <div class="text-center" style="padding: var(--spacing-md);">
+            <i class="fa-solid fa-tag"
+                style="font-size: 2rem; color: var(--secondary); margin-bottom: var(--spacing-sm);"></i>
+            <h3 style="font-weight: 600; margin-bottom: 0.5rem;">Best Prices</h3>
+            <p class="text-muted">Guaranteed low prices for your perfect stay.</p>
+        </div>
+        <div class="text-center" style="padding: var(--spacing-md);">
+            <i class="fa-solid fa-calendar-check"
+                style="font-size: 2rem; color: var(--accent); margin-bottom: var(--spacing-sm);"></i>
+            <h3 style="font-weight: 600; margin-bottom: 0.5rem;">Easy Booking</h3>
+            <p class="text-muted">Book your stay in just a few clicks.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

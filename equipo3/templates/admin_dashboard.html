@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - HorizonStays{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom: var(--spacing-lg);">Admin Dashboard</h1>
+
+    <div class="grid grid-cols-3" style="gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
+        <div class="card">
+            <div class="card-body text-center">
+                <h2>{{ users_count }}</h2>
+                <p class="text-muted">Total Users</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h2>{{ accommodations_count }}</h2>
+                <p class="text-muted">Total Properties</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h2>{{ bookings_count }}</h2>
+                <p class="text-muted">Total Bookings</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Sections -->
+    <div style="margin-bottom: var(--spacing-xl);">
+        <h2 style="margin-bottom: var(--spacing-md);">Manage Properties</h2>
+        <div class="card">
+            <div class="card-body">
+                {% if accommodations %}
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border-color);">
+                                <th style="padding: var(--spacing-sm);">ID</th>
+                                <th style="padding: var(--spacing-sm);">Name</th>
+                                <th style="padding: var(--spacing-sm);">Owner</th>
+                                <th style="padding: var(--spacing-sm);">Type</th>
+                                <th style="padding: var(--spacing-sm);">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for acc in accommodations %}
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: var(--spacing-sm);">{{ acc.id }}</td>
+                                <td style="padding: var(--spacing-sm);">{{ acc.name }}</td>
+                                <td style="padding: var(--spacing-sm);">{{ acc.owner.name }}</td>
+                                <td style="padding: var(--spacing-sm);">{{ acc.type }}</td>
+                                <td style="padding: var(--spacing-sm);">
+                                    <div class="flex gap-2">
+                                        <a href="{{ url_for('aco.edit', id=acc.id) }}" class="btn btn-outline btn-sm"><i
+                                                class="fa-solid fa-pen"></i></a>
+                                        <form action="{{ url_for('aco.delete', id=acc.id) }}" method="POST"
+                                            onsubmit="return confirm('Delete this property completely?');">
+                                            <button type="submit" class="btn btn-danger btn-sm"><i
+                                                    class="fa-solid fa-trash"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No properties found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: var(--spacing-xl);">
+        <h2 style="margin-bottom: var(--spacing-md);">Recent Bookings</h2>
+        <div class="card">
+            <div class="card-body">
+                {% if bookings %}
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border-color);">
+                                <th style="padding: var(--spacing-sm);">ID</th>
+                                <th style="padding: var(--spacing-sm);">User</th>
+                                <th style="padding: var(--spacing-sm);">Property</th>
+                                <th style="padding: var(--spacing-sm);">Dates</th>
+                                <th style="padding: var(--spacing-sm);">Status</th>
+                                <th style="padding: var(--spacing-sm);">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: var(--spacing-sm);">{{ booking.id }}</td>
+                                <td style="padding: var(--spacing-sm);">{{ booking.user.name }}</td>
+                                <td style="padding: var(--spacing-sm);">{{ booking.accommodation.name }}</td>
+                                <td style="padding: var(--spacing-sm);">{{ booking.startDate }} - {{ booking.endDate }}
+                                </td>
+                                <td style="padding: var(--spacing-sm);">{{ booking.status }}</td>
+                                <td style="padding: var(--spacing-sm);">
+                                    {% if booking.status != 'cancelled' %}
+                                    <form action="{{ url_for('booking.cancel_booking', id=booking.id) }}" method="POST"
+                                        onsubmit="return confirm('Cancel this booking as Admin?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No bookings found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

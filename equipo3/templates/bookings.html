@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reservas del Usuario</title>
+    <style>
+        table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Reservas del Usuario</h1>
+
+    {% if bookings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Reserva</th>
+                    <th>ID Alojamiento</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>Precio Total</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td>{{ b.id }}</td>
+                    <td>{{ b.idAccommodation }}</td>
+                    <td>{{ b.startDate.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ b.endDate.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ b.totalPrice }}</td>
+                    <td>{{ b.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="text-align:center;">No hay reservas para este usuario.</p>
+    {% endif %}
+</body>
+</html>

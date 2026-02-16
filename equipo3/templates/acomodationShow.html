@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ accommodation.name }} - HorizonStays{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <div style="margin: var(--spacing-sm) 0;">
+        <a href="{{ url_for('aco.home') }}" class="text-muted">Home</a> <span class="text-muted">/</span>
+        <span class="text-main">{{ accommodation.name }}</span>
+    </div>
+
+    <!-- Hotel Header -->
+    <div class="card" style="margin-bottom: var(--spacing-lg);">
+        <div style="height: 300px; background-color: #ddd; position: relative;">
+            <img src="https://placehold.co/1200x400?text={{ accommodation.name }}" alt="{{ accommodation.name }}"
+                style="width: 100%; height: 100%; object-fit: cover;">
+            <div
+                style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: var(--spacing-md); color: white;">
+                <h1 style="margin: 0; font-size: 2.5rem;">{{ accommodation.name }}</h1>
+                <p style="margin: 0; font-size: 1.1rem; opacity: 0.9;"><i class="fa-solid fa-map-pin"></i> {{
+                    accommodation.address }}</p>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="flex justify-between items-center">
+                <div>
+                    <span class="badge badge-accent" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                        <i class="fa-solid fa-star"></i> {{ accommodation.stars_quality }} Stars
+                    </span>
+                    <span class="badge badge-primary"
+                        style="font-size: 1rem; padding: 0.5rem 1rem; margin-left: 0.5rem;">
+                        {{ accommodation.type|capitalize }}
+                    </span>
+                </div>
+                <div>
+                    {% if accommodation.web %}
+                    <a href="{{ accommodation.web }}" target="_blank" class="btn btn-outline"><i
+                            class="fa-solid fa-globe"></i> Website</a>
+                    {% endif %}
+                    <a href="tel:{{ accommodation.phoneNumber }}" class="btn btn-outline"><i
+                            class="fa-solid fa-phone"></i> {{ accommodation.phoneNumber }}</a>
+                </div>
+            </div>
+
+            <hr style="margin: var(--spacing-md) 0; border-color: var(--border-color);">
+
+            <h3>About this stay</h3>
+            <p class="text-muted" style="margin-top: var(--spacing-sm);">{{ accommodation.description }}</p>
+        </div>
+    </div>
+
+    <!-- Availability / Rooms Config -->
+    <div style="margin-bottom: var(--spacing-lg);">
+        <h2 style="margin-bottom: var(--spacing-md);">Available Rooms</h2>
+
+        <!-- Search Dates Update Form -->
+        <div class="card"
+            style="padding: var(--spacing-md); margin-bottom: var(--spacing-md); background-color: #F9FAFB;">
+            <form action="{{ url_for('aco.show', id=accommodation.id) }}" method="GET" class="flex items-end gap-4">
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label class="form-label">Check-in</label>
+                    <input type="date" name="checkin" class="form-control" value="{{ checkin or '' }}" required>
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label class="form-label">Check-out</label>
+                    <input type="date" name="checkout" class="form-control" value="{{ checkout or '' }}" required>
+                </div>
+                <button type="submit" class="btn btn-outline">Update Dates</button>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-3">
+            {% for room in accommodation.rooms %}
+            <div class="card">
+                <img src="https://placehold.co/400x250?text=Room+{{ room.roomNumber }}" alt="Room" class="card-img"
+                    style="height: 200px;">
+                <div class="card-body">
+                    <h3 class="card-title">{{ room.type }}</h3>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: var(--spacing-sm);">
+                        <span class="badge"><i class="fa-solid fa-user"></i> {{ room.capacity }} Guests</span>
+                        <span class="badge"><i class="fa-solid fa-door-open"></i> No. {{ room.roomNumber }}</span>
+                    </div>
+
+                    <div class="flex justify-between items-center" style="margin-top: var(--spacing-md);">
+                        <div>
+                            <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${{
+                                room.priceNight }}</span>
+                            <span class="text-muted" style="font-size: 0.875rem;">/ night</span>
+                        </div>
+
+                        {% if g.user %}
+                        <button onclick="openBookingModal('{{ room.id }}', '{{ room.type }}', '{{ room.priceNight }}')"
+                            class="btn btn-primary">
+                            Book Now
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline">Login to Book</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: var(--spacing-xl);">
+                <p class="text-muted">No rooms available for this accommodation.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Reviews Section (Placeholder for now) -->
+    <div style="margin-bottom: var(--spacing-xl);">
+        <h2>Reviews</h2>
+        <div id="reviews-container" style="margin-top: var(--spacing-md);">
+            <p class="text-muted">Loading reviews...</p>
+        </div>
+        <div style="margin-top: var(--spacing-sm);">
+            <a href="{{ url_for('booking.list_accommodation_reviews_html', accommodation_id=accommodation.id) }}"
+                class="btn btn-outline">View All Reviews</a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Booking Modal -->
+{% if g.user %}
+<div id="bookingModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="card" style="width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="card-title" style="margin: 0;">Confirm Booking</h3>
+                <button onclick="closeBookingModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <form action="{{ url_for('booking.book_accommodation') }}" method="POST">
+                <input type="hidden" name="userId" value="{{ g.user.id }}">
+                <input type="hidden" name="accommodationId" value="{{ accommodation.id }}">
+                <input type="hidden" name="roomId" id="modalRoomId">
+                <input type="hidden" name="totalPrice" id="modalTotalPriceInput">
+
+                <div
+                    style="background: var(--bg-body); padding: var(--spacing-sm); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                    <p><strong>Room:</strong> <span id="modalRoomType"></span></p>
+                    <p><strong>Price:</strong> $<span id="modalPriceNight"></span> / night</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Check-in</label>
+                    <input type="date" name="startDate" id="modalStartDate" class="form-control"
+                        value="{{ checkin or '' }}" required onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Check-out</label>
+                    <input type="date" name="endDate" id="modalEndDate" class="form-control"
+                        value="{{ checkout or '' }}" required onchange="calculateTotal()">
+                </div>
+
+                <div style="margin: var(--spacing-md) 0; font-size: 1.1rem; font-weight: 700; text-align: right;">
+                    Total: $<span id="modalTotalPrice">0.00</span>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="button" onclick="closeBookingModal()" class="btn btn-outline"
+                        style="flex: 1;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentPriceNight = 0;
+
+    function openBookingModal(roomId, roomType, priceNight) {
+        document.getElementById('bookingModal').style.display = 'flex';
+        document.getElementById('modalRoomId').value = roomId;
+        document.getElementById('modalRoomType').innerText = roomType;
+        document.getElementById('modalPriceNight').innerText = priceNight;
+        currentPriceNight = parseFloat(priceNight);
+        calculateTotal();
+    }
+
+    function closeBookingModal() {
+        document.getElementById('bookingModal').style.display = 'none';
+    }
+
+    function calculateTotal() {
+        const start = document.getElementById('modalStartDate').value;
+        const end = document.getElementById('modalEndDate').value;
+        const totalSpan = document.getElementById('modalTotalPrice');
+        const totalInput = document.getElementById('modalTotalPriceInput');
+
+        if (start && end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const diffTime = Math.abs(endDate - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 0) {
+                const total = (diffDays * currentPriceNight).toFixed(2);
+                totalSpan.innerText = total;
+                totalInput.value = total;
+            } else {
+                totalSpan.innerText = "0.00 (Select valid dates)";
+                totalInput.value = 0;
+            }
+        }
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function (event) {
+        const modal = document.getElementById('bookingModal');
+        if (event.target == modal) {
+            closeBookingModal();
+        }
+    }
+
+    // Initial fetch of reviews (simple version)
+    fetch("{{ url_for('booking.list_accommodation_reviews', accommodation_id=accommodation.id) }}")
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('reviews-container');
+            if (data.length > 0) {
+                container.innerHTML = data.map(r => `
+                <div style="border-bottom: 1px solid var(--border-color); padding: var(--spacing-sm) 0;">
+                    <div style="color: var(--accent); margin-bottom: 0.25rem;">
+                         ${'★'.repeat(r.ratingStars)}${'☆'.repeat(5 - r.ratingStars)}
+                    </div>
+                    <p>${r.reviewComment}</p>
+                    <small class="text-muted">By User #${r.idUser}</small>
+                </div>
+            `).join('');
+            } else {
+                container.innerHTML = '<p class="text-muted">No reviews yet.</p>';
+            }
+        });
+</script>
+{% endif %}
+{% endblock %}

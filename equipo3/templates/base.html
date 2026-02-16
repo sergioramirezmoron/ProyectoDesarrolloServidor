@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}HorizonStays{% endblock %}</title>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a href="{{ url_for('aco.home') }}" class="logo">
+          <i class="fa-solid fa-hotel"></i>
+          HorizonStays
+        </a>
+        <div class="nav-links">
+          <a href="{{ url_for('aco.home') }}">Home</a>
+
+          {% if g.user %}
+          {% if g.user.role == 'company' %}
+          <a href="{{ url_for('aco.manage_hotels') }}">My Properties</a>
+          <a href="{{ url_for('booking.company_bookings') }}">Manage Bookings</a>
+          {% endif %}
+
+          {% if g.user.role == 'admin' %}
+          <a href="{{ url_for('aco.admin_dashboard') }}">Admin Dashboard</a>
+          {% endif %}
+
+          <div class="user-menu" style="display: flex; align-items: center; gap: 1rem;">
+            <span class="badge badge-primary">{{ g.user.name }}</span>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">Logout</a>
+          </div>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-outline">Login</a>
+          <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
+          {% endif %}
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Optional: Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}" style="color:red; margin-bottom: 1rem;">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% block content %} {% endblock %}
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2024 HorizonStays. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro | TechStyle{% endblock %}
+
+{% block nav_links %}
+<a href="{{ url_for('login') }}">Volver al Login</a>
+{% endblock %}
+
+{% block nav_icons %}
+{% endblock %}
+
+{% block content %}
+<!-- Register Section -->
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Crear Cuenta</h1>
+            <p class="auth-subtitle">Únete a nosotros para disfrutar de ofertas exclusivas</p>
+        </div>
+
+        {% if error %}
+        <div
+            style="background-color: #fee2e2; color: #991b1b; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1.5rem; text-align: center; font-size: 0.9rem;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="{{ url_for('register') }}" method="POST">
+            <div class="form-group">
+                <label for="username" class="form-label">Nombre de Usuario</label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="tu_usuario" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+            </div>
+
+            <div class="form-group">
+                <label for="role" class="form-label">Tipo de Cuenta</label>
+                <select name="role" id="role" class="form-input" style="background-color: white;">
+                    <option value="user">Usuario (Buscar Hoteles)</option>
+                    <option value="company">Compañía (Publicar Hoteles)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="auth-btn">Registrarse</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">Inicia Sesión</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

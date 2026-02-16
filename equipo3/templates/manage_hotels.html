@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Properties - HorizonStays{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="flex justify-between items-center" style="margin-bottom: var(--spacing-lg);">
+        <h1 style="margin: 0;">My Properties</h1>
+        <a href="{{ url_for('aco.create') }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Property</a>
+    </div>
+
+    <div class="grid grid-cols-3">
+        {% for accommodation in accommodations %}
+        <div class="card">
+            <img src="https://placehold.co/400x200?text={{ accommodation.name }}" alt="{{ accommodation.name }}"
+                class="card-img">
+            <div class="card-body">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="card-title">{{ accommodation.name }}</h3>
+                        <p class="text-muted"><i class="fa-solid fa-map-pin"></i> {{ accommodation.address }}</p>
+                    </div>
+                    <span class="badge badge-primary">{{ accommodation.type }}</span>
+                </div>
+
+                <div style="margin: var(--spacing-md) 0;">
+                    <div class="flex gap-4 text-muted" style="font-size: 0.875rem;">
+                        <span><i class="fa-solid fa-star" style="color: var(--accent);"></i> {{
+                            accommodation.stars_quality }} Stars</span>
+                        <span><i class="fa-solid fa-door-open"></i> {{ accommodation.rooms|length }} Rooms</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center"
+                    style="margin-top: var(--spacing-md); border-top: 1px solid var(--border-color); padding-top: var(--spacing-sm);">
+                    <a href="{{ url_for('aco.manage_rooms', id=accommodation.id) }}" class="btn btn-outline btn-sm"><i
+                            class="fa-solid fa-bed"></i> Manage Rooms</a>
+                    <div class="flex gap-2">
+                        <a href="{{ url_for('aco.edit', id=accommodation.id) }}" class="btn btn-outline btn-sm"><i
+                                class="fa-solid fa-pen"></i></a>
+                        <form action="{{ url_for('aco.delete', id=accommodation.id) }}" method="POST"
+                            onsubmit="return confirm('Are you sure?')">
+                            <button type="submit" class="btn btn-danger btn-sm"><i
+                                    class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div
+            style="grid-column: 1 / -1; text-align: center; padding: var(--spacing-xl); background: white; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <i class="fa-solid fa-hotel"
+                style="font-size: 3rem; color: var(--text-muted); margin-bottom: var(--spacing-md);"></i>
+            <h3>No properties found</h3>
+            <p class="text-muted" style="margin-bottom: var(--spacing-md);">You haven't listed any properties yet.</p>
+            <a href="{{ url_for('aco.create') }}" class="btn btn-primary">Add your first property</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

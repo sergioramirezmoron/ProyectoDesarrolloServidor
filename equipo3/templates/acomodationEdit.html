@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Property - HorizonStays{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="card">
+        <div class="card-body">
+            <h1 style="margin-bottom: var(--spacing-lg);">Edit Property</h1>
+
+            <form action="{{ url_for('aco.edit', id=accommodation.id) }}" method="POST">
+                <div class="grid grid-cols-2" style="gap: var(--spacing-md); grid-template-columns: 1fr 1fr;">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="name" class="form-label">Property Name</label>
+                        <input type="text" id="name" name="name" class="form-control" value="{{ accommodation.name }}"
+                            required>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" id="address" name="address" class="form-control"
+                            value="{{ accommodation.address }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="type" class="form-label">Property Type</label>
+                        <select id="type" name="type" class="form-control">
+                            <option value="hotel" {% if accommodation.type=='hotel' %}selected{% endif %}>Hotel</option>
+                            <option value="house" {% if accommodation.type=='house' %}selected{% endif %}>House /
+                                Apartment</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stars_quality" class="form-label">Quality (Stars)</label>
+                        <select id="stars_quality" name="stars_quality" class="form-control">
+                            {% for i in range(1, 6) %}
+                            <option value="{{ i }}" {% if accommodation.stars_quality==i %}selected{% endif %}>{{ i }}
+                                Star{{ 's' if i > 1 else '' }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                        <input type="text" id="phoneNumber" name="phoneNumber" class="form-control"
+                            value="{{ accommodation.phoneNumber }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="web" class="form-label">Website (Optional)</label>
+                        <input type="text" id="web" name="web" class="form-control" value="{{ accommodation.web }}">
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="5"
+                            required>{{ accommodation.description }}</textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="margin-top: var(--spacing-lg);">
+                    <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Update Property</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

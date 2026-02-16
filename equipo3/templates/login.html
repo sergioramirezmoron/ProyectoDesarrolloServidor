@@ -1,0 +1,64 @@
+{% extends 'base.html' %} {% block title %}Iniciar Sesión{% endblock %} {% block
+nav_icons %} {% endblock %} {% block content %}
+<!-- Login Section -->
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">Bienvenido de nuevo</h1>
+      <p class="auth-subtitle">
+        Ingresa tus credenciales para acceder a tu cuenta
+      </p>
+    </div>
+
+    {% if error %}
+    <div
+      style="
+        background-color: #fee2e2;
+        color: #991b1b;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-size: 0.9rem;
+      "
+    >
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form action="{{ url_for('login') }}" method="POST">
+      <div class="form-group">
+        <label for="username" class="form-label">Nombre de Usuario</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="form-input"
+          placeholder="Nombre de Usuario"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+      <button type="submit" class="auth-btn">Iniciar Sesión</button>
+    </form>
+
+    <div class="auth-footer">
+      <p>
+        ¿No tienes una cuenta?
+        <a href="{{ url_for('register') }}">Regístrate aquí</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

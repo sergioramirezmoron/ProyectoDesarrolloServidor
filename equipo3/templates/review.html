@@ -1,0 +1,7 @@
+<form method="POST" action="/accommodation/review">
+    <input type="number" name="idUser" placeholder="ID Usuario" required>
+    <input type="number" name="idAccommodation" placeholder="ID Alojamiento" required>
+    <input type="number" name="ratingStars" min="1" max="5" placeholder="Estrellas" required>
+    <textarea name="reviewComment" placeholder="Comentario" required></textarea>
+    <button type="submit">Enviar Reseña</button>
+</form>
