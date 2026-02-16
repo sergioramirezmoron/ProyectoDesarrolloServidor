@@ -64,26 +64,26 @@
                 {% for c in cruises %}
                 <tr>
                     <td class="px-4 fw-bold">
-                        {% if c.cruise is defined %}{{ c.cruise.ship.cruiseName if c.cruise.ship else '-' }}{% else %}{{ c.ship.cruiseName if c.ship else '-' }}{% endif %}
+                        {{ c.cruise.ship.cruiseName if c.cruise.ship else '-' }}
                     </td>
                     <td>
                         <i class="far fa-calendar-alt text-muted me-2"></i>
-                        {% if c.cruise is defined %}{{ c.cruise.startDate.strftime('%d/%m/%Y') }}{% else %}{{ c.startDate.strftime('%d/%m/%Y') }}{% endif %}
+                        {{ c.cruise.startDate.strftime('%d/%m/%Y') }}
                     </td>
                     <td>
                         <i class="far fa-calendar-check text-muted me-2"></i>
-                        {% if c.cruise is defined %}{{ c.cruise.endDate.strftime('%d/%m/%Y') }}{% else %}{{ c.endDate.strftime('%d/%m/%Y') }}{% endif %}
+                        {{ c.cruise.endDate.strftime('%d/%m/%Y') }}
                     </td>
                     <td>
                         <small class="text-muted">
-                        {% if c.cruise is defined %}{{ c.cruise.description or '-' }}{% else %}{{ c.description or '-' }}{% endif %}
+                        {{ c.cruise.description or '-' }}
                         </small>
                     </td>
                     <td class="fw-bold text-success">
-                        {% if c.price is defined %}{{ c.price }} €{% else %}-{% endif %}
+                        {{ c.price }} €
                     </td>
                     <td class="px-4">
-                        <a href="{{ url_for('cruise.cruise_detail', idCruise=(c.cruise.idCruise if c.cruise is defined else c.idCruise), from=request.args.get('from'), to=request.args.get('to')) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                        <a href="{{ url_for('cruise.cruise_detail', idCruise=c.cruise.idCruiseRoute, from=request.args.get('from'), to=request.args.get('to')) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
                             Ver Detalles
                         </a>
                     </td>

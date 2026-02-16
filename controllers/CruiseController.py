@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
-from models import Cruise, CruiseStops, CruiseSegment
+from models import Cruise, CruiseRoute, CruiseStops, CruiseSegment
 from models import db, Location, User
 
 cruiseBp = Blueprint('cruise', __name__)
@@ -16,18 +16,18 @@ def list_cruises():
     user = get_current_user()
     city_from = request.args.get('from')
     city_to = request.args.get('to')
-    cruises = Cruise.query.all()
+    cruises = CruiseRoute.query.all()
     locations = Location.query.all()
     filtered = []
     for cruise in cruises:
-        stops = sorted(cruise.cruiseStops, key=lambda s: s.stopOrder)
+        stops = sorted(cruise.stops, key=lambda s: s.stopOrder)
         if city_from and city_to:
             try:
                 idx_from = next(i for i, s in enumerate(stops) if str(s.idLocation) == city_from)
                 idx_to = next(i for i, s in enumerate(stops) if str(s.idLocation) == city_to)
                 if idx_from < idx_to:
                     # Calcular precio parcial
-                    segments = sorted(cruise.cruiseSegments, key=lambda seg: seg.idCruiseSegment)
+                    segments = sorted(cruise.segments, key=lambda seg: seg.idSegment)
                     price = 0
                     for seg in segments:
                         so = next((s for s in stops if s.idCruiseStop == seg.idStopOrigin), None)
@@ -39,7 +39,7 @@ def list_cruises():
                 continue
         else:
             # Precio total
-            total_price = sum(seg.price for seg in cruise.cruiseSegments)
+            total_price = sum(seg.price for seg in cruise.segments)
             filtered.append({'cruise': cruise, 'price': total_price, 'from': None, 'to': None})
     return render_template("cruise_list.html", cruises=filtered, user=user, locations=locations)
 
@@ -49,7 +49,8 @@ def my_cruises():
     if not user or user.role != "company":
         flash("Solo las compañías pueden ver sus cruceros.")
         return redirect(url_for("cruise.list_cruises"))
-    cruises = Cruise.query.join(Cruise).filter(Cruise.idCompany == user.idUser).all()
+    # Corregir la consulta: mostrar las rutas de los barcos que pertenecen a la compañía
+    cruises = CruiseRoute.query.join(Cruise).filter(Cruise.idCompany == user.idUser).all()
     return render_template("my_cruises.html", cruises=cruises, user=user)
 
 @cruiseBp.route("/create", methods=["GET", "POST"])
@@ -146,7 +147,6 @@ def create_cruise():
                 if stop_origin and stop_dest:
                     from models.CruiseSegment import CruiseSegment
                     segment = CruiseSegment(
-                        idCruise=ship.idCruise,
                         idRoute=route.idCruiseRoute,
                         idStopOrigin=stop_origin.idCruiseStop,
                         idStopDestination=stop_dest.idCruiseStop,
@@ -162,19 +162,20 @@ def create_cruise():
 
 @cruiseBp.route("/<int:idCruise>", methods=["GET"])
 def cruise_detail(idCruise):
-    cruise = Cruise.query.get_or_404(idCruise)
+    # El idCruise aquí realmente es el idCruiseRoute
+    cruise = CruiseRoute.query.get_or_404(idCruise)
     city_from = request.args.get('from')
     city_to = request.args.get('to')
-    stops = sorted(cruise.cruiseStops, key=lambda s: s.stopOrder)
+    stops = sorted(cruise.stops, key=lambda s: s.stopOrder)
     filtered_stops = stops
-    filtered_segments = cruise.cruiseSegments
+    filtered_segments = cruise.segments
     if city_from and city_to:
         try:
             idx_from = next(i for i, s in enumerate(stops) if str(s.idLocation) == city_from)
             idx_to = next(i for i, s in enumerate(stops) if str(s.idLocation) == city_to)
             if idx_from < idx_to:
                 filtered_stops = stops[idx_from:idx_to+1]
-                filtered_segments = [seg for seg in cruise.cruiseSegments if seg.stop_origin in filtered_stops and seg.stop_destination in filtered_stops]
+                filtered_segments = [seg for seg in cruise.segments if seg.stop_origin in filtered_stops and seg.stop_destination in filtered_stops]
         except StopIteration:
             pass
     return render_template("cruise_detail.html", cruise=cruise, stops=filtered_stops, segments=filtered_segments)
