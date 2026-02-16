@@ -126,7 +126,7 @@
                         <div class="search-content tab-content">
                             
                             <div class="tab-pane fade" id="tab-flights">
-                                <form class="row g-2">
+                                <form class="row g-2" action="{{ url_for('flight.list_flights') }}" method="GET">
                                     <div class="col-md-3">
                                         <div class="form-floating">
                                             <input type="text" class="form-control" id="flightFrom" placeholder="Origen">
@@ -196,7 +196,7 @@
                             </div>
 
                             <div class="tab-pane fade" id="tab-transport">
-                                <form class="row g-2">
+                                <form class="row g-2" action="{{ url_for('transport.list_transports') }}" method="GET">
                                     <div class="col-md-3">
                                         <select class="form-select py-3" style="height: 58px;">
                                             <option value="bus">Autobús</option>
@@ -248,13 +248,15 @@
             <h2 class="fw-bold mb-4">Todo lo que necesitas para tu viaje</h2>
             <div class="row g-4">
                 <div class="col-md-4 col-sm-6">
-                    <div class="card category-card shadow-sm">
-                        <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="card-img-top category-img" alt="Vuelos">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold">Vuelos Internacionales</h5>
-                            <p class="card-text text-muted small">Conexiones con todas las aerolíneas principales.</p>
+                    <a href="{{ url_for('flight.list_flights') }}" class="text-decoration-none text-dark">
+                        <div class="card category-card shadow-sm">
+                            <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="card-img-top category-img" alt="Vuelos">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">Vuelos Internacionales</h5>
+                                <p class="card-text text-muted small">Conexiones con todas las aerolíneas principales.</p>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="card category-card shadow-sm">

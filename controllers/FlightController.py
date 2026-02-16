@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models import db, Flight, User
 from datetime import datetime
 
-flight_bp = Blueprint('flight', __name__, url_prefix='/flights')
+flight_bp = Blueprint('flight', __name__)
 
 @flight_bp.route('/', methods=['GET'])
 def list_flights():
