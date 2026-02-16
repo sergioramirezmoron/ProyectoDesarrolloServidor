@@ -3,79 +3,307 @@
 {% block title %}Paso 4: Vehículos | Planifica tu Viaje{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/trip-builder.css') }}">
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Progress Bar --- */
+    .wizard-progress {
+        background: white;
+        padding: 20px 0;
+        margin-bottom: 30px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .progress-step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6b6b6b;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .progress-step.completed {
+        color: var(--b-green);
+    }
+
+    .progress-step.active {
+        color: var(--b-blue);
+        font-weight: 700;
+        border-bottom: 2px solid var(--b-blue);
+        padding-bottom: 5px;
+    }
+
+    .step-number {
+        background: #ebf3ff;
+        color: var(--b-blue);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .progress-step.active .step-number {
+        background: var(--b-blue);
+        color: white;
+    }
+    
+    .progress-step.completed .step-number {
+        background: var(--b-green);
+        color: white;
+    }
+
+    /* --- Car Card Style --- */
+    .car-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+    }
+
+    .car-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        border-color: #c6c6c6;
+    }
+
+    .car-image-wrapper {
+        text-align: center;
+        margin-bottom: 15px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .car-img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .car-title {
+        color: var(--b-blue-light);
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+    }
+
+    .car-features {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    .car-feature-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .car-badge-success {
+        color: var(--b-green);
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+
+    .price-large {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .btn-select-car {
+        background-color: transparent;
+        color: var(--b-blue-light);
+        border: 1px solid var(--b-blue-light);
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 4px;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .btn-select-car:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+    
+    .supplier-logo {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 0.8rem;
+        color: #999;
+        font-weight: bold;
+        border: 1px solid #eee;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .btn-skip-link {
+        color: #6b6b6b;
+        text-decoration: none;
+    }
+    .btn-skip-link:hover {
+        text-decoration: underline;
+        color: var(--b-blue);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5 wizard-container">
-    <div class="wizard-progress animate-fade-in">
-        <div class="progress-step completed"><div class="step-number">1</div><span class="step-label">Alojamiento</span></div>
-        <div class="progress-step completed"><div class="step-number">2</div><span class="step-label">Vuelos</span></div>
-        <div class="progress-step completed"><div class="step-number">3</div><span class="step-label">Cruceros</span></div>
-        <div class="progress-step active"><div class="step-number">4</div><span class="step-label">Vehículos</span></div>
-        <div class="progress-step"><div class="step-number">5</div><span class="step-label">Tours</span></div>
-        <div class="progress-step"><div class="step-number">6</div><span class="step-label">Transporte</span></div>
+    <div class="wizard-progress sticky-top" style="z-index: 999; top: 56px;">
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Alojamiento</span>
+        </div>
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Vuelos</span>
+        </div>
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Cruceros</span>
+        </div>
+        <div class="progress-step active">
+            <div class="step-number">4</div>
+            <span>Coches</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">5</div>
+            <span>Tours</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">6</div>
+            <span>Fin</span>
+        </div>
     </div>
 
-    <div class="wizard-header animate-fade-in" style="animation-delay: 0.1s;">
-        <h2 class="wizard-title mb-2">Libertad sobre ruedas</h2>
-        <p class="text-muted lead">Alquila un vehículo y descubre rincones secretos.</p>
-    </div>
-
-    {% if cars %}
-    <div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.2s;">
-        {% for car in cars %}
-        <div class="col-md-6 col-lg-4">
-            <div class="service-card d-flex flex-column h-100">
-                <div class="mb-4 text-center">
-                    <div class="bg-soft-primary rounded-circle d-inline-flex p-3 mb-3">
-                        <i class="fas fa-car fa-3x text-primary"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1">{{ car.brand }} {{ car.model }}</h5>
-                    <div class="d-flex justify-content-center gap-3 text-muted small mt-2">
-                        <span><i class="fas fa-users me-1"></i>{{ car.maxPeople }} pasajeros</span>
-                        <span><i class="fas fa-cog me-1"></i>Manual/Auto</span>
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Elige tu vehículo</h2>
+                        <p class="text-muted mb-0">Muévete con total libertad en tu destino.</p>
                     </div>
                 </div>
-                
-                <div class="mt-auto">
-                    <div class="d-flex justify-content-between align-items-end mb-3">
-                        <div>
-                            <span class="price-tag">{{ car.pricePerDay }}€</span>
-                            <small class="text-muted d-block">por día</small>
+
+                {% if cars %}
+                <div class="row">
+                    {% for car in cars %}
+                    <div class="col-md-6 mb-4">
+                        <div class="car-card h-100 animate__animated animate__fadeInUp">
+                            <div class="supplier-logo">RENTAL</div>
+                            
+                            <div class="car-image-wrapper">
+                                <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=500&q=80" class="car-img" alt="Coche">
+                            </div>
+
+                            <div>
+                                <h5 class="car-title">{{ car.brand }} {{ car.model }}</h5>
+                                <p class="text-muted small mb-3">o similar</p>
+
+                                <div class="car-features">
+                                    <div class="car-feature-item" title="Pasajeros">
+                                        <i class="fas fa-user"></i> {{ car.maxPeople }}
+                                    </div>
+                                    <div class="car-feature-item" title="Transmisión">
+                                        <i class="fas fa-cog"></i> Manual
+                                    </div>
+                                    <div class="car-feature-item" title="Puertas">
+                                        <i class="fas fa-door-closed"></i> 4
+                                    </div>
+                                    <div class="car-feature-item" title="Aire Acondicionado">
+                                        <i class="fas fa-snowflake"></i> A/C
+                                    </div>
+                                </div>
+
+                                <div class="car-badge-success">
+                                    <i class="fas fa-check"></i> Kilometraje ilimitado
+                                </div>
+                                <div class="car-badge-success">
+                                    <i class="fas fa-check"></i> Cancelación gratuita
+                                </div>
+
+                                <hr class="my-3 text-muted opacity-25">
+
+                                <div class="d-flex justify-content-between align-items-end">
+                                    <div>
+                                        <div class="text-muted small">Precio por día</div>
+                                        <div class="price-large">{{ car.pricePerDay }}€</div>
+                                    </div>
+                                    <div class="w-50">
+                                        <form method="post" action="{{ url_for('tripBuilder.save_car') }}">
+                                            <input type="hidden" name="car_id" value="{{ car.idCar }}">
+                                            <input type="hidden" name="action" value="add">
+                                            <button type="submit" class="btn btn-select-car">
+                                                Ver oferta
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <span class="badge bg-soft-success text-success rounded-pill px-3">Disponible</span>
                     </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5 bg-white border rounded shadow-sm">
+                    <i class="fas fa-car fa-3x text-muted mb-3 opacity-50"></i>
+                    <h4 class="fw-bold text-dark">No hay coches disponibles</h4>
+                    <p class="text-muted">No encontramos vehículos en esta ubicación para tus fechas.</p>
+                    <form method="post" action="{{ url_for('tripBuilder.save_car') }}" class="mt-3">
+                        <input type="hidden" name="action" value="skip">
+                        <button type="submit" class="btn btn-primary">Saltar a Tours</button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                    <a href="{{ url_for('tripBuilder.step_cruises') }}" class="btn btn-outline-secondary border-0">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    
                     <form method="post" action="{{ url_for('tripBuilder.save_car') }}">
-                        <input type="hidden" name="car_id" value="{{ car.idCar }}">
-                        <input type="hidden" name="action" value="add">
-                        <button type="submit" class="btn btn-wizard-add w-100 py-2 rounded-pill shadow-sm">
-                            <i class="fas fa-plus-circle me-2"></i>Añadir Vehículo
+                        <input type="hidden" name="action" value="skip">
+                        <button type="submit" class="btn btn-skip-link">
+                            No necesito coche, saltar paso <i class="fas fa-arrow-right ms-1"></i>
                         </button>
                     </form>
                 </div>
+
             </div>
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <div class="text-center py-5 animate-fade-in">
-        <div class="mb-4"><i class="fas fa-car-side fa-4x text-muted opacity-50"></i></div>
-        <h4 class="text-muted">No hay vehículos para estas fechas</h4>
-        <p class="text-muted mb-4">Puedes continuar con el siguiente paso.</p>
-    </div>
-    {% endif %}
-
-    <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top animate-fade-in" style="animation-delay: 0.3s;">
-        <a href="{{ url_for('tripBuilder.step_cruises') }}" class="btn btn-link text-decoration-none text-muted fw-bold">
-            <i class="fas fa-chevron-left me-2"></i>Atrás
-        </a>
-        <form method="post" action="{{ url_for('tripBuilder.save_car') }}">
-            <input type="hidden" name="action" value="skip">
-            <button type="submit" class="btn btn-wizard-skip px-5 py-2 rounded-pill shadow-sm">
-                No necesito vehículo <i class="fas fa-chevron-right ms-2"></i>
-            </button>
-        </form>
-    </div>
-</div>
 {% endblock %}

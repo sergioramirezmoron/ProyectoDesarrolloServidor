@@ -3,80 +3,283 @@
 {% block title %}Paso 6: Transporte | Planifica tu Viaje{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/trip-builder.css') }}">
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Progress Bar --- */
+    .wizard-progress {
+        background: white;
+        padding: 20px 0;
+        margin-bottom: 30px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .progress-step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6b6b6b;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .progress-step.completed {
+        color: var(--b-green);
+    }
+
+    .progress-step.active {
+        color: var(--b-blue);
+        font-weight: 700;
+        border-bottom: 2px solid var(--b-blue);
+        padding-bottom: 5px;
+    }
+
+    .step-number {
+        background: #ebf3ff;
+        color: var(--b-blue);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .progress-step.active .step-number {
+        background: var(--b-blue);
+        color: white;
+    }
+    
+    .progress-step.completed .step-number {
+        background: var(--b-green);
+        color: white;
+    }
+
+    /* --- Transport Card Style --- */
+    .transport-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+        transition: box-shadow 0.2s;
+    }
+
+    .transport-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #c6c6c6;
+    }
+
+    .transport-icon-box {
+        width: 48px;
+        height: 48px;
+        background-color: #f2f2f2;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--b-blue);
+        font-size: 1.2rem;
+    }
+
+    .time-primary {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--b-text);
+    }
+
+    .route-line-dashed {
+        border-top: 2px dashed #ccc;
+        position: relative;
+        margin: 10px 0;
+        width: 100%;
+    }
+    
+    .route-duration {
+        background: white;
+        padding: 0 10px;
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .transport-badge {
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        background-color: #ebf3ff;
+        color: var(--b-blue);
+        text-transform: uppercase;
+    }
+
+    .price-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .btn-select-transport {
+        background-color: transparent;
+        color: var(--b-blue-light);
+        font-weight: 600;
+        border: 1px solid var(--b-blue-light);
+        padding: 8px 20px;
+        border-radius: 4px;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .btn-select-transport:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .btn-skip-link {
+        color: #6b6b6b;
+        text-decoration: none;
+    }
+    .btn-skip-link:hover {
+        text-decoration: underline;
+        color: var(--b-blue);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5 wizard-container">
-    <div class="wizard-progress animate-fade-in">
-        <div class="progress-step completed"><div class="step-number">1</div><span class="step-label">Alojamiento</span></div>
-        <div class="progress-step completed"><div class="step-number">2</div><span class="step-label">Vuelos</span></div>
-        <div class="progress-step completed"><div class="step-number">3</div><span class="step-label">Cruceros</span></div>
-        <div class="progress-step completed"><div class="step-number">4</div><span class="step-label">Vehículos</span></div>
-        <div class="progress-step completed"><div class="step-number">5</div><span class="step-label">Tours</span></div>
-        <div class="progress-step active"><div class="step-number">6</div><span class="step-label">Transporte</span></div>
+    <div class="wizard-progress sticky-top" style="z-index: 999; top: 56px;">
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Alojamiento</span>
+        </div>
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Vuelos</span>
+        </div>
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Cruceros</span>
+        </div>
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Coches</span>
+        </div>
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Tours</span>
+        </div>
+        <div class="progress-step active">
+            <div class="step-number">6</div>
+            <span>Transporte</span>
+        </div>
     </div>
 
-    <div class="wizard-header animate-fade-in" style="animation-delay: 0.1s;">
-        <h2 class="wizard-title mb-2">Traslados y Conexiones</h2>
-        <p class="text-muted lead">Autobús, tren o metro. Elige cómo moverte.</p>
-    </div>
-
-    {% if transports %}
-    <div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.2s;">
-        {% for trans in transports %}
-        <div class="col-md-6 col-lg-4">
-            <div class="service-card d-flex flex-column h-100">
-                <div class="mb-4">
-                    <span class="badge bg-soft-secondary text-secondary mb-2">{{ trans.type|upper }}</span>
-                    <h5 class="fw-bold mb-3 d-flex align-items-center">
-                        <span>{{ trans.locationStart.city if trans.locationStart else 'Origen' }}</span>
-                        <i class="fas fa-long-arrow-alt-right mx-2 opacity-50"></i>
-                        <span>{{ trans.locationEnd.city if trans.locationEnd else 'Destino' }}</span>
-                    </h5>
-                    <div class="text-muted small">
-                        <i class="far fa-clock me-1"></i>Salida: {{ trans.startDate.strftime('%H:%M') }}
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Traslados y Conexiones</h2>
+                        <p class="text-muted mb-0">Billetes de tren y autobús para completar tu ruta.</p>
                     </div>
                 </div>
-                
-                <div class="mt-auto">
-                    <div class="d-flex justify-content-between align-items-end mb-3">
-                        <div>
-                            <span class="price-tag">{{ trans.price }}€</span>
-                            <small class="text-muted d-block">billete individual</small>
+
+                {% if transports %}
+                    {% for trans in transports %}
+                    <div class="transport-card animate__animated animate__fadeInUp">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 mb-3 mb-md-0 d-flex flex-column align-items-center text-center">
+                                <div class="transport-icon-box mb-2">
+                                    {% if trans.type == 'bus' %}
+                                        <i class="fas fa-bus"></i>
+                                    {% else %}
+                                        <i class="fas fa-train"></i>
+                                    {% endif %}
+                                </div>
+                                <span class="transport-badge">{{ trans.type }}</span>
+                            </div>
+
+                            <div class="col-md-7 mb-3 mb-md-0">
+                                <div class="row align-items-center text-center">
+                                    <div class="col-5 text-start">
+                                        <div class="time-primary">{{ trans.startDate.strftime('%H:%M') }}</div>
+                                        <div class="text-muted small">{{ trans.locationStart.city if trans.locationStart else 'Origen' }}</div>
+                                        <div class="text-muted small">{{ trans.startDate.strftime('%d %b') }}</div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="route-line-dashed">
+                                            <i class="fas fa-chevron-right route-duration"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-5 text-end">
+                                        <div class="time-primary">--:--</div> <div class="text-muted small">{{ trans.locationEnd.city if trans.locationEnd else 'Destino' }}</div>
+                                        <div class="text-muted small">Llegada</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 border-start-md ps-md-4 text-end">
+                                <div class="text-muted small">Precio billete</div>
+                                <div class="price-value mb-2">{{ trans.price }}€</div>
+                                
+                                <form method="post" action="{{ url_for('tripBuilder.save_transport') }}">
+                                    <input type="hidden" name="transport_id" value="{{ trans.idBusTrain }}">
+                                    <input type="hidden" name="action" value="add">
+                                    <button type="submit" class="btn btn-select-transport">
+                                        Seleccionar
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <i class="{% if trans.type == 'bus' %}fas fa-bus{% else %}fas fa-train{% endif %} fa-2x opacity-10"></i>
                     </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5 bg-white border rounded shadow-sm">
+                        <i class="fas fa-subway fa-3x text-muted mb-3 opacity-50"></i>
+                        <h4 class="fw-bold text-dark">No hay transporte disponible</h4>
+                        <p class="text-muted">No encontramos conexiones para esta ruta o fechas.</p>
+                        <form method="post" action="{{ url_for('tripBuilder.save_transport') }}" class="mt-3">
+                            <input type="hidden" name="action" value="skip">
+                            <button type="submit" class="btn btn-primary">Ver resumen final</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                    <a href="{{ url_for('tripBuilder.step_tours') }}" class="btn btn-outline-secondary border-0">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    
                     <form method="post" action="{{ url_for('tripBuilder.save_transport') }}">
-                        <input type="hidden" name="transport_id" value="{{ trans.idBusTrain }}">
-                        <input type="hidden" name="action" value="add">
-                        <button type="submit" class="btn btn-wizard-add w-100 py-2 rounded-pill shadow-sm">
-                            <i class="fas fa-plus-circle me-2"></i>Añadir Transporte
+                        <input type="hidden" name="action" value="skip">
+                        <button type="submit" class="btn btn-skip-link fw-bold text-primary">
+                            Finalizar y ver resumen <i class="fas fa-check-circle ms-2"></i>
                         </button>
                     </form>
                 </div>
+
             </div>
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <div class="text-center py-5 animate-fade-in">
-        <div class="mb-4"><i class="fas fa-route fa-4x text-muted opacity-50"></i></div>
-        <h4 class="text-muted">No hay transporte disponible</h4>
-        <p class="text-muted mb-4">Finaliza tu viaje ahora.</p>
-    </div>
-    {% endif %}
-
-    <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top animate-fade-in" style="animation-delay: 0.3s;">
-        <a href="{{ url_for('tripBuilder.step_tours') }}" class="btn btn-link text-decoration-none text-muted fw-bold">
-            <i class="fas fa-chevron-left me-2"></i>Atrás
-        </a>
-        <form method="post" action="{{ url_for('tripBuilder.save_transport') }}">
-            <input type="hidden" name="action" value="skip">
-            <button type="submit" class="btn btn-wizard-skip px-5 py-2 rounded-pill shadow-sm">
-                Ver resumen del viaje <i class="fas fa-chevron-right ms-2"></i>
-            </button>
-        </form>
-    </div>
-</div>
 {% endblock %}

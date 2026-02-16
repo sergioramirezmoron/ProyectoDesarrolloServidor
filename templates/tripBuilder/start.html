@@ -3,126 +3,219 @@
 {% block title %}Comienza tu Gran Aventura | TravelDream{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/trip-builder.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
-    .start-hero {
-        background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80');
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-yellow: #febb02;
+        --b-bg-gray: #f5f5f5;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+    }
+
+    /* --- Header con imagen sutil --- */
+    .builder-header {
+        background-color: var(--b-blue);
+        background-image: linear-gradient(rgba(0, 53, 128, 0.7), rgba(0, 53, 128, 0.7)), url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80');
         background-size: cover;
         background-position: center;
-        padding: 6rem 2rem;
-        border-radius: 30px;
+        padding: 80px 0 140px 0; /* Padding inferior grande para el efecto overlap */
         color: white;
         text-align: center;
-        margin-bottom: 4rem;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        margin-top: 56px;
     }
-    
-    .start-card {
+
+    /* --- Tarjeta Principal --- */
+    .builder-card {
         background: white;
-        border-radius: 20px;
-        padding: 3rem;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-        margin-top: -6rem;
+        border-radius: 8px;
+        border: 1px solid #e7e7e7;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.1);
+        padding: 40px;
+        margin-top: -80px; /* Efecto de superposición */
         position: relative;
-        z-index: 2;
+        z-index: 10;
+    }
+
+    /* --- Stepper (Indicador de progreso) --- */
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
     }
     
-    .feature-icon {
+    .step-badge {
+        background-color: var(--b-blue-light);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* --- Inputs Estilizados --- */
+    .form-control-lg {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+
+    .form-control-lg:focus {
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 0.2rem rgba(0, 108, 228, 0.25);
+    }
+
+    /* --- Botón de Acción --- */
+    .btn-action-main {
+        background-color: var(--b-blue-light);
+        color: black;
+        font-weight: 700;
+        font-size: 1.2rem;
+        padding: 15px;
+        border-radius: 4px;
+        border: none;
+        transition: background 0.3s;
+        width: 100%;
+    }
+
+    .btn-action-main:hover {
+        background-color: var(--b-blue);
+        color: black;
+    }
+
+    /* --- Iconos de características --- */
+    .feature-box {
+        text-align: center;
+        padding: 20px;
+    }
+    .feature-icon-circle {
         width: 60px;
         height: 60px;
-        background: #f1f5f9;
-        border-radius: 16px;
+        background-color: rgba(0, 108, 228, 0.1);
+        color: var(--b-blue-light);
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
-        color: var(--wizard-primary);
-        margin-bottom: 1.5rem;
+        margin: 0 auto 15px auto;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5 wizard-container">
-    <div class="start-hero animate-fade-in">
-        <h1 class="display-3 fw-bold mb-3">Diseña el viaje de tus sueños</h1>
-        <p class="lead mb-4">Personaliza cada detalle, desde el vuelo hasta el tour más pequeño.</p>
+    <div class="builder-header">
+        <div class="container">
+            <h1 class="fw-bold display-5">Diseña el viaje de tus sueños</h1>
+            <p class="lead opacity-75">Personaliza cada detalle en un solo lugar</p>
+        </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="start-card animate-fade-in" style="animation-delay: 0.1s;">
-                <form method="post" action="{{ url_for('tripBuilder.save_trip_name') }}">
-                    <div class="mb-5">
-                        <label for="trip_name" class="form-label fw-bold text-dark">Nombre de tu aventura</label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text bg-transparent border-end-0"><i class="fas fa-magic text-primary"></i></span>
-                            <input type="text" class="form-control border-start-0 ps-0" id="trip_name" name="trip_name" 
-                                   placeholder="Ej: Mi Verano en Japón 2024" required>
-                        </div>
-                        <small class="text-muted mt-2 d-block">Dale un nombre inspirador a tu itinerario.</small>
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="builder-card animate__animated animate__fadeInUp">
+                    
+                    <div class="step-indicator">
+                        <span class="step-badge">Paso 1 de 6: Configuración Inicial</span>
                     </div>
 
-                    <div class="row g-4 mb-5">
-                        <div class="col-md-12">
-                            <label class="form-label fw-bold text-dark">¿Cuándo viajarás?</label>
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-text bg-transparent border-end-0"><i class="far fa-calendar-alt text-primary"></i></span>
-                                <input type="text" class="form-control border-start-0 ps-0 datepicker" id="date_range" 
-                                       placeholder="Selecciona el rango de fechas" required>
+                    <form method="post" action="{{ url_for('tripBuilder.save_trip_name') }}">
+                        
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-dark mb-3">Dale un nombre a tu aventura</h5>
+                            <div class="form-floating">
+                                <input type="text" class="form-control form-control-lg" id="trip_name" name="trip_name" placeholder="Ej: Verano en Italia" required>
+                                <label for="trip_name" class="text-muted"><i class="fas fa-pen me-2"></i>Nombre del viaje (Ej: Mi ruta por Japón)</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <h5 class="fw-bold text-dark mb-3">¿Cuándo viajarás?</h5>
+                            <div class="form-floating">
+                                <input type="text" class="form-control form-control-lg bg-white" id="date_range" placeholder="Selecciona fechas" required readonly>
+                                <label for="date_range" class="text-muted"><i class="far fa-calendar-alt me-2"></i>Fechas de ida y vuelta</label>
                             </div>
                             <input type="hidden" name="startDate" id="startDate">
                             <input type="hidden" name="endDate" id="endDate">
                         </div>
-                    </div>
 
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg fw-bold w-100">
+                        <button type="submit" class="btn-action-main shadow-sm">
                             Empezar a Planificar <i class="fas fa-arrow-right ms-2"></i>
                         </button>
-                        <p class="text-muted small mt-4">Paso 1 de 6: Alojamiento</p>
+                        
+                        <p class="text-center text-muted small mt-3">
+                            <i class="fas fa-lock me-1"></i> Sin compromisos. Podrás modificar esto más tarde.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5 justify-content-center">
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon-circle">
+                        <i class="fas fa-shield-alt"></i>
                     </div>
-                </form>
+                    <h6 class="fw-bold">Reserva Segura</h6>
+                    <p class="text-muted small">Tus datos protegidos con encriptación de nivel bancario.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon-circle">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h6 class="fw-bold">Confirmación Instantánea</h6>
+                    <p class="text-muted small">Recibe todos tus bonos y tickets al momento.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon-circle">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h6 class="fw-bold">Soporte 24/7</h6>
+                    <p class="text-muted small">Estamos contigo antes, durante y después del viaje.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="row mt-5 pt-5 text-center animate-fade-in" style="animation-delay: 0.2s;">
-        <div class="col-md-4">
-            <div class="feature-icon mx-auto"><i class="fas fa-shield-check"></i></div>
-            <h5 class="fw-bold">Reserva Segura</h5>
-            <p class="text-muted small">Tus datos y pagos están protegidos con encriptación de grado bancario.</p>
-        </div>
-        <div class="col-md-4">
-            <div class="feature-icon mx-auto"><i class="fas fa-bolt"></i></div>
-            <h5 class="fw-bold">Confirmación Instantánea</h5>
-            <p class="text-muted small">Recibe tus bonos y tickets al momento de finalizar la compra.</p>
-        </div>
-        <div class="col-md-4">
-            <div class="feature-icon mx-auto"><i class="fas fa-headset"></i></div>
-            <h5 class="fw-bold">Soporte 24/7</h5>
-            <p class="text-muted small">Nuestro equipo está disponible en todo momento durante tu viaje.</p>
-        </div>
-    </div>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script> <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#date_range", {
+                mode: "range",
+                minDate: "today",
+                dateFormat: "d-m-Y",
+                locale: "es", // Poner en español
+                showMonths: 2, // Mostrar 2 meses como en Booking
+                altInput: true,
+                altFormat: "j F, Y", // Formato amigable (ej: 10 Octubre, 2024)
+                onClose: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        const start = selectedDates[0];
+                        const end = selectedDates[1];
+                        
+                        // Formato YYYY-MM-DD para el backend (Python/Flask standard)
+                        // Ajustamos a zona horaria local para evitar errores de dia anterior
+                        const offset = start.getTimezoneOffset();
+                        const startLocal = new Date(start.getTime() - (offset*60*1000));
+                        const endLocal = new Date(end.getTime() - (offset*60*1000));
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        flatpickr("#date_range", {
-            mode: "range",
-            minDate: "today",
-            dateFormat: "Y-m-d",
-            onClose: function(selectedDates, dateStr, instance) {
-                if (selectedDates.length === 2) {
-                    const start = selectedDates[0];
-                    const end = selectedDates[1];
-                    
-                    // Format as YYYY-MM-DD for backend
-                    document.getElementById('startDate').value = start.toISOString().split('T')[0];
-                    document.getElementById('endDate').value = end.toISOString().split('T')[0];
+                        document.getElementById('startDate').value = startLocal.toISOString().split('T')[0];
+                        document.getElementById('endDate').value = endLocal.toISOString().split('T')[0];
+                    }
                 }
-            }
+            });
         });
-    });
-</script>
+    </script>
 {% endblock %}
