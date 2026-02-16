@@ -1,5 +1,79 @@
 {% extends "base.html" %}
+
 {% block title %}Paso 5: Tours | Planifica tu Viaje{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}"><style>.wizard-progress{background:white;padding:1.5rem;border-radius:16px;margin-bottom:2rem;box-shadow:0 4px 15px rgba(0,0,0,0.08)}.progress-step{text-align:center}.progress-step.active .step-number{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white}.progress-step.completed .step-number{background:#10b981;color:white}.step-number{width:50px;height:50px;border-radius:50%;background:#e5e7eb;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;margin-bottom:0.5rem}.service-card{background:white;border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 4px 15px rgba(0,0,0,0.08);transition:all 0.3s ease}.service-card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,0.12)}</style>{% endblock %}
-{% block content %}<div class="container py-5"><div class="wizard-progress"><div class="row text-center"><div class="col progress-step completed"><div class="step-number">1</div><small>Alojamiento</small></div><div class="col progress-step completed"><div class="step-number">2</div><small>Vuelos</small></div><div class="col progress-step completed"><div class="step-number">3</div><small>Cruceros</small></div><div class="col progress-step completed"><div class="step-number">4</div><small>Vehículos</small></div><div class="col progress-step active"><div class="step-number">5</div><small>Tours</small></div><div class="col progress-step"><div class="step-number">6</div><small>Transporte</small></div></div></div>    <div class="mb-4"><h2 class="fw-bold"><i class="fas fa-ticket-alt text-primary me-2"></i>¿Quieres hacer algún tour?</h2><p class="text-muted">Selecciona tours o actividades, o salta este paso</p></div>{% if tours %}<div class="row g-4 mb-4">{% for tour in tours %}<div class="col-md-6"><div class="service-card"><div class="d-flex justify-content-between align-items-start mb-3"><div><h5 class="fw-bold mb-2"><i class="fas fa-map-marked-alt text-primary me-2"></i>{{ tour.title }}</h5></div><div class="text-end"><h4 class="text-success mb-0">{{ tour.price }}€</h4><small class="text-muted">por persona</small></div></div><form method="post" action="{{ url_for('tripBuilder.save_tour') }}"><input type="hidden" name="tour_id" value="{{ tour.idTour }}"><input type="hidden" name="action" value="add"><button type="submit" class="btn btn-primary w-100 rounded-pill"><i class="fas fa-plus-circle me-2"></i>Añadir al Viaje</button></form></div></div>{% endfor %}</div>{% else %}
-<div class="alert alert-info rounded-4"><i class="fas fa-info-circle me-2"></i>No hay tours disponibles.</div>{% endif %}<div class="d-flex justify-content-between mt-5"><a href="{{ url_for('tripBuilder.step_cars') }}" class="btn btn-outline-secondary rounded-pill px-4"><i class="fas fa-arrow-left me-2"></i>Atrás</a><form method="post" action="{{ url_for('tripBuilder.save_tour') }}" class="d-inline"><input type="hidden" name="action" value="skip"><button type="submit" class="btn btn-outline-primary rounded-pill px-4">Saltar Paso<i class="fas fa-arrow-right ms-2"></i></button></form></div></div>{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/trip-builder.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 wizard-container">
+    <div class="wizard-progress animate-fade-in">
+        <div class="progress-step completed"><div class="step-number">1</div><span class="step-label">Alojamiento</span></div>
+        <div class="progress-step completed"><div class="step-number">2</div><span class="step-label">Vuelos</span></div>
+        <div class="progress-step completed"><div class="step-number">3</div><span class="step-label">Cruceros</span></div>
+        <div class="progress-step completed"><div class="step-number">4</div><span class="step-label">Vehículos</span></div>
+        <div class="progress-step active"><div class="step-number">5</div><span class="step-label">Tours</span></div>
+        <div class="progress-step"><div class="step-number">6</div><span class="step-label">Transporte</span></div>
+    </div>
+
+    <div class="wizard-header animate-fade-in" style="animation-delay: 0.1s;">
+        <h2 class="wizard-title mb-2">Experiencias y Aventuras</h2>
+        <p class="text-muted lead">Crea recuerdos que duren toda la vida.</p>
+    </div>
+
+    {% if tours %}
+    <div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.2s;">
+        {% for tour in tours %}
+        <div class="col-md-6 col-lg-4">
+            <div class="service-card d-flex flex-column h-100">
+                <div class="mb-4">
+                    <span class="badge bg-soft-warning text-warning mb-2">Excursión Destacada</span>
+                    <h5 class="fw-bold mb-2">{{ tour.title }}</h5>
+                    <p class="text-muted small line-clamp-2 mb-2">{{ tour.description|truncate(80) }}</p>
+                    <div class="text-muted small">
+                        <i class="far fa-calendar-alt me-1"></i>Fecha: {{ tour.startDate.strftime('%d/%m/%Y') }}
+                    </div>
+                </div>
+                
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <div>
+                            <span class="price-tag">{{ tour.price }}€</span>
+                            <small class="text-muted d-block">por persona</small>
+                        </div>
+                        <i class="fas fa-ticket-alt fa-2x opacity-10"></i>
+                    </div>
+                    <form method="post" action="{{ url_for('tripBuilder.save_tour') }}">
+                        <input type="hidden" name="tour_id" value="{{ tour.idTour }}">
+                        <input type="hidden" name="action" value="add">
+                        <button type="submit" class="btn btn-wizard-add w-100 py-2 rounded-pill shadow-sm">
+                            <i class="fas fa-plus-circle me-2"></i>Añadir Tour
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 animate-fade-in">
+        <div class="mb-4"><i class="fas fa-map-marked-alt fa-4x text-muted opacity-50"></i></div>
+        <h4 class="text-muted">No hay tours disponibles</h4>
+        <p class="text-muted mb-4">Puedes saltar este paso y ver el transporte.</p>
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top animate-fade-in" style="animation-delay: 0.3s;">
+        <a href="{{ url_for('tripBuilder.step_cars') }}" class="btn btn-link text-decoration-none text-muted fw-bold">
+            <i class="fas fa-chevron-left me-2"></i>Atrás
+        </a>
+        <form method="post" action="{{ url_for('tripBuilder.save_tour') }}">
+            <input type="hidden" name="action" value="skip">
+            <button type="submit" class="btn btn-wizard-skip px-5 py-2 rounded-pill shadow-sm">
+                No necesito tours <i class="fas fa-chevron-right ms-2"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

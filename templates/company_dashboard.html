@@ -123,9 +123,9 @@
             </div>
         </div>
 
-        <!-- Vuelos (Placeholder if specialized) -->
+        <!-- Vuelos -->
         <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm hover-card transition-all">
+            <div class="card h-100 border-0 shadow-sm hover-card transition-all border-start border-danger border-4">
                 <div class="card-body text-center p-4">
                     <div class="mb-3 text-danger">
                         <i class="fas fa-plane fa-3x"></i>
@@ -133,9 +133,25 @@
                     <h5 class="card-title fw-bold">Vuelos</h5>
                     <p class="card-text text-muted small">Gestiona tus ofertas de vuelos.</p>
                     <div class="d-grid gap-2 mt-4">
-                        <!-- Assuming flight listing exists, modify if needed -->
                         <a href="{{ url_for('flight.list_flights') }}" class="btn btn-outline-danger">Ver Vuelos</a>
                         <a href="{{ url_for('flight.create_flight') }}" class="btn btn-danger btn-sm">Crear Nuevo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alquiler de Vehículos -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-card transition-all border-start border-success border-4">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-success">
+                        <i class="fas fa-car fa-3x"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Alquiler de Vehículos</h5>
+                    <p class="card-text text-muted small">Gestiona tu flota de coches y vehículos de alquiler.</p>
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{{ url_for('car.list_cars') }}" class="btn btn-outline-success">Ver Mis Vehículos</a>
+                        <a href="{{ url_for('car.show_create_form') }}" class="btn btn-success btn-sm">Crear Nuevo</a>
                     </div>
                 </div>
             </div>

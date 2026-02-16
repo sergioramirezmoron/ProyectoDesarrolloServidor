@@ -1,0 +1,155 @@
+/* trip-builder.css - Premium styling for the Trip Builder Wizard */
+
+:root {
+    --wizard-primary: #6366f1;
+    --wizard-secondary: #a855f7;
+    --wizard-success: #10b981;
+    --wizard-bg: #f8fafc;
+    --wizard-card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.wizard-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Progress Bar */
+.wizard-progress {
+    background: white;
+    padding: 2rem;
+    border-radius: 24px;
+    margin-bottom: 3rem;
+    box-shadow: var(--wizard-card-shadow);
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.wizard-progress::before {
+    content: '';
+    position: absolute;
+    top: 50px;
+    left: 10%;
+    right: 10%;
+    height: 4px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.progress-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.step-number {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    transition: all 0.4s ease;
+    color: #94a3b8;
+}
+
+.progress-step.active .step-number {
+    background: white;
+    border-color: var(--wizard-primary);
+    color: var(--wizard-primary);
+    transform: scale(1.15);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+.progress-step.completed .step-number {
+    background: var(--wizard-success);
+    border-color: var(--wizard-success);
+    color: white;
+}
+
+.step-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    display: block;
+}
+
+.progress-step.active .step-label {
+    color: var(--wizard-primary);
+}
+
+/* Service Cards */
+.service-card {
+    background: white;
+    border: 1px solid rgba(226, 232, 240, 0.5);
+    border-radius: 20px;
+    padding: 1.75rem;
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--wizard-card-shadow);
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: var(--wizard-primary);
+}
+
+.price-tag {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--wizard-success);
+}
+
+/* Buttons */
+.btn-wizard-add {
+    background: linear-gradient(135deg, var(--wizard-primary) 0%, var(--wizard-secondary) 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.btn-wizard-add:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+.btn-wizard-skip {
+    border: 2px solid #e2e8f0;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.btn-wizard-skip:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+/* Hero Section */
+.wizard-header {
+    margin-bottom: 2.5rem;
+}
+
+.wizard-title {
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.5px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}

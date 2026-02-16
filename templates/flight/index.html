@@ -6,8 +6,8 @@
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-plane-departure me-2 text-primary"></i>Vuelos Disponibles</h1>
-        {% if user_role == 'company' or user_role == 'admin' %}
-        <a href="{{ url_for('flight_bp.new_flight') }}" class="btn btn-primary">
+        {% if session.get('role') in ['company', 'admin'] %}
+        <a href="{{ url_for('flight.create_flight') }}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Añadir Vuelo
         </a>
         {% endif %}
@@ -32,36 +32,39 @@
                     <tbody>
                         {% for flight in flights %}
                         <tr>
-                            <td class="px-4 text-secondary">#{{ flight.id }}</td>
-                            <td class="fw-bold text-primary">{{ flight.aeroline }}</td>
-                            <td>{{ flight.startLocation }}</td> <!-- Consider resolving ID to Name via template logical or controller -->
-                            <td>{{ flight.endLocation }}</td>
-                            <td>
-                                <div class="small">
-                                    <div class="text-nowrap"><i class="fas fa-plane-departure me-1 text-muted"></i>{{ flight.startDate }}</div>
-                                    <div class="text-nowrap"><i class="fas fa-plane-arrival me-1 text-muted"></i>{{ flight.endDate }}</div>
-                                </div>
-                            </td>
-                            <td><span class="badge bg-info text-dark">{{ flight.maxOccupants }}</span></td>
-                            <td class="text-end fw-bold text-success">{{ flight.price }}€</td>
-                            <td class="text-end px-4">
-                                <div class="d-flex justify-content-end gap-2">
-                                    {% if user_role == 'admin' or (user_role == 'company' and flight.idCompany == session.user_id) %}
-                                    <a href="{{ url_for('flight_bp.edit_flight', id=flight.id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="{{ url_for('flight_bp.delete_flight', id=flight.id) }}" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este vuelo?');">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                    {% endif %}
-                                    
-                                    {% if user_role == 'user' %}
-                                    <a href="{{ url_for('flight_bp.book_flight', id=flight.id) }}" class="btn btn-sm btn-success">
-                                        <i class="fas fa-ticket-alt me-1"></i>Reservar
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </td>
+                             <td class="px-4 text-secondary">#{{ flight.idFlight }}</td>
+                             <td class="fw-bold text-primary">{{ flight.aeroline }}</td>
+                             <td>{{ flight.locationStart.city if flight.locationStart else flight.startLocation }}</td>
+                             <td>{{ flight.locationEnd.city if flight.locationEnd else flight.endLocation }}</td>
+                             <td>
+                                 <div class="small">
+                                     <div class="text-nowrap"><i class="fas fa-plane-departure me-1 text-muted"></i>{{ flight.startDate.strftime('%d/%m/%Y %H:%M') if flight.startDate else '' }}</div>
+                                     <div class="text-nowrap"><i class="fas fa-plane-arrival me-1 text-muted"></i>{{ flight.endDate.strftime('%d/%m/%Y %H:%M') if flight.endDate else '' }}</div>
+                                 </div>
+                             </td>
+                             <td><span class="badge bg-info text-dark">{{ flight.maxOccupants }}</span></td>
+                             <td class="text-end fw-bold text-success">{{ flight.price }}€</td>
+                             <td class="text-end px-4">
+                                 <div class="d-flex justify-content-end gap-2">
+                                     {% if session.get('role') == 'admin' or (session.get('role') == 'company' and flight.idCompany == session.get('user_id')) %}
+                                     <a href="{{ url_for('flight.edit_flight', id=flight.idFlight) }}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                         <i class="fas fa-edit"></i>
+                                     </a>
+                                     <form action="{{ url_for('flight.delete_flight', id=flight.idFlight) }}" method="post" class="d-inline">
+                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este vuelo?');">
+                                             <i class="fas fa-trash"></i>
+                                         </button>
+                                     </form>
+                                     {% endif %}
+                                     
+                                     {% if session.get('role') == 'user' %}
+                                     <!-- Link to booking system or trip builder -->
+                                     <a href="{{ url_for('tripBuilder.start') }}" class="btn btn-sm btn-success">
+                                         <i class="fas fa-ticket-alt me-1"></i>Planificar Viaje
+                                     </a>
+                                     {% endif %}
+                                 </div>
+                             </td>
                         </tr>
                         {% else %}
                         <tr>

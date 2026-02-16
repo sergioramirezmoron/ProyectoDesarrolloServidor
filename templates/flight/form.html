@@ -10,7 +10,7 @@
         </div>
         <div class="card-body p-4">
             
-            <form action="{% if flight %}{{ url_for('flight_bp.edit_flight', id=flight.id) }}{% else %}{{ url_for('flight_bp.new_flight') }}{% endif %}" method="post">
+            <form action="{{ url_for('flight.create_flight') }}" method="post">
                 <div class="row g-3">
                     <div class="col-12">
                         <label for="aeroline" class="form-label fw-bold">Aerolínea</label>
@@ -22,8 +22,8 @@
                         <select id="startLocation" name="startLocation" class="form-select" required>
                             <option value="" disabled selected>Seleccione origen...</option>
                             {% for loc in locations %}
-                            <option value="{{ loc['id'] }}" {% if flight and flight.startLocation == loc['id'] %}selected{% endif %}>
-                                {{ loc['city'] }}, {{ loc['country'] }}
+                            <option value="{{ loc.idLocation }}" {% if flight and flight.startLocation == loc.idLocation %}selected{% endif %}>
+                                {{ loc.city }}, {{ loc.country }}
                             </option>
                             {% endfor %}
                         </select>
@@ -34,8 +34,8 @@
                         <select id="endLocation" name="endLocation" class="form-select" required>
                             <option value="" disabled selected>Seleccione destino...</option>
                             {% for loc in locations %}
-                            <option value="{{ loc['id'] }}" {% if flight and flight.endLocation == loc['id'] %}selected{% endif %}>
-                                {{ loc['city'] }}, {{ loc['country'] }}
+                            <option value="{{ loc.idLocation }}" {% if flight and flight.endLocation == loc.idLocation %}selected{% endif %}>
+                                {{ loc.city }}, {{ loc.country }}
                             </option>
                             {% endfor %}
                         </select>
@@ -66,7 +66,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-                    <a href="{{ url_for('flight_bp.get_flights') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <a href="{{ url_for('flight.list_flights') }}" class="btn btn-outline-secondary">Cancelar</a>
                     <button type="submit" class="btn btn-primary px-4">
                         <i class="fas fa-save me-2"></i>{% if flight %}Actualizar{% else %}Guardar{% endif %} Vuelo
                     </button>

@@ -1,76 +1,128 @@
 {% extends "base.html" %}
 
-{% block title %}Planifica tu Viaje | TravelDream{% endblock %}
+{% block title %}Comienza tu Gran Aventura | TravelDream{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/trip-builder.css') }}">
 <style>
     .start-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 4rem 2rem;
-        border-radius: 24px;
+        background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80');
+        background-size: cover;
+        background-position: center;
+        padding: 6rem 2rem;
+        border-radius: 30px;
         color: white;
         text-align: center;
-        margin-bottom: 3rem;
+        margin-bottom: 4rem;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
     }
     
-    .trip-card {
+    .start-card {
         background: white;
         border-radius: 20px;
         padding: 3rem;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        margin-top: -6rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: #f1f5f9;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--wizard-primary);
+        margin-bottom: 1.5rem;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-5 wizard-container">
+    <div class="start-hero animate-fade-in">
+        <h1 class="display-3 fw-bold mb-3">Diseña el viaje de tus sueños</h1>
+        <p class="lead mb-4">Personaliza cada detalle, desde el vuelo hasta el tour más pequeño.</p>
+    </div>
+
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="start-hero">
-                <i class="fas fa-plane-departure fa-4x mb-4"></i>
-                <h1 class="display-4 fw-bold mb-3">Planifica tu Viaje Perfecto</h1>
-                <p class="lead">Te guiaremos paso a paso para crear el viaje de tus sueños</p>
-            </div>
-
-            <div class="trip-card">
+            <div class="start-card animate-fade-in" style="animation-delay: 0.1s;">
                 <form method="post" action="{{ url_for('tripBuilder.save_trip_name') }}">
-                    <div class="mb-4">
-                        <label for="trip_name" class="form-label h5">
-                            <i class="fas fa-tag text-primary me-2"></i>
-                            ¿Cómo quieres llamar a tu viaje?
-                        </label>
-                        <input type="text" 
-                               class="form-control form-control-lg rounded-3" 
-                               id="trip_name" 
-                               name="trip_name" 
-                               placeholder="Ej: Vacaciones en Europa, Aventura en Asia..."
-                               required>
-                        <div class="form-text">Dale un nombre memorable a tu viaje</div>
+                    <div class="mb-5">
+                        <label for="trip_name" class="form-label fw-bold text-dark">Nombre de tu aventura</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-transparent border-end-0"><i class="fas fa-magic text-primary"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0" id="trip_name" name="trip_name" 
+                                   placeholder="Ej: Mi Verano en Japón 2024" required>
+                        </div>
+                        <small class="text-muted mt-2 d-block">Dale un nombre inspirador a tu itinerario.</small>
                     </div>
 
-                    <div class="alert alert-info rounded-4">
-                        <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2"></i>¿Qué incluiremos?</h6>
-                        <ul class="mb-0 small">
-                            <li>🏨 Alojamientos</li>
-                            <li>✈️ Vuelos</li>
-                            <li>🚢 Cruceros</li>
-                            <li>🚗 Alquiler de vehículos</li>
-                            <li>🎫 Tours y actividades</li>
-                            <li>🚌 Transporte terrestre</li>
-                        </ul>
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-dark">¿Cuándo viajarás?</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-transparent border-end-0"><i class="far fa-calendar-alt text-primary"></i></span>
+                                <input type="text" class="form-control border-start-0 ps-0 datepicker" id="date_range" 
+                                       placeholder="Selecciona el rango de fechas" required>
+                            </div>
+                            <input type="hidden" name="startDate" id="startDate">
+                            <input type="hidden" name="endDate" id="endDate">
+                        </div>
                     </div>
 
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg rounded-pill">
-                            <i class="fas fa-rocket me-2"></i>Comenzar a Planificar
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg fw-bold w-100">
+                            Empezar a Planificar <i class="fas fa-arrow-right ms-2"></i>
                         </button>
-                        <a href="{{ url_for('aco.home') }}" class="btn btn-link text-muted">
-                            Cancelar
-                        </a>
+                        <p class="text-muted small mt-4">Paso 1 de 6: Alojamiento</p>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <div class="row mt-5 pt-5 text-center animate-fade-in" style="animation-delay: 0.2s;">
+        <div class="col-md-4">
+            <div class="feature-icon mx-auto"><i class="fas fa-shield-check"></i></div>
+            <h5 class="fw-bold">Reserva Segura</h5>
+            <p class="text-muted small">Tus datos y pagos están protegidos con encriptación de grado bancario.</p>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-icon mx-auto"><i class="fas fa-bolt"></i></div>
+            <h5 class="fw-bold">Confirmación Instantánea</h5>
+            <p class="text-muted small">Recibe tus bonos y tickets al momento de finalizar la compra.</p>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-icon mx-auto"><i class="fas fa-headset"></i></div>
+            <h5 class="fw-bold">Soporte 24/7</h5>
+            <p class="text-muted small">Nuestro equipo está disponible en todo momento durante tu viaje.</p>
+        </div>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#date_range", {
+            mode: "range",
+            minDate: "today",
+            dateFormat: "Y-m-d",
+            onClose: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    const start = selectedDates[0];
+                    const end = selectedDates[1];
+                    
+                    // Format as YYYY-MM-DD for backend
+                    document.getElementById('startDate').value = start.toISOString().split('T')[0];
+                    document.getElementById('endDate').value = end.toISOString().split('T')[0];
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

@@ -299,6 +299,38 @@
         </div>
     </header>
 
+    <!-- Trip Builder CTA Section -->
+    <section class="py-5 bg-gradient-primary text-white overflow-hidden position-relative" style="background: linear-gradient(135deg, #0d6efd 0%, #003580 100%); margin-bottom: 3rem;">
+        <div class="container position-relative" style="z-index: 2;">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill mb-3 fw-bold">NUEVO</span>
+                    <h2 class="display-4 fw-bold mb-3">Planificador Inteligente de Itinerarios</h2>
+                    <p class="lead mb-4 opacity-75">Configura tu viaje completo en minutos: vuelos, hoteles, coches y actividades en un solo lugar y con un solo pago.</p>
+                    <div class="d-flex gap-3">
+                        <a href="{{ url_for('tripBuilder.start') }}" class="btn btn-warning btn-lg px-5 py-3 rounded-pill fw-bold shadow">
+                            ¡Empezar a Crear! <i class="fas fa-magic ms-2"></i>
+                        </a>
+                        <a href="{{ url_for('trip.list_trips') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">
+                            Explorar Destinos
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5 d-none d-lg-block">
+                    <div class="position-relative">
+                        <i class="fas fa-map-marked-alt fa-10x opacity-10 animate-pulse"></i>
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <i class="fas fa-route fa-5x text-warning shadow-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="position-absolute top-0 end-0 p-5 opacity-10">
+            <i class="fas fa-paper-plane fa-6x rotate-15"></i>
+        </div>
+    </section>
+
     <section class="py-5">
         <div class="container">
             <h2 class="fw-bold mb-4">Todo lo que necesitas para tu viaje</h2>

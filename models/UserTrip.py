@@ -11,6 +11,8 @@ class UserTrip(db.Model):
     idUser = db.Column(db.Integer, db.ForeignKey('user.idUser'), nullable=False)
     tripName = db.Column(db.String(200), nullable=False)
     totalPrice = db.Column(db.Numeric(10, 2), default=0.00)
+    startDate = db.Column(db.Date, nullable=True)
+    endDate = db.Column(db.Date, nullable=True)
     status = db.Column(db.Enum('draft', 'confirmed', 'completed', 'cancelled', name='user_trip_status'), 
                        default='draft', nullable=False)
     createdAt = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

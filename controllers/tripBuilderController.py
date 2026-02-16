@@ -28,6 +28,8 @@ def init_trip_session():
     if 'trip_builder' not in session:
         session['trip_builder'] = {
             'trip_name': '',
+            'start_date': None,
+            'end_date': None,
             'items': []  # List of {type, id, price, details}
         }
 
@@ -67,11 +69,16 @@ def save_trip_name():
         return redirect(url_for("userBp.login"))
     
     trip_name = request.form.get("trip_name", "Mi Viaje").strip()
+    start_date = request.form.get("startDate")
+    end_date = request.form.get("endDate")
+    
     if not trip_name:
         trip_name = f"Viaje {datetime.now().strftime('%d/%m/%Y')}"
     
     init_trip_session()
     session['trip_builder']['trip_name'] = trip_name
+    session['trip_builder']['start_date'] = start_date
+    session['trip_builder']['end_date'] = end_date
     session.modified = True
     
     return redirect(url_for("tripBuilder.step_accommodation"))
@@ -87,14 +94,43 @@ def step_accommodation():
         return redirect(url_for("userBp.login"))
     
     init_trip_session()
-    # Only show accommodations with at least one room
-    from models import Room
-    accommodations = Accommodation.query.join(Room).filter(Accommodation.isActive == True if hasattr(Accommodation, 'isActive') else True).limit(20).all()
+    trip_data = session['trip_builder']
+    start_date = trip_data.get('start_date')
+    end_date = trip_data.get('end_date')
+    
+    # Query for accommodations
+    query = Accommodation.query.filter(Accommodation.isActive == True if hasattr(Accommodation, 'isActive') else True)
+    
+    # Availability filtering if dates are selected
+    available_accommodations = []
+    if start_date and end_date:
+        from models import Room, AccommodationBookingLine
+        start_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        
+        all_accs = query.all()
+        for acc in all_accs:
+            # Check if at least one room is available
+            available_rooms = False
+            for room in acc.rooms:
+                overlapping = AccommodationBookingLine.query.filter(
+                    AccommodationBookingLine.idRoom == room.id,
+                    AccommodationBookingLine.status != 'cancelled',
+                    AccommodationBookingLine.startDate < end_obj,
+                    AccommodationBookingLine.endDate > start_obj
+                ).count()
+                if overlapping == 0:
+                    available_rooms = True
+                    break
+            if available_rooms:
+                available_accommodations.append(acc)
+    else:
+        available_accommodations = query.limit(20).all()
     
     return render_template("tripBuilder/step-accommodation.html", 
-                         accommodations=accommodations,
+                         accommodations=available_accommodations,
                          user=user,
-                         trip_data=session['trip_builder'])
+                         trip_data=trip_data)
 
 
 @tripBuilderBlueprint.route("/step/accommodation", methods=["POST"])
@@ -135,12 +171,25 @@ def step_flights():
         return redirect(url_for("userBp.login"))
     
     init_trip_session()
-    flights = Flight.query.limit(20).all()
+    trip_data = session['trip_builder']
+    start_date = trip_data.get('start_date')
+    end_date = trip_data.get('end_date')
+    
+    query = Flight.query
+    
+    if start_date and end_date:
+        start_obj = datetime.strptime(start_date, '%Y-%m-%d')
+        end_obj = datetime.strptime(end_date, '%Y-%m-%d')
+        # Show flights that occur within the trip window
+        # Adjusting query to show flights starting after trip start and before trip end
+        query = query.filter(Flight.startDate >= start_obj, Flight.startDate <= end_obj)
+    
+    flights = query.limit(20).all()
     
     return render_template("tripBuilder/step-flights.html",
                          flights=flights,
                          user=user,
-                         trip_data=session['trip_builder'])
+                         trip_data=trip_data)
 
 
 @tripBuilderBlueprint.route("/step/flights", methods=["POST"])
@@ -184,14 +233,25 @@ def step_cruises():
         return redirect(url_for("userBp.login"))
     
     init_trip_session()
-    # Better to list routes because they have dates and description
+    trip_data = session['trip_builder']
+    start_date = trip_data.get('start_date')
+    end_date = trip_data.get('end_date')
+    
     from models import CruiseRoute
-    routes = CruiseRoute.query.limit(20).all()
+    query = CruiseRoute.query
+    
+    if start_date and end_date:
+        start_obj = datetime.strptime(start_date, '%Y-%m-%d')
+        end_obj = datetime.strptime(end_date, '%Y-%m-%d')
+        # Show routes that overlap with trip window
+        query = query.filter(CruiseRoute.startDate < end_obj, CruiseRoute.endDate > start_obj)
+    
+    routes = query.limit(20).all()
     
     return render_template("tripBuilder/step-cruises.html",
                          routes=routes,
                          user=user,
-                         trip_data=session['trip_builder'])
+                         trip_data=trip_data)
 
 
 @tripBuilderBlueprint.route("/step/cruises", methods=["POST"])
@@ -241,12 +301,29 @@ def step_cars():
         return redirect(url_for("userBp.login"))
     
     init_trip_session()
-    cars = Car.query.filter_by(isActive=True).limit(20).all()
+    trip_data = session['trip_builder']
+    start_date = trip_data.get('start_date')
+    end_date = trip_data.get('end_date')
+    
+    from models import CarRental
+    # Base query for active cars
+    all_cars = Car.query.filter_by(isActive=True).all()
+    available_cars = []
+    
+    if start_date and end_date:
+        start_obj = datetime.strptime(start_date, '%Y-%m-%d')
+        end_obj = datetime.strptime(end_date, '%Y-%m-%d')
+        
+        for car in all_cars:
+            if car.is_available(start_obj, end_obj):
+                available_cars.append(car)
+    else:
+        available_cars = all_cars[:20]
     
     return render_template("tripBuilder/step-cars.html",
-                         cars=cars,
+                         cars=available_cars,
                          user=user,
-                         trip_data=session['trip_builder'])
+                         trip_data=trip_data)
 
 
 @tripBuilderBlueprint.route("/step/cars", methods=["POST"])
@@ -286,12 +363,23 @@ def step_tours():
         return redirect(url_for("userBp.login"))
     
     init_trip_session()
-    tours = Tour.query.limit(20).all()
+    trip_data = session['trip_builder']
+    start_date = trip_data.get('start_date')
+    end_date = trip_data.get('end_date')
+    
+    query = Tour.query
+    if start_date and end_date:
+        start_obj = datetime.strptime(start_date, '%Y-%m-%d')
+        end_obj = datetime.strptime(end_date, '%Y-%m-%d')
+        # Tours that occur within the trip window
+        query = query.filter(Tour.startDate >= start_obj, Tour.startDate <= end_obj)
+    
+    tours = query.limit(20).all()
     
     return render_template("tripBuilder/step-tours.html",
                          tours=tours,
                          user=user,
-                         trip_data=session['trip_builder'])
+                         trip_data=trip_data)
 
 
 @tripBuilderBlueprint.route("/step/tours", methods=["POST"])
@@ -331,12 +419,23 @@ def step_transport():
         return redirect(url_for("userBp.login"))
     
     init_trip_session()
-    transports = BusTrain.query.limit(20).all()
+    trip_data = session['trip_builder']
+    start_date = trip_data.get('start_date')
+    end_date = trip_data.get('end_date')
+    
+    query = BusTrain.query
+    if start_date and end_date:
+        start_obj = datetime.strptime(start_date, '%Y-%m-%d')
+        end_obj = datetime.strptime(end_date, '%Y-%m-%d')
+        # Transport within trip window
+        query = query.filter(BusTrain.startDate >= start_obj, BusTrain.startDate <= end_obj)
+    
+    transports = query.limit(20).all()
     
     return render_template("tripBuilder/step-transport.html",
                          transports=transports,
                          user=user,
-                         trip_data=session['trip_builder'])
+                         trip_data=trip_data)
 
 
 @tripBuilderBlueprint.route("/step/transport", methods=["POST"])
@@ -413,6 +512,8 @@ def confirm():
         user_trip = UserTrip(
             idUser=user.idUser,
             tripName=trip_data['trip_name'],
+            startDate=datetime.strptime(trip_data['start_date'], '%Y-%m-%d').date() if trip_data.get('start_date') else None,
+            endDate=datetime.strptime(trip_data['end_date'], '%Y-%m-%d').date() if trip_data.get('end_date') else None,
             totalPrice=total,
             status='confirmed'
         )

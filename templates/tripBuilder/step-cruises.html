@@ -1,5 +1,80 @@
 {% extends "base.html" %}
+
 {% block title %}Paso 3: Cruceros | Planifica tu Viaje{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}"><style>.wizard-progress{background:white;padding:1.5rem;border-radius:16px;margin-bottom:2rem;box-shadow:0 4px 15px rgba(0,0,0,0.08)}.progress-step{text-align:center}.progress-step.active .step-number{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white}.progress-step.completed .step-number{background:#10b981;color:white}.step-number{width:50px;height:50px;border-radius:50%;background:#e5e7eb;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;margin-bottom:0.5rem}.service-card{background:white;border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 4px 15px rgba(0,0,0,0.08);transition:all 0.3s ease}.service-card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,0.12)}</style>{% endblock %}
-{% block content %}<div class="container py-5"><div class="wizard-progress"><div class="row text-center"><div class="col progress-step completed"><div class="step-number">1</div><small>Alojamiento</small></div><div class="col progress-step completed"><div class="step-number">2</div><small>Vuelos</small></div><div class="col progress-step active"><div class="step-number">3</div><small>Cruceros</small></div><div class="col progress-step"><div class="step-number">4</div><small>Vehículos</small></div><div class="col progress-step"><div class="step-number">5</div><small>Tours</small></div><div class="col progress-step"><div class="step-number">6</div><small>Transporte</small></div></div></div>    <div class="mb-4"><h2 class="fw-bold"><i class="fas fa-ship text-primary me-2"></i>¿Quieres un crucero?</h2><p class="text-muted">Selecciona una ruta de crucero o salta este paso</p></div>{% if routes %}<div class="row g-4 mb-4">{% for route in routes %}<div class="col-md-6"><div class="service-card"><div class="d-flex justify-content-between align-items-start mb-3"><div><h5 class="fw-bold mb-2"><i class="fas fa-anchor text-primary me-2"></i>{{ route.ship.cruiseName if route.ship else 'Crucero' }}</h5><p class="text-muted small mb-0">{{ route.description }}</p></div><div class="text-end"><h4 class="text-success mb-0">{% if route.segments %}{{ route.segments[0].price }}{% else %}500{% endif %}€</h4><small class="text-muted">desde</small></div></div><form method="post" action="{{ url_for('tripBuilder.save_cruise') }}"><input type="hidden" name="route_id" value="{{ route.idCruiseRoute }}"><input type="hidden" name="action" value="add"><button type="submit" class="btn btn-primary w-100 rounded-pill"><i class="fas fa-plus-circle me-2"></i>Añadir al Viaje</button></form></div></div>{% endfor %}</div>{% else %}
-<div class="alert alert-info rounded-4"><i class="fas fa-info-circle me-2"></i>No hay cruceros disponibles.</div>{% endif %}<div class="d-flex justify-content-between mt-5"><a href="{{ url_for('tripBuilder.step_flights') }}" class="btn btn-outline-secondary rounded-pill px-4"><i class="fas fa-arrow-left me-2"></i>Atrás</a><form method="post" action="{{ url_for('tripBuilder.save_cruise') }}" class="d-inline"><input type="hidden" name="action" value="skip"><button type="submit" class="btn btn-outline-primary rounded-pill px-4">Saltar Paso<i class="fas fa-arrow-right ms-2"></i></button></form></div></div>{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/trip-builder.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 wizard-container">
+    <div class="wizard-progress animate-fade-in">
+        <div class="progress-step completed"><div class="step-number">1</div><span class="step-label">Alojamiento</span></div>
+        <div class="progress-step completed"><div class="step-number">2</div><span class="step-label">Vuelos</span></div>
+        <div class="progress-step active"><div class="step-number">3</div><span class="step-label">Cruceros</span></div>
+        <div class="progress-step"><div class="step-number">4</div><span class="step-label">Vehículos</span></div>
+        <div class="progress-step"><div class="step-number">5</div><span class="step-label">Tours</span></div>
+        <div class="progress-step"><div class="step-number">6</div><span class="step-label">Transporte</span></div>
+    </div>
+
+    <div class="wizard-header animate-fade-in" style="animation-delay: 0.1s;">
+        <h2 class="wizard-title mb-2">Navega por el mundo</h2>
+        <p class="text-muted lead">Experiencias inolvidables en alta mar.</p>
+    </div>
+
+    {% if routes %}
+    <div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.2s;">
+        {% for route in routes %}
+        <div class="col-md-6">
+            <div class="service-card d-flex flex-column h-100">
+                <div class="mb-4">
+                    <span class="badge bg-soft-info text-info mb-2">{{ route.ship.cruiseName if route.ship else 'Crucero Premium' }}</span>
+                    <h5 class="fw-bold mb-2">{{ route.description }}</h5>
+                    <div class="d-flex flex-column gap-1 text-muted small">
+                        <span><i class="far fa-calendar me-1"></i>Del {{ route.startDate.strftime('%d/%m') }} al {{ route.endDate.strftime('%d/%m') }}</span>
+                        <span><i class="fas fa-ship me-1"></i>Buque: {{ route.ship.ship_name if route.ship else 'Sin nombre' }}</span>
+                    </div>
+                </div>
+                
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <div>
+                            {% set price = route.segments[0].price if route.segments else 500 %}
+                            <span class="price-tag">{{ price }}€</span>
+                            <small class="text-muted d-block">precio estimado</small>
+                        </div>
+                        <i class="fas fa-ship fa-2x opacity-10"></i>
+                    </div>
+                    <form method="post" action="{{ url_for('tripBuilder.save_cruise') }}">
+                        <input type="hidden" name="route_id" value="{{ route.idCruiseRoute }}">
+                        <input type="hidden" name="action" value="add">
+                        <button type="submit" class="btn btn-wizard-add w-100 py-2 rounded-pill shadow-sm">
+                            <i class="fas fa-plus-circle me-2"></i>Añadir Crucero
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 animate-fade-in">
+        <div class="mb-4"><i class="fas fa-anchor fa-4x text-muted opacity-50"></i></div>
+        <h4 class="text-muted">Sin cruceros para estas fechas</h4>
+        <p class="text-muted mb-4">Puedes continuar o elegir otros servicios.</p>
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top animate-fade-in" style="animation-delay: 0.3s;">
+        <a href="{{ url_for('tripBuilder.step_flights') }}" class="btn btn-link text-decoration-none text-muted fw-bold">
+            <i class="fas fa-chevron-left me-2"></i>Atrás
+        </a>
+        <form method="post" action="{{ url_for('tripBuilder.save_cruise') }}">
+            <input type="hidden" name="action" value="skip">
+            <button type="submit" class="btn btn-wizard-skip px-5 py-2 rounded-pill shadow-sm">
+                No necesito crucero <i class="fas fa-chevron-right ms-2"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
