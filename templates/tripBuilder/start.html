@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Planifica tu Viaje | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    .start-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 4rem 2rem;
+        border-radius: 24px;
+        color: white;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .trip-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="start-hero">
+                <i class="fas fa-plane-departure fa-4x mb-4"></i>
+                <h1 class="display-4 fw-bold mb-3">Planifica tu Viaje Perfecto</h1>
+                <p class="lead">Te guiaremos paso a paso para crear el viaje de tus sueños</p>
+            </div>
+
+            <div class="trip-card">
+                <form method="post" action="{{ url_for('tripBuilder.save_trip_name') }}">
+                    <div class="mb-4">
+                        <label for="trip_name" class="form-label h5">
+                            <i class="fas fa-tag text-primary me-2"></i>
+                            ¿Cómo quieres llamar a tu viaje?
+                        </label>
+                        <input type="text" 
+                               class="form-control form-control-lg rounded-3" 
+                               id="trip_name" 
+                               name="trip_name" 
+                               placeholder="Ej: Vacaciones en Europa, Aventura en Asia..."
+                               required>
+                        <div class="form-text">Dale un nombre memorable a tu viaje</div>
+                    </div>
+
+                    <div class="alert alert-info rounded-4">
+                        <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2"></i>¿Qué incluiremos?</h6>
+                        <ul class="mb-0 small">
+                            <li>🏨 Alojamientos</li>
+                            <li>✈️ Vuelos</li>
+                            <li>🚢 Cruceros</li>
+                            <li>🚗 Alquiler de vehículos</li>
+                            <li>🎫 Tours y actividades</li>
+                            <li>🚌 Transporte terrestre</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                            <i class="fas fa-rocket me-2"></i>Comenzar a Planificar
+                        </button>
+                        <a href="{{ url_for('aco.home') }}" class="btn btn-link text-muted">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,509 @@
+# controllers/tripBuilderController.py
+# Trip Builder - Multi-step wizard for creating custom trips
+
+from datetime import datetime
+from decimal import Decimal
+import json
+
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from models import db, UserTrip, TripItem
+from models import Accommodation, Flight, Cruise, Car, Tour, BusTrain
+
+tripBuilderBlueprint = Blueprint("tripBuilder", __name__, url_prefix="/trip-builder", template_folder="../templates/tripBuilder")
+
+@tripBuilderBlueprint.app_template_filter('from_json')
+def from_json_filter(value):
+    return json.loads(value) if value else {}
+
+def get_current_user():
+    user_id = session.get("user_id")
+    if not user_id:
+        return None
+    from models import User
+    return User.query.get(user_id)
+
+
+def init_trip_session():
+    """Initialize trip building session"""
+    if 'trip_builder' not in session:
+        session['trip_builder'] = {
+            'trip_name': '',
+            'items': []  # List of {type, id, price, details}
+        }
+
+
+def clear_trip_session():
+    """Clear trip building session"""
+    if 'trip_builder' in session:
+        session.pop('trip_builder')
+
+
+# ===== WIZARD FLOW =====
+
+@tripBuilderBlueprint.route("/start", methods=["GET"])
+def start():
+    """Start the trip builder wizard"""
+    user = get_current_user()
+    if not user:
+        flash("Debes iniciar sesión para crear un viaje.", "warning")
+        return redirect(url_for("userBp.login"))
+    
+    if user.role != "user":
+        flash("Solo los usuarios pueden crear viajes personalizados.", "warning")
+        return redirect(url_for("aco.home"))
+    
+    # Clear any existing session
+    clear_trip_session()
+    init_trip_session()
+    
+    return render_template("tripBuilder/start.html", user=user)
+
+
+@tripBuilderBlueprint.route("/start", methods=["POST"])
+def save_trip_name():
+    """Save trip name and proceed to first step"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    trip_name = request.form.get("trip_name", "Mi Viaje").strip()
+    if not trip_name:
+        trip_name = f"Viaje {datetime.now().strftime('%d/%m/%Y')}"
+    
+    init_trip_session()
+    session['trip_builder']['trip_name'] = trip_name
+    session.modified = True
+    
+    return redirect(url_for("tripBuilder.step_accommodation"))
+
+
+# ===== STEP 1: ACCOMMODATION =====
+
+@tripBuilderBlueprint.route("/step/accommodation", methods=["GET"])
+def step_accommodation():
+    """Step 1: Select accommodation"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    # Only show accommodations with at least one room
+    from models import Room
+    accommodations = Accommodation.query.join(Room).filter(Accommodation.isActive == True if hasattr(Accommodation, 'isActive') else True).limit(20).all()
+    
+    return render_template("tripBuilder/step-accommodation.html", 
+                         accommodations=accommodations,
+                         user=user,
+                         trip_data=session['trip_builder'])
+
+
+@tripBuilderBlueprint.route("/step/accommodation", methods=["POST"])
+def save_accommodation():
+    """Save accommodation selection"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    
+    action = request.form.get("action")
+    if action == "add":
+        acc_id = request.form.get("accommodation_id")
+        if acc_id:
+            acc = Accommodation.query.get(acc_id)
+            if acc and acc.rooms:
+                first_room = acc.rooms[0]
+                session['trip_builder']['items'].append({
+                    'type': 'accommodation',
+                    'id': acc.id,
+                    'price': float(first_room.priceNight),
+                    'details': json.dumps({'name': acc.name, 'address': acc.address})
+                })
+                session.modified = True
+                flash(f"Alojamiento '{acc.name}' añadido al viaje.", "success")
+    
+    return redirect(url_for("tripBuilder.step_flights"))
+
+
+# ===== STEP 2: FLIGHTS =====
+
+@tripBuilderBlueprint.route("/step/flights", methods=["GET"])
+def step_flights():
+    """Step 2: Select flights"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    flights = Flight.query.limit(20).all()
+    
+    return render_template("tripBuilder/step-flights.html",
+                         flights=flights,
+                         user=user,
+                         trip_data=session['trip_builder'])
+
+
+@tripBuilderBlueprint.route("/step/flights", methods=["POST"])
+def save_flight():
+    """Save flight selection"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    
+    action = request.form.get("action")
+    if action == "add":
+        flight_id = request.form.get("flight_id")
+        if flight_id:
+            flight = Flight.query.get(flight_id)
+            if flight:
+                session['trip_builder']['items'].append({
+                    'type': 'flight',
+                    'id': flight.idFlight,
+                    'price': float(flight.price),
+                    'details': json.dumps({
+                        'aeroline': flight.aeroline,
+                        'origin': flight.locationStart.city if flight.locationStart else 'Origen',
+                        'destination': flight.locationEnd.city if flight.locationEnd else 'Destino'
+                    })
+                })
+                session.modified = True
+                flash("Vuelo añadido al viaje.", "success")
+    
+    return redirect(url_for("tripBuilder.step_cruises"))
+
+
+# ===== STEP 3: CRUISES =====
+
+@tripBuilderBlueprint.route("/step/cruises", methods=["GET"])
+def step_cruises():
+    """Step 3: Select cruises"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    # Better to list routes because they have dates and description
+    from models import CruiseRoute
+    routes = CruiseRoute.query.limit(20).all()
+    
+    return render_template("tripBuilder/step-cruises.html",
+                         routes=routes,
+                         user=user,
+                         trip_data=session['trip_builder'])
+
+
+@tripBuilderBlueprint.route("/step/cruises", methods=["POST"])
+def save_cruise():
+    """Save cruise selection"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    
+    action = request.form.get("action")
+    if action == "add":
+        route_id = request.form.get("route_id")
+        if route_id:
+            from models import CruiseRoute
+            route = CruiseRoute.query.get(route_id)
+            if route:
+                # Default price from first segment if available, else 500
+                price = 500.0
+                if route.segments:
+                    price = route.segments[0].price
+                
+                session['trip_builder']['items'].append({
+                    'type': 'cruise',
+                    'id': route.idCruiseRoute,
+                    'price': float(price),
+                    'details': json.dumps({
+                        'name': route.ship.cruiseName if route.ship else 'Crucero',
+                        'description': route.description
+                    })
+                })
+                session.modified = True
+                flash("Crucero añadido al viaje.", "success")
+    
+    return redirect(url_for("tripBuilder.step_cars"))
+
+
+# ===== STEP 4: CAR RENTAL =====
+
+@tripBuilderBlueprint.route("/step/cars", methods=["GET"])
+def step_cars():
+    """Step 4: Select car rental"""
+    # ... (same as before but checking field names)
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    cars = Car.query.filter_by(isActive=True).limit(20).all()
+    
+    return render_template("tripBuilder/step-cars.html",
+                         cars=cars,
+                         user=user,
+                         trip_data=session['trip_builder'])
+
+
+@tripBuilderBlueprint.route("/step/cars", methods=["POST"])
+def save_car():
+    """Save car rental selection"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    
+    action = request.form.get("action")
+    if action == "add":
+        car_id = request.form.get("car_id")
+        if car_id:
+            car = Car.query.get(car_id)
+            if car:
+                session['trip_builder']['items'].append({
+                    'type': 'car_rental',
+                    'id': car.idCar,
+                    'price': float(car.pricePerDay),
+                    'details': json.dumps({'brand': car.brand, 'model': car.model})
+                })
+                session.modified = True
+                flash(f"Vehículo {car.brand} {car.model} añadido al viaje.", "success")
+    
+    return redirect(url_for("tripBuilder.step_tours"))
+
+
+# ===== STEP 5: TOURS =====
+
+@tripBuilderBlueprint.route("/step/tours", methods=["GET"])
+def step_tours():
+    """Step 5: Select tours/activities"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    tours = Tour.query.limit(20).all()
+    
+    return render_template("tripBuilder/step-tours.html",
+                         tours=tours,
+                         user=user,
+                         trip_data=session['trip_builder'])
+
+
+@tripBuilderBlueprint.route("/step/tours", methods=["POST"])
+def save_tour():
+    """Save tour selection"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    
+    action = request.form.get("action")
+    if action == "add":
+        tour_id = request.form.get("tour_id")
+        if tour_id:
+            tour = Tour.query.get(tour_id)
+            if tour:
+                session['trip_builder']['items'].append({
+                    'type': 'tour',
+                    'id': tour.idTour,
+                    'price': float(tour.price),
+                    'details': json.dumps({'name': tour.title})
+                })
+                session.modified = True
+                flash("Tour añadido al viaje.", "success")
+    
+    return redirect(url_for("tripBuilder.step_transport"))
+
+
+# ===== STEP 6: TRANSPORT =====
+
+@tripBuilderBlueprint.route("/step/transport", methods=["GET"])
+def step_transport():
+    """Step 6: Select bus/train transport"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    transports = BusTrain.query.limit(20).all()
+    
+    return render_template("tripBuilder/step-transport.html",
+                         transports=transports,
+                         user=user,
+                         trip_data=session['trip_builder'])
+
+
+@tripBuilderBlueprint.route("/step/transport", methods=["POST"])
+def save_transport():
+    """Save transport selection"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    
+    action = request.form.get("action")
+    if action == "add":
+        transport_id = request.form.get("transport_id")
+        if transport_id:
+            transport = BusTrain.query.get(transport_id)
+            if transport:
+                session['trip_builder']['items'].append({
+                    'type': 'transport',
+                    'id': transport.idBusTrain,
+                    'price': float(transport.price),
+                    'details': json.dumps({
+                        'type': transport.type,
+                        'origin': transport.locationStart.city if transport.locationStart else 'Origen',
+                        'destination': transport.locationEnd.city if transport.locationEnd else 'Destino'
+                    })
+                })
+                session.modified = True
+                flash("Transporte añadido al viaje.", "success")
+    
+    return redirect(url_for("tripBuilder.summary"))
+
+
+# ===== SUMMARY & CONFIRMATION =====
+
+@tripBuilderBlueprint.route("/summary", methods=["GET"])
+def summary():
+    """Show trip summary with total price"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    trip_data = session['trip_builder']
+    
+    # Calculate total
+    total = sum(item['price'] for item in trip_data['items'])
+    
+    return render_template("tripBuilder/summary.html",
+                         user=user,
+                         trip_data=trip_data,
+                         total=total)
+
+
+@tripBuilderBlueprint.route("/confirm", methods=["POST"])
+def confirm():
+    """Confirm and create the trip"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    init_trip_session()
+    trip_data = session['trip_builder']
+    
+    if not trip_data['items']:
+        flash("No has añadido ningún servicio al viaje.", "warning")
+        return redirect(url_for("tripBuilder.start"))
+    
+    try:
+        # Calculate total
+        total = sum(Decimal(str(item['price'])) for item in trip_data['items'])
+        
+        # Create UserTrip
+        user_trip = UserTrip(
+            idUser=user.idUser,
+            tripName=trip_data['trip_name'],
+            totalPrice=total,
+            status='confirmed'
+        )
+        db.session.add(user_trip)
+        db.session.flush()  # Get the ID
+        
+        # Create TripItems
+        for item in trip_data['items']:
+            trip_item = TripItem(
+                idUserTrip=user_trip.idUserTrip,
+                itemType=item['type'],
+                itemId=item['id'],
+                itemPrice=Decimal(str(item['price'])),
+                itemDetails=item.get('details')
+            )
+            db.session.add(trip_item)
+        
+        db.session.commit()
+        
+        # Clear session
+        clear_trip_session()
+        
+        flash(f"¡Viaje '{user_trip.tripName}' creado exitosamente! Total: {total}€", "success")
+        return redirect(url_for("tripBuilder.my_trips"))
+    
+    except Exception as ex:
+        db.session.rollback()
+        flash(f"Error al crear el viaje: {str(ex)}", "danger")
+        return redirect(url_for("tripBuilder.summary"))
+
+
+# ===== MY TRIPS =====
+
+@tripBuilderBlueprint.route("/my-trips", methods=["GET"])
+def my_trips():
+    """List user's trips"""
+    user = get_current_user()
+    if not user:
+        flash("Debes iniciar sesión.", "warning")
+        return redirect(url_for("userBp.login"))
+    
+    trips = UserTrip.query.filter_by(idUser=user.idUser).order_by(UserTrip.createdAt.desc()).all()
+    
+    return render_template("tripBuilder/my-trips.html",
+                         trips=trips,
+                         user=user)
+
+
+@tripBuilderBlueprint.route("/my-trips/<int:idUserTrip>", methods=["GET"])
+def trip_detail(idUserTrip):
+    """View trip details"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    trip = UserTrip.query.get_or_404(idUserTrip)
+    
+    # Check ownership
+    if trip.idUser != user.idUser:
+        flash("No tienes permiso para ver este viaje.", "danger")
+        return redirect(url_for("tripBuilder.my_trips"))
+    
+    return render_template("tripBuilder/trip-detail.html",
+                         trip=trip,
+                         user=user)
+
+
+@tripBuilderBlueprint.route("/my-trips/<int:idUserTrip>/cancel", methods=["POST"])
+def cancel_trip(idUserTrip):
+    """Cancel a trip"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("userBp.login"))
+    
+    trip = UserTrip.query.get_or_404(idUserTrip)
+    
+    # Check ownership
+    if trip.idUser != user.idUser:
+        flash("No puedes cancelar viajes de otros usuarios.", "danger")
+        return redirect(url_for("tripBuilder.my_trips"))
+    
+    if trip.status == 'cancelled':
+        flash("Este viaje ya está cancelado.", "warning")
+        return redirect(url_for("tripBuilder.my_trips"))
+    
+    try:
+        trip.status = 'cancelled'
+        db.session.commit()
+        flash("Viaje cancelado exitosamente.", "success")
+    except Exception as ex:
+        db.session.rollback()
+        flash(f"Error al cancelar: {str(ex)}", "danger")
+    
+    return redirect(url_for("tripBuilder.my_trips"))

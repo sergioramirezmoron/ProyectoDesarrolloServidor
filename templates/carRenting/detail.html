@@ -1,33 +1,393 @@
 {% extends "base.html" %}
 
-{% block title %}Rent {{ rent.idRent }}{% endblock %}
+{% block title %}{{ rent.brand }} {{ rent.model }} | Alquiler TravelDream{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
+<style>
+    .detail-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        margin-bottom: 2rem;
+    }
+    
+    .detail-image-wrapper {
+        position: relative;
+        height: 500px;
+        overflow: hidden;
+        background: #000;
+    }
+    
+    .detail-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+    
+    .detail-image:hover {
+        transform: scale(1.05);
+    }
+    
+    .detail-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+        padding: 2rem;
+        color: white;
+    }
+    
+    .vehicle-title {
+        font-size: 3rem;
+        font-weight: 800;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        margin-bottom: 0.5rem;
+    }
+    
+    .vehicle-subtitle {
+        font-size: 1.5rem;
+        opacity: 0.9;
+    }
+    
+    .price-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .price-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .price-amount {
+        font-size: 4rem;
+        font-weight: 900;
+        line-height: 1;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .price-period {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .feature-item {
+        background: white;
+        border: 2px solid #f0f0f0;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-item:hover {
+        border-color: #667eea;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: #667eea;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-label {
+        font-weight: 600;
+        color: #333;
+        font-size: 1.1rem;
+    }
+    
+    .info-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #667eea;
+    }
+    
+    .btn-reserve {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 700;
+        padding: 1.2rem 3rem;
+        border-radius: 50px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .btn-reserve:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        color: white;
+    }
+    
+    .availability-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #10b981;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    
+    .availability-badge i {
+        font-size: 1.2rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .btn-edit, .btn-delete {
+        flex: 1;
+        padding: 0.9rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit {
+        background: white;
+        border: 2px solid #667eea;
+        color: #667eea;
+    }
+    
+    .btn-edit:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-delete {
+        background: white;
+        border: 2px solid #ef4444;
+        color: #ef4444;
+    }
+    
+    .btn-delete:hover {
+        background: #ef4444;
+        color: white;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h1>Rent {{ rent.idRent }}</h1>
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('carRenting.list_rents') }}"><i class="fas fa-car me-2"></i>Vehículos</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ rent.brand }} {{ rent.model }}</li>
+        </ol>
+    </nav>
 
-  <p><strong>brand:</strong> {{ rent.brand }}</p>
-  <p><strong>model:</strong> {{ rent.model }}</p>
-  <p><strong>maxPeople:</strong> {{ rent.maxPeople }}</p>
-  <p>
-    <strong>startDate:</strong> {{ rent.startDate.strftime("%Y/%m/%d
-    %H:%M:%S") }}
-  </p>
-  <p>
-    <strong>endDate:</strong> {{ rent.endDate.strftime("%Y/%m/%d %H:%M:%S") }}
-  </p>
-  <p><strong>price:</strong> {{ rent.price }}</p>
+    <!-- Hero Image Section -->
+    <div class="detail-hero">
+        <div class="detail-image-wrapper">
+            {% if rent.image %}
+            <img src="{{ rent.image }}" class="detail-image" alt="{{ rent.brand }} {{ rent.model }}">
+            {% else %}
+            <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=1200&auto=format&fit=crop" class="detail-image" alt="Vehículo premium">
+            {% endif %}
+            <div class="detail-overlay">
+                <div class="availability-badge">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Disponible Ahora</span>
+                </div>
+                <h1 class="vehicle-title">{{ rent.brand }}</h1>
+                <p class="vehicle-subtitle">{{ rent.model }}</p>
+            </div>
+        </div>
+    </div>
 
-  {% if rent.image %}
-  <img src="{{ rent.image }}" width="300" />
-  {% endif %}
+    <div class="row g-4">
+        <!-- Left Column - Features & Info -->
+        <div class="col-lg-7">
+            <!-- Features Grid -->
+            <div class="info-section">
+                <h2 class="section-title"><i class="fas fa-star me-2"></i>Características Principales</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="feature-label">{{ rent.maxPeople }} Pasajeros</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-gas-pump"></i>
+                        </div>
+                        <div class="feature-label">Combustible Incluido</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="feature-label">Seguro Todo Riesgo</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <div class="feature-label">Kilometraje Ilimitado</div>
+                    </div>
+                </div>
+            </div>
 
-  <br /><br />
+            <!-- Additional Info -->
+            <div class="info-section">
+                <h2 class="section-title"><i class="fas fa-info-circle me-2"></i>Información del Vehículo</h2>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                            <i class="fas fa-tag text-primary fs-4 me-3"></i>
+                            <div>
+                                <small class="text-muted d-block">Marca</small>
+                                <strong>{{ rent.brand }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                            <i class="fas fa-car text-primary fs-4 me-3"></i>
+                            <div>
+                                <small class="text-muted d-block">Modelo</small>
+                                <strong>{{ rent.model }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                            <i class="fas fa-calendar-alt text-primary fs-4 me-3"></i>
+                            <div class="flex-grow-1">
+                                <small class="text-muted d-block mb-1">Disponibilidad</small>
+                                <div class="d-flex justify-content-between">
+                                    <span><strong>Desde:</strong> {{ rent.startDate.strftime("%d/%m/%Y") }}</span>
+                                    <span><strong>Hasta:</strong> {{ rent.endDate.strftime("%d/%m/%Y") }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <a href="{{ url_for('carRenting.list_rents') }}">Back</a>
+        <!-- Right Column - Pricing & Actions -->
+        <div class="col-lg-5">
+            <!-- Price Card -->
+            <div class="price-card mb-4">
+                <div class="text-center">
+                    <p class="mb-2 opacity-75">Precio por día</p>
+                    <div class="price-amount">{{ rent.price }}€</div>
+                    <p class="price-period mt-2">IVA incluido</p>
+                </div>
+            </div>
 
-  {% if current_user.is_authenticated and current_user.role == "ADMIN" %} |
-  <a href="{{ url_for('carRenting.show_edit_form', idRent=rent.idRent) }}">Edit</a>
-  {% endif %}
+            <!-- Reserve Button -->
+            <div class="d-grid mb-4">
+                <button class="btn btn-reserve">
+                    <i class="fas fa-bolt me-2"></i>Reservar Ahora
+                </button>
+            </div>
+
+            <!-- Admin Actions -->
+            {% if session.get("role") == "admin" or (session.get("role") == "company" and session.get("user_id") == rent.idCompany) %}
+            <div class="info-section">
+                <h3 class="section-title"><i class="fas fa-cog me-2"></i>Gestión</h3>
+                <div class="action-buttons">
+                    <a href="{{ url_for('carRenting.show_edit_form', idCarRenting=rent.idCarRenting) }}" class="btn btn-edit">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </a>
+                    <form action="{{ url_for('carRenting.delete_rent', idCarRenting=rent.idCarRenting) }}" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar este vehículo permanentemente?');">
+                        <button type="submit" class="btn btn-delete w-100">
+                            <i class="fas fa-trash me-2"></i>Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Benefits -->
+            <div class="info-section">
+                <h3 class="section-title"><i class="fas fa-check-circle me-2"></i>Incluye</h3>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-3">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Asistencia 24/7</strong>
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Cancelación gratuita</strong> hasta 48h antes
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Conductor adicional</strong> sin coste
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>GPS y equipamiento</strong> incluido
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center mt-5">
+        <a href="{{ url_for('carRenting.list_rents') }}" class="btn btn-link text-decoration-none">
+            <i class="fas fa-arrow-left me-2"></i>Volver al listado de vehículos
+        </a>
+    </div>
 </div>
 {% endblock %}

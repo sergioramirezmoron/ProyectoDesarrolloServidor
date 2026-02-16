@@ -10,7 +10,9 @@ from controllers.ToursController import tour_bp
 from controllers.TransportController import transport_bp
 from controllers.TripController import trip_bp
 from controllers.acomodationController import acomodation_bp
-from controllers.carRentingController import carRentingBlueprint
+from controllers.carController import carBlueprint  # New: Fleet management
+from controllers.carRentingController import carRentingBlueprint  # Updated: Rental bookings
+from controllers.tripBuilderController import tripBuilderBlueprint  # New: Trip Builder
 from controllers.Booking import booking_bp
 
 app = Flask(__name__)
@@ -34,7 +36,9 @@ app.register_blueprint(ship_bp, url_prefix='/ships')
 app.register_blueprint(tour_bp, url_prefix='/tours')
 app.register_blueprint(transport_bp, url_prefix='/transports')
 app.register_blueprint(trip_bp, url_prefix='/trips')
-app.register_blueprint(carRentingBlueprint, url_prefix='/car-renting')
+app.register_blueprint(carBlueprint)  # Fleet management at /fleet
+app.register_blueprint(carRentingBlueprint)  # Rental bookings at /car-rental
+app.register_blueprint(tripBuilderBlueprint)  # Trip builder wizard at /trip-builder
 app.register_blueprint(booking_bp, url_prefix='/bookings')
 
 # Registramos el de acomodation al final si va a manejar la raíz '/'

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Resumen del Viaje | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    .summary-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 3rem 2rem;
+        border-radius: 24px;
+        color: white;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .trip-summary-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .item-row {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        transition: background 0.2s ease;
+    }
+    
+    .item-row:hover {
+        background: #f9fafb;
+    }
+    
+    .item-row:last-child {
+        border-bottom: none;
+    }
+    
+    .total-box {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        text-align: center;
+    }
+    
+    .total-amount {
+        font-size: 3.5rem;
+        font-weight: 900;
+    }
+    
+    .item-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="summary-hero">
+        <i class="fas fa-check-circle fa-4x mb-3"></i>
+        <h1 class="display-5 fw-bold mb-2">{{ trip_data.trip_name }}</h1>
+        <p class="lead mb-0">Revisa tu viaje antes de confirmar</p>
+    </div>
+
+    {% if trip_data['items'] %}
+    <div class="trip-summary-card">
+        <h3 class="fw-bold mb-4"><i class="fas fa-list-ul me-2"></i>Servicios Seleccionados</h3>
+        
+        {% for item in trip_data['items'] %}
+        <div class="item-row">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <div class="item-icon">
+                        {% if item.type == 'accommodation' %}
+                        <i class="fas fa-hotel text-primary"></i>
+                        {% elif item.type == 'flight' %}
+                        <i class="fas fa-plane text-info"></i>
+                        {% elif item.type == 'cruise' %}
+                        <i class="fas fa-ship text-cyan"></i>
+                        {% elif item.type == 'car_rental' %}
+                        <i class="fas fa-car text-success"></i>
+                        {% elif item.type == 'tour' %}
+                        <i class="fas fa-ticket-alt text-warning"></i>
+                        {% elif item.type == 'transport' %}
+                        <i class="fas fa-bus text-secondary"></i>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col">
+                    <h6 class="fw-bold mb-1">
+                        {% set details = item.details|from_json if item.details else {} %}
+                        {% if item.type == 'accommodation' %}
+                            <span class="text-primary">{{ details.get('name', 'Hotel') }}</span>
+                            <small class="d-block text-muted">{{ details.get('address', '') }}</small>
+                        {% elif item.type == 'flight' %}
+                            <span class="text-primary">{{ details.get('origin', 'Origen') }}</span> 
+                            <i class="fas fa-arrow-right mx-1"></i> 
+                            <span class="text-primary">{{ details.get('destination', 'Destino') }}</span>
+                            <small class="d-block text-muted">{{ details.get('aeroline', '') }}</small>
+                        {% elif item.type == 'cruise' %}
+                            <span class="text-primary">{{ details.get('name', 'Crucero') }}</span>
+                            <small class="d-block text-muted">{{ details.get('description', '') }}</small>
+                        {% elif item.type == 'car_rental' %}
+                            <span class="text-primary">{{ details.get('brand', '') }} {{ details.get('model', '') }}</span>
+                        {% elif item.type == 'tour' %}
+                            <span class="text-primary">{{ details.get('name', 'Tour') }}</span>
+                        {% elif item.type == 'transport' %}
+                            <span class="text-primary">{{ details.get('origin', 'Origen') }}</span> 
+                            <i class="fas fa-arrow-right mx-1"></i> 
+                            <span class="text-primary">{{ details.get('destination', 'Destino') }}</span>
+                            <small class="d-block text-muted">{{ details.get('type', '')|capitalize }}</small>
+                        {% endif %}
+                    </h6>
+                    <p class="text-muted small mb-0">Referencia: #{{ item.id }}</p>
+                </div>
+                <div class="col-auto text-end">
+                    <h5 class="text-success mb-0">{{ item.price }}€</h5>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="alert alert-warning rounded-4">
+                <h6 class="fw-bold mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Importante</h6>
+                <p class="small mb-0">Al confirmar, se creará tu viaje. El pago se procesará en el siguiente paso (próximamente).</p>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="total-box">
+                <p class="mb-2 opacity-75">Total del Viaje</p>
+                <div class="total-amount">{{ total }}€</div>
+                <p class="mt-2 mb-0 opacity-75">IVA incluido</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-5">
+        <a href="{{ url_for('tripBuilder.step_transport') }}" class="btn btn-outline-secondary btn-lg rounded-pill px-5">
+            <i class="fas fa-arrow-left me-2"></i>Volver
+        </a>
+        <form method="post" action="{{ url_for('tripBuilder.confirm') }}">
+            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 shadow">
+                <i class="fas fa-check-circle me-2"></i>Confirmar y Pagar
+            </button>
+        </form>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-inbox fa-5x text-muted mb-4"></i>
+        <h3 class="text-muted">No has añadido ningún servicio</h3>
+        <p class="text-muted mb-4">Vuelve atrás y añade al menos un servicio a tu viaje</p>
+        <a href="{{ url_for('tripBuilder.step_accommodation') }}" class="btn btn-primary btn-lg rounded-pill px-5">
+            <i class="fas fa-arrow-left me-2"></i>Volver al Inicio
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

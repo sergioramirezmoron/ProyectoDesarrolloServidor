@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Flota de Vehículos | TravelDream{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold"><i class="fas fa-warehouse me-3"></i>Mi Flota de Vehículos</h1>
+            <p class="text-muted">Gestiona los vehículos disponibles para alquiler</p>
+        </div>
+        <a href="{{ url_for('car.show_create_form') }}" class="btn btn-primary btn-lg rounded-pill px-4">
+            <i class="fas fa-plus-circle me-2"></i>Añadir Vehículo
+        </a>
+    </div>
+
+    {% if cars %}
+    <div class="row g-4">
+        {% for car in cars %}
+        <div class="col-md-6 col-lg-4">
+            <div class="car-card">
+                <div class="car-card-image">
+                    {% if car.image %}
+                    <img src="{{ car.image }}" alt="{{ car.brand }} {{ car.model }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=600&auto=format&fit=crop" alt="Vehículo">
+                    {% endif %}
+                    <div class="car-card-badge">
+                        <span class="badge bg-success">Activo</span>
+                    </div>
+                </div>
+                <div class="car-card-body">
+                    <h3 class="car-card-title">{{ car.brand }}</h3>
+                    <p class="car-card-subtitle">{{ car.model }}</p>
+                    
+                    <div class="car-card-specs">
+                        <span><i class="fas fa-users"></i> {{ car.maxPeople }}</span>
+                        <span><i class="fas fa-euro-sign"></i> {{ car.pricePerDay }}/día</span>
+                    </div>
+                    
+                    <div class="car-card-actions">
+                        <a href="{{ url_for('car.view_car', idCar=car.idCar) }}" class="btn btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>Ver
+                        </a>
+                        <a href="{{ url_for('car.show_edit_form', idCar=car.idCar) }}" class="btn btn-outline-secondary flex-fill">
+                            <i class="fas fa-edit me-1"></i>Editar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-car-side fa-5x text-muted mb-4"></i>
+        <h3 class="text-muted">No tienes vehículos en tu flota</h3>
+        <p class="text-muted mb-4">Añade tu primer vehículo para empezar a recibir reservas</p>
+        <a href="{{ url_for('car.show_create_form') }}" class="btn btn-primary btn-lg rounded-pill px-5">
+            <i class="fas fa-plus-circle me-2"></i>Añadir Primer Vehículo
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

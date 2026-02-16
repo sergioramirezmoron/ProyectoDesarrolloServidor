@@ -1,88 +1,99 @@
 {% extends "base.html" %}
 
-{% block title %}{% if rent %}Editar{% else %}Crear{% endif %} Alquiler | TravelDream{% endblock %}
+{% block title %}{% if rent %}Editar{% else %}Nuevo{% endif %} Vehículo | TravelDream{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
+{% endblock %}
 
 {% block content %}
-<div class="container py-5" style="max-width: 800px;">
-    {% if not current_user.is_authenticated or current_user.role != "ADMIN" %}
-    <div class="alert alert-danger shadow-sm" role="alert">
-        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Acceso Denegado</h4>
-        <p>No tienes permiso para acceder a esta página.</p>
-        <hr>
-        <a href="{{ url_for('carRenting.list_rents') }}" class="btn btn-outline-danger">Volver al listado</a>
-    </div>
-    {% else %}
-
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white">
-            <h1 class="h3 mb-0"><i class="fas fa-car me-2"></i>{% if rent %}Editar Alquiler #{{ rent.idRent }}{% else %}Registrar Nuevo Alquiler{% endif %}</h1>
-        </div>
-        <div class="card-body p-4">
-
-            <!-- Flash messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            {% if session.get("role") not in ["admin", "company"] %}
+            <div class="alert alert-danger rounded-4 shadow-sm p-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-lock fa-3x me-4"></i>
+                    <div>
+                        <h4 class="alert-heading fw-bold">Acceso Restringido</h4>
+                        <p class="mb-0">Parece que no tienes permisos para gestionar vehículos. Si esto es un error, contacta con soporte.</p>
+                    </div>
                 </div>
-                {% endfor %}
-            {% endif %}
-            {% endwith %}
+                <hr>
+                <a href="{{ url_for('carRenting.list_rents') }}" class="btn btn-outline-danger rounded-pill">Volver al listado</a>
+            </div>
+            {% else %}
 
-            <form method="post" action="{% if rent %}{{ url_for('carRenting.update_rent', idRent=rent.idRent) }}{% else %}{{ url_for('carRenting.create_rent') }}{% endif %}">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="brand" class="form-label fw-bold">Marca</label>
-                        <input type="text" id="brand" name="brand" class="form-control" value="{{ rent.brand if rent else '' }}" required placeholder="Ej: Toyota">
-                    </div>
+            <div class="card car-form-card">
+                <div class="card-header border-0">
+                    <h2 class="h4 mb-0 fw-bold">
+                        <i class="fas fa-car-side me-2"></i>
+                        {% if rent %}Modificar {{ rent.brand }} {{ rent.model }} (ID: #{{ rent.idCarRenting }}){% else %}Registrar Vehículo en Flota{% endif %}
+                    </h2>
+                </div>
+                <div class="card-body p-4 p-md-5">
 
-                    <div class="col-md-6">
-                        <label for="model" class="form-label fw-bold">Modelo</label>
-                        <input type="text" id="model" name="model" class="form-control" value="{{ rent.model if rent else '' }}" required placeholder="Ej: Corolla">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="maxPeople" class="form-label fw-bold">Capacidad (Personas)</label>
-                        <input type="number" id="maxPeople" name="maxPeople" class="form-control" min="1" value="{{ rent.maxPeople if rent else 1 }}" required>
-                    </div>
-
-                    <div class="col-md-8">
-                        <label for="price" class="form-label fw-bold">Precio (€)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" id="price" name="price" class="form-control" value="{{ rent.price if rent else '' }}" required placeholder="0.00">
+                    <!-- Flash messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show rounded-3 mb-4" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
 
-                    <div class="col-md-6">
-                        <label for="startDate" class="form-label fw-bold">Fecha Inicio</label>
-                        <input type="text" id="startDate" name="startDate" class="form-control" value="{{ rent.startDate.strftime('%Y/%m/%d %H:%M:%S') if rent else '' }}" required placeholder="YYYY/MM/DD HH:MM:SS">
-                        <div class="form-text">Formato: YYYY/MM/DD HH:MM:SS</div>
-                    </div>
+                    <form method="post" action="{% if rent %}{{ url_for('carRenting.update_rent', idCarRenting=rent.idCarRenting) }}{% else %}{{ url_for('carRenting.create_rent') }}{% endif %}">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label for="brand" class="form-label small text-uppercase fw-bold text-muted">Marca</label>
+                                <input type="text" id="brand" name="brand" class="form-control form-control-lg rounded-3" value="{{ rent.brand if rent else '' }}" required placeholder="Feria: Mercedes-Benz">
+                            </div>
 
-                    <div class="col-md-6">
-                        <label for="endDate" class="form-label fw-bold">Fecha Fin</label>
-                        <input type="text" id="endDate" name="endDate" class="form-control" value="{{ rent.endDate.strftime('%Y/%m/%d %H:%M:%S') if rent else '' }}" required placeholder="YYYY/MM/DD HH:MM:SS">
-                        <div class="form-text">Formato: YYYY/MM/DD HH:MM:SS</div>
-                    </div>
+                            <div class="col-md-6">
+                                <label for="model" class="form-label small text-uppercase fw-bold text-muted">Modelo</label>
+                                <input type="text" id="model" name="model" class="form-control form-control-lg rounded-3" value="{{ rent.model if rent else '' }}" required placeholder="Modelo: Clase E">
+                            </div>
 
-                    <div class="col-12">
-                        <label for="image" class="form-label fw-bold">URL Imagen</label>
-                        <input type="text" id="image" name="image" class="form-control" value="{{ rent.image if rent else '' }}" placeholder="https://ejemplo.com/coche.jpg">
-                    </div>
+                            <div class="col-md-4">
+                                <label for="maxPeople" class="form-label small text-uppercase fw-bold text-muted">Plazas Totales</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3"><i class="fas fa-users text-primary"></i></span>
+                                    <input type="number" id="maxPeople" name="maxPeople" class="form-control form-control-lg border-start-0 rounded-end-3" min="1" max="50" value="{{ rent.maxPeople if rent else 5 }}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-8">
+                                <label for="price" class="form-label small text-uppercase fw-bold text-muted">Tarifa Diaria</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3"><i class="fas fa-euro-sign text-success"></i></span>
+                                    <input type="number" step="0.01" id="price" name="price" class="form-control form-control-lg border-start-0 rounded-end-3" value="{{ rent.price if rent else '' }}" required placeholder="0.00">
+                                </div>
+                                <div class="form-text">Indica el precio por día de alquiler.</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="image" class="form-label small text-uppercase fw-bold text-muted">Enlace a Fotografía</label>
+                                <input type="text" id="image" name="image" class="form-control form-control-lg rounded-3" value="{{ rent.image if rent else '' }}" placeholder="https://ejemplo.com/coche.jpg">
+                                <div class="form-text">Si se deja vacío, se mostrará una imagen genérica premium.</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 gap-3">
+                            <a href="{{ url_for('carRenting.list_rents') }}" class="btn btn-light btn-lg rounded-pill px-5 text-muted order-2 order-md-1">
+                                Cancelar y salir
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow order-1 order-md-2">
+                                <i class="fas fa-save me-2"></i>{% if rent %}Aplicar Cambios{% else %}Registrar Vehículo{% endif %}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-                    <a href="{{ url_for('carRenting.list_rents') }}" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-save me-2"></i>{% if rent %}Guardar Cambios{% else %}Crear Alquiler{% endif %}
-                    </button>
-                </div>
-            </form>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}

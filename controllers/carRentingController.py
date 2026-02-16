@@ -1,13 +1,13 @@
 # controllers/carRentingController.py
+# Rental Booking Controller - For users to browse and rent vehicles
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from models import db, CarRenting, User
+from models import db, Car, CarRental, User
 
-# This blueprint groups all routes for car renting.
-carRentingBlueprint = Blueprint("carRenting", __name__, url_prefix="/car-renting")
+carRentingBlueprint = Blueprint("carRental", __name__, url_prefix="/car-rental")
 
 def get_current_user():
     user_id = session.get("user_id")
@@ -16,119 +16,155 @@ def get_current_user():
     return User.query.get(user_id)
 
 
-# This function converts a text date into a datetime object.
-def parse_datetime(value: str) -> datetime:
-    return datetime.strptime(value.strip(), "%Y/%m/%d %H:%M:%S")
+def parse_datetime(date_str):
+    """Parse datetime string in format Y/m/d H:i:S"""
+    try:
+        return datetime.strptime(date_str, "%Y/%m/%d %H:%M:%S")
+    except ValueError:
+        raise ValueError(f"Formato de fecha inválido: {date_str}. Use YYYY/MM/DD HH:MM:SS")
 
 
-# This route shows the list of all rents.
+# Browse available cars for rental
 @carRentingBlueprint.get("/")
-def list_rents():
-    rents = CarRenting.query.order_by(CarRenting.idRent.desc()).all()
-    return render_template("carRenting/index.html", rents=rents)
+@carRentingBlueprint.get("/browse")
+def browse_cars():
+    """Show all available cars that can be rented"""
+    # Get all active cars
+    cars = Car.query.filter_by(isActive=True).order_by(Car.createdAt.desc()).all()
+    return render_template("carRental/browse.html", cars=cars)
 
 
-# This route shows the create form.
-@carRentingBlueprint.get("/create")
-def show_create_form():
+# View car details (for potential renters)
+@carRentingBlueprint.get("/car/<int:idCar>")
+def view_car_for_rental(idCar: int):
+    """View a specific car's details for rental"""
+    car = Car.query.get_or_404(idCar)
+    return render_template("carRental/detail.html", car=car)
+
+
+# Show booking form for a specific car
+@carRentingBlueprint.get("/car/<int:idCar>/book")
+def show_booking_form(idCar: int):
+    """Show the booking form for a specific car"""
     user = get_current_user()
-    if not user or user.role != "company":
-        flash("Solo las compañías pueden crear coches.")
+    if not user:
+        flash("Debes iniciar sesión para reservar un vehículo.", "warning")
         return redirect(url_for("userBp.login"))
-    return render_template("carRenting/form.html", rent=None, user=user)
+    
+    car = Car.query.get_or_404(idCar)
+    return render_template("carRental/book.html", car=car, user=user)
 
 
-# This route creates a new rent from the form data.
-@carRentingBlueprint.post("/create")
-def create_rent():
+# Create a rental booking
+@carRentingBlueprint.post("/car/<int:idCar>/book")
+def create_booking(idCar: int):
+    """Create a new rental booking"""
     user = get_current_user()
-    if not user or user.role != "company":
+    if not user:
+        flash("Debes iniciar sesión para reservar.", "danger")
         return redirect(url_for("userBp.login"))
+    
+    car = Car.query.get_or_404(idCar)
+    
     try:
-        rent = CarRenting(
-            maxPeople=int(request.form["maxPeople"]),
-            brand=request.form["brand"].strip(),
-            model=request.form["model"].strip(),
-            startDate=parse_datetime(request.form["startDate"]),
-            endDate=parse_datetime(request.form["endDate"]),
-            price=Decimal(request.form["price"]),
-            image=(request.form.get("image", "").strip() or None),
+        start_date = parse_datetime(request.form["startDate"])
+        end_date = parse_datetime(request.form["endDate"])
+        
+        # Validate dates
+        if end_date <= start_date:
+            raise ValueError("La fecha de fin debe ser posterior a la fecha de inicio.")
+        
+        if start_date < datetime.now():
+            raise ValueError("La fecha de inicio no puede ser en el pasado.")
+        
+        # Check availability
+        if not car.is_available(start_date, end_date):
+            flash("Este vehículo no está disponible para las fechas seleccionadas.", "warning")
+            return redirect(url_for("carRental.show_booking_form", idCar=idCar))
+        
+        # Calculate total price
+        days = (end_date - start_date).days
+        if days < 1:
+            days = 1
+        total_price = Decimal(days) * car.pricePerDay
+        
+        # Create rental
+        rental = CarRental(
+            idCar=car.idCar,
+            idUser=user.idUser,
+            startDate=start_date,
+            endDate=end_date,
+            totalPrice=total_price,
+            status='pending'
         )
-        rent.validate_dates()
-
-        db.session.add(rent)
+        
+        db.session.add(rental)
         db.session.commit()
-        flash("Rent created successfully.", "success")
-        return redirect(url_for("carRenting.list_rents"))
-
+        
+        flash(f"¡Reserva creada! Total: {total_price}€ por {days} días.", "success")
+        return redirect(url_for("carRental.my_rentals"))
+    
     except (KeyError, ValueError, InvalidOperation) as ex:
         db.session.rollback()
-        flash(str(ex), "danger")
-        return redirect(url_for("carRenting.show_create_form"))
+        flash(f"Error al crear la reserva: {str(ex)}", "danger")
+        return redirect(url_for("carRental.show_booking_form", idCar=idCar))
 
 
-# This route shows the details of one rent.
-@carRentingBlueprint.get("/<int:idRent>")
-def view_rent(idRent: int):
-    rent = CarRenting.query.get_or_404(idRent)
-    return render_template("carRenting/detail.html", rent=rent)
-
-
-# This route shows the edit form for one rent.
-@carRentingBlueprint.get("/<int:idRent>/edit")
-def show_edit_form(idRent: int):
+# View user's rental history
+@carRentingBlueprint.get("/my-rentals")
+def my_rentals():
+    """Show current user's rental bookings"""
     user = get_current_user()
-    if not user or user.role != "company":
-        flash("Permiso denegado.")
+    if not user:
+        flash("Debes iniciar sesión para ver tus reservas.", "warning")
         return redirect(url_for("userBp.login"))
-    rent = CarRenting.query.get_or_404(idRent)
-    return render_template("carRenting/form.html", rent=rent, user=user)
+    
+    rentals = CarRental.query.filter_by(idUser=user.idUser).order_by(CarRental.createdAt.desc()).all()
+    return render_template("carRental/my-rentals.html", rentals=rentals, user=user)
 
 
-# This route updates one rent using the form data.
-@carRentingBlueprint.post("/<int:idRent>/edit")
-def update_rent(idRent: int):
+# View rental details
+@carRentingBlueprint.get("/rental/<int:idCarRental>")
+def view_rental(idCarRental: int):
+    """View details of a specific rental"""
+    rental = CarRental.query.get_or_404(idCarRental)
+    
     user = get_current_user()
-    if not user or user.role != "company":
-        return redirect(url_for("userBp.login"))
-    rent = CarRenting.query.get_or_404(idRent)
+    # Only the renter or admin can view
+    if not user or (user.idUser != rental.idUser and user.role != "admin"):
+        flash("No tienes permiso para ver esta reserva.", "danger")
+        return redirect(url_for("carRental.browse_cars"))
+    
+    return render_template("carRental/rental-detail.html", rental=rental)
 
+
+# Cancel a rental
+@carRentingBlueprint.post("/rental/<int:idCarRental>/cancel")
+def cancel_rental(idCarRental: int):
+    """Cancel a rental booking"""
+    user = get_current_user()
+    if not user:
+        flash("Debes iniciar sesión.", "danger")
+        return redirect(url_for("userBp.login"))
+    
+    rental = CarRental.query.get_or_404(idCarRental)
+    
+    # Only the renter can cancel
+    if user.idUser != rental.idUser:
+        flash("No puedes cancelar reservas de otros usuarios.", "danger")
+        return redirect(url_for("carRental.my_rentals"))
+    
+    # Can only cancel pending or confirmed rentals
+    if rental.status not in ['pending', 'confirmed']:
+        flash("Esta reserva no se puede cancelar.", "warning")
+        return redirect(url_for("carRental.my_rentals"))
+    
     try:
-        rent.maxPeople = int(request.form["maxPeople"])
-        rent.brand = request.form["brand"].strip()
-        rent.model = request.form["model"].strip()
-        rent.startDate = parse_datetime(request.form["startDate"])
-        rent.endDate = parse_datetime(request.form["endDate"])
-        rent.price = Decimal(request.form["price"])
-        rent.image = (request.form.get("image", "").strip() or None)
-
-        rent.validate_dates()
-
+        rental.status = 'cancelled'
         db.session.commit()
-        flash("Rent updated successfully.", "success")
-        return redirect(url_for("carRenting.view_rent", idRent=rent.idRent))
-
-    except (KeyError, ValueError, InvalidOperation) as ex:
-        db.session.rollback()
-        flash(str(ex), "danger")
-        return redirect(url_for("carRenting.show_edit_form", idRent=idRent))
-
-
-# This route deletes one rent by its id.
-@carRentingBlueprint.post("/<int:idRent>/delete")
-def delete_rent(idRent: int):
-    user = get_current_user()
-    if not user or user.role != "company":
-        return redirect(url_for("userBp.login"))
-    rent = CarRenting.query.get_or_404(idRent)
-
-    try:
-        db.session.delete(rent)
-        db.session.commit()
-        flash("Rent deleted successfully.", "success")
+        flash("Reserva cancelada exitosamente.", "success")
     except Exception as ex:
         db.session.rollback()
-        flash(str(ex), "danger")
-
-    return redirect(url_for("carRenting.list_rents"))
-
+        flash(f"Error al cancelar: {str(ex)}", "danger")
+    
+    return redirect(url_for("carRental.my_rentals"))

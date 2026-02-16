@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}{{ car.brand }} {{ car.model }} | Mi Flota{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
+<style>
+    .fleet-detail-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    
+    .fleet-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    
+    .fleet-info {
+        padding: 2rem;
+    }
+    
+    .stat-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+    }
+    
+    .stat-label {
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('car.list_cars') }}"><i class="fas fa-warehouse me-2"></i>Mi Flota</a></li>
+            <li class="breadcrumb-item active">{{ car.brand }} {{ car.model }}</li>
+        </ol>
+    </nav>
+
+    <div class="fleet-detail-card">
+        <div class="row g-0">
+            <div class="col-lg-6">
+                {% if car.image %}
+                <img src="{{ car.image }}" class="fleet-image" alt="{{ car.brand }} {{ car.model }}">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=800&auto=format&fit=crop" class="fleet-image" alt="Vehículo">
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <div class="fleet-info">
+                    <div class="mb-4">
+                        <span class="badge bg-success rounded-pill px-3 mb-2">Activo en Flota</span>
+                        <h1 class="display-6 fw-bold mb-0">{{ car.brand }}</h1>
+                        <h2 class="h3 text-muted fw-normal">{{ car.model }}</h2>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <div class="stat-value">{{ car.pricePerDay }}€</div>
+                                <div class="stat-label">Por Día</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <div class="stat-value">{{ car.maxPeople }}</div>
+                                <div class="stat-label">Pasajeros</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <a href="{{ url_for('car.show_edit_form', idCar=car.idCar) }}" class="btn btn-primary btn-lg rounded-pill">
+                            <i class="fas fa-edit me-2"></i>Editar Vehículo
+                        </a>
+                        
+                        <form action="{{ url_for('car.delete_car', idCar=car.idCar) }}" method="post" onsubmit="return confirm('¿Eliminar este vehículo de la flota?');">
+                            <button type="submit" class="btn btn-outline-danger w-100 rounded-pill">
+                                <i class="fas fa-trash me-2"></i>Eliminar de Flota
+                            </button>
+                        </form>
+                        
+                        <a href="{{ url_for('car.list_cars') }}" class="btn btn-link text-decoration-none">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a Mi Flota
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

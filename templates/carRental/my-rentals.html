@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Reservas | TravelDream{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
+<style>
+    .rental-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .rental-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-confirmed { background: #d1fae5; color: #065f46; }
+    .status-completed { background: #dbeafe; color: #1e40af; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="mb-4">
+        <h1 class="display-5 fw-bold"><i class="fas fa-list-alt me-3"></i>Mis Reservas</h1>
+        <p class="text-muted">Gestiona tus alquileres de vehículos</p>
+    </div>
+
+    {% if rentals %}
+    {% for rental in rentals %}
+    <div class="rental-card">
+        <div class="row align-items-center">
+            <div class="col-md-2">
+                {% if rental.car.image %}
+                <img src="{{ rental.car.image }}" class="img-fluid rounded" alt="{{ rental.car.brand }}">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=200&auto=format&fit=crop" class="img-fluid rounded" alt="Vehículo">
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <h5 class="fw-bold mb-1">{{ rental.car.brand }} {{ rental.car.model }}</h5>
+                <p class="text-muted mb-0"><i class="fas fa-users me-1"></i> {{ rental.car.maxPeople }} pasajeros</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">Periodo</small>
+                <strong>{{ rental.startDate.strftime("%d/%m/%Y") }}</strong>
+                <br>
+                <small class="text-muted">hasta</small>
+                <br>
+                <strong>{{ rental.endDate.strftime("%d/%m/%Y") }}</strong>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="mb-2">
+                    <span class="status-badge status-{{ rental.status }}">
+                        {{ rental.status|capitalize }}
+                    </span>
+                </div>
+                <h5 class="text-success mb-0">{{ rental.totalPrice }}€</h5>
+            </div>
+            <div class="col-md-1 text-end">
+                {% if rental.status in ['pending', 'confirmed'] %}
+                <form action="{{ url_for('carRental.cancel_rental', idCarRental=rental.idCarRental) }}" method="post" onsubmit="return confirm('¿Cancelar esta reserva?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-calendar-times fa-5x text-muted mb-4"></i>
+        <h3 class="text-muted">No tienes reservas</h3>
+        <p class="text-muted mb-4">Explora nuestros vehículos y haz tu primera reserva</p>
+        <a href="{{ url_for('carRental.browse_cars') }}" class="btn btn-primary btn-lg rounded-pill px-5">
+            <i class="fas fa-car me-2"></i>Ver Vehículos Disponibles
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

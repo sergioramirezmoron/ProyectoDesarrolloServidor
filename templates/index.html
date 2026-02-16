@@ -113,6 +113,9 @@
                                 <a href="{{ url_for('ship.my_ships') }}" class="btn btn-outline-info rounded-pill px-3">
                                     <i class="fas fa-anchor me-2"></i>Mis Barcos
                                 </a>
+                                <a href="{{ url_for('car.list_cars') }}" class="btn btn-outline-success rounded-pill px-3">
+                                    <i class="fas fa-car me-2"></i>Mi Flota
+                                </a>
                                 <div class="dropdown">
                                     <button class="btn btn-outline-secondary rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-plus me-2"></i>Crear Nuevo
@@ -122,6 +125,7 @@
                                         <li><a class="dropdown-item" href="{{ url_for('cruise.create_cruise') }}"><i class="fas fa-ship me-2"></i>Crucero</a></li>
                                         <li><a class="dropdown-item" href="{{ url_for('ship.create_ship') }}"><i class="fas fa-anchor me-2"></i>Nuevo Barco</a></li>
                                         <li><a class="dropdown-item" href="{{ url_for('flight.create_flight') }}"><i class="fas fa-plane me-2"></i>Vuelo</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('car.show_create_form') }}"><i class="fas fa-car me-2"></i>Vehículo</a></li>
                                         <li><a class="dropdown-item" href="{{ url_for('tour.create_tour') }}"><i class="fas fa-ticket-alt me-2"></i>Tour</a></li>
                                         <li><a class="dropdown-item" href="{{ url_for('transport.create_transport') }}"><i class="fas fa-bus me-2"></i>Transporte</a></li>
                                     </ul>
@@ -276,7 +280,7 @@
                             <div class="tab-pane fade" id="tab-cars">
                                 <div class="text-center py-2">
                                     <p class="mb-2">Encuentra el coche perfecto para tu roadtrip.</p>
-                                    <a href="{{ url_for('carRenting.list_rents') }}" class="btn btn-outline-primary">Ver Disponibilidad</a>
+                                    <a href="{{ url_for('carRental.browse_cars') }}" class="btn btn-outline-primary">Ver Disponibilidad</a>
                                 </div>
                             </div>
                             

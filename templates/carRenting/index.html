@@ -2,86 +2,99 @@
 
 {% block title %}Alquiler de Coches | TravelDream{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-car-side me-2 text-primary"></i>Alquiler de Coches</h1>
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-4 fw-bold mb-0">Encuentra tu coche ideal</h1>
+            <p class="text-muted">Explora nuestra flota y alquila el vehículo que mejor se adapte a tu viaje.</p>
+        </div>
         
-        <!-- Only ADMIN can create -->
-        {% if current_user.is_authenticated and current_user.role == "ADMIN" %}
-        <a href="{{ url_for('carRenting.show_create_form') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Nuevo Alquiler
+        {% if session.get("role") in ["admin", "company"] %}
+        <a href="{{ url_for('carRenting.show_create_form') }}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
+            <i class="fas fa-plus me-2"></i>Publicar Vehículo
         </a>
         {% endif %}
     </div>
 
-  <!-- Flash messages -->
-  {% with messages = get_flashed_messages(with_categories=true) %} 
-  {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-  {% endif %} 
-  {% endwith %}
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %} 
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %} 
+    {% endwith %}
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 px-4">ID</th>
-                            <th class="py-3">Marca</th>
-                            <th class="py-3">Modelo</th>
-                            <th class="py-3">Capacidad</th>
-                            <th class="py-3">Desde</th>
-                            <th class="py-3">Hasta</th>
-                            <th class="py-3 text-end">Precio</th>
-                            <th class="py-3 text-end px-4">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rent in rents %}
-                        <tr>
-                            <td class="px-4 text-secondary">#{{ rent.idRent }}</td>
-                            <td class="fw-bold">{{ rent.brand }}</td>
-                            <td>{{ rent.model }}</td>
-                            <td><span class="badge bg-info text-dark">{{ rent.maxPeople }} Personas</span></td>
-                            <td>{{ rent.startDate.strftime("%d/%m/%Y") }}</td>
-                            <td>{{ rent.endDate.strftime("%d/%m/%Y") }}</td>
-                            <td class="text-end fw-bold text-success">{{ rent.price }}€</td>
-                            <td class="text-end px-4">
-                                <a href="{{ url_for('carRenting.view_rent', idRent=rent.idRent) }}" class="btn btn-sm btn-outline-info me-1" title="Ver Detalles">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-
-                                {% if current_user.is_authenticated and current_user.role == "ADMIN" %}
-                                <a href="{{ url_for('carRenting.show_edit_form', idRent=rent.idRent) }}" class="btn btn-sm btn-outline-primary me-1" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{{ url_for('carRenting.delete_rent', idRent=rent.idRent) }}" method="post" style="display: inline" onsubmit="return confirm('¿Estás seguro de eliminar este registro?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                <i class="fas fa-car-crash fa-3x mb-3 opacity-50"></i>
-                                <p>No hay vehículos de alquiler disponibles en este momento.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <div class="row g-4">
+        {% for rent in rents %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card car-card">
+                <div class="card-img-container">
+                    {% if rent.image %}
+                    <img src="{{ rent.image }}" class="card-img-top" alt="{{ rent.brand }} {{ rent.model }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=1000&auto=format&fit=crop" class="card-img-top" alt="Coche por defecto">
+                    {% endif %}
+                    <div class="price-tag">
+                        {{ rent.price }}€ <small class="text-muted fw-normal">/día</small>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ rent.brand }} {{ rent.model }}</h5>
+                    <div class="car-specs">
+                        <span><i class="fas fa-users"></i> {{ rent.maxPeople }} Plazas</span>
+                        <span><i class="fas fa-calendar-alt"></i> Disp. Inmediata</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <a href="{{ url_for('carRenting.view_rent', idCarRenting=rent.idCarRenting) }}" class="btn btn-outline-primary rounded-pill px-3">
+                            Ver más detalles
+                        </a>
+                        
+                        {% if session.get("role") == "admin" or (session.get("role") == "company" and session.get("user_id") == rent.idCompany) %}
+                        <div class="dropdown">
+                            <button class="btn btn-light rounded-circle p-2" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('carRenting.show_edit_form', idCarRenting=rent.idCarRenting) }}">
+                                        <i class="fas fa-edit me-2 text-primary"></i>Editar
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ url_for('carRenting.delete_rent', idCarRenting=rent.idCarRenting) }}" method="post" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este vehículo?');">
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-trash me-2"></i>Eliminar
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
+        {% else %}
+        <div class="col-12 py-5 text-center">
+            <div class="p-5 bg-light rounded-5">
+                <i class="fas fa-car-crash fa-4x mb-3 text-muted opacity-25"></i>
+                <h3 class="text-muted">No hay vehículos disponibles</h3>
+                <p>Vuelve a consultar más tarde o registra tu propio coche si eres una empresa.</p>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

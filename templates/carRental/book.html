@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Reservar {{ car.brand }} {{ car.model }} | TravelDream{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card car-form-card">
+                <div class="card-header border-0">
+                    <h2 class="h4 mb-0 fw-bold">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Reservar {{ car.brand }} {{ car.model }}
+                    </h2>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <!-- Car Info Summary -->
+                    <div class="alert alert-info rounded-4 mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-car fa-3x me-3"></i>
+                            <div>
+                                <h5 class="mb-1">{{ car.brand }} {{ car.model }}</h5>
+                                <p class="mb-0"><strong>{{ car.pricePerDay }}€</strong> por día | Capacidad: {{ car.maxPeople }} pasajeros</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{{ url_for('carRental.create_booking', idCar=car.idCar) }}">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label for="startDate" class="form-label small text-uppercase fw-bold text-muted">
+                                    <i class="far fa-calendar-alt text-primary me-2"></i>Fecha de Recogida
+                                </label>
+                                <input type="text" id="startDate" name="startDate" class="form-control form-control-lg rounded-3 date-picker" required placeholder="Selecciona fecha y hora">
+                                <div class="form-text">Cuándo recoges el vehículo</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="endDate" class="form-label small text-uppercase fw-bold text-muted">
+                                    <i class="far fa-calendar-check text-primary me-2"></i>Fecha de Devolución
+                                </label>
+                                <input type="text" id="endDate" name="endDate" class="form-control form-control-lg rounded-3 date-picker" required placeholder="Selecciona fecha y hora">
+                                <div class="form-text">Cuándo devuelves el vehículo</div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="alert alert-warning rounded-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Importante:</strong> El precio total se calculará automáticamente según los días de alquiler.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 gap-3">
+                            <a href="{{ url_for('carRental.browse_cars') }}" class="btn btn-light btn-lg rounded-pill px-5 text-muted order-2 order-md-1">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow order-1 order-md-2">
+                                <i class="fas fa-check-circle me-2"></i>Confirmar Reserva
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        
+        flatpickr("#startDate", {
+            enableTime: true,
+            enableSeconds: true,
+            dateFormat: "Y/m/d H:i:S",
+            time_24hr: true,
+            minDate: now,
+            defaultDate: now,
+            locale: {
+                firstDayOfWeek: 1
+            }
+        });
+        
+        flatpickr("#endDate", {
+            enableTime: true,
+            enableSeconds: true,
+            dateFormat: "Y/m/d H:i:S",
+            time_24hr: true,
+            minDate: now,
+            locale: {
+                firstDayOfWeek: 1
+            }
+        });
+    });
+</script>
+{% endblock %}
