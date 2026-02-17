@@ -2,77 +2,215 @@
 
 {% block title %}{% if flight %}Editar Vuelo{% else %}Añadir Vuelo{% endif %} | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+
+    .form-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--b-text);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f0f0f0;
+        margin-top: 30px;
+    }
+
+    .form-section-title:first-child { margin-top: 0; }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        background-color: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.1);
+    }
+
+    .input-group-text {
+        background-color: #f9f9f9;
+        border: 1px solid #ced4da;
+        color: #666;
+    }
+
+    /* Divisor visual de ruta */
+    .route-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding-top: 25px;
+        color: var(--b-blue-light);
+        font-size: 1.2rem;
+    }
+
+    .btn-submit {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: background 0.2s;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .btn-cancel {
+        background-color: transparent;
+        color: var(--b-blue-light);
+        font-weight: 600;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-cancel:hover {
+        text-decoration: underline;
+        color: var(--b-blue);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5" style="max-width: 800px;">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white">
-            <h1 class="h3 mb-0"><i class="fas fa-plane me-2"></i>{% if flight %}Editar Vuelo{% else %}Registrar Nuevo Vuelo{% endif %}</h1>
-        </div>
-        <div class="card-body p-4">
+<div class="container form-container">
+    
+    <div class="mb-4">
+        <a href="{{ url_for('flight.list_flights') }}" class="text-decoration-none fw-bold text-primary small">
+            <i class="fas fa-arrow-left me-1"></i> Volver al listado
+        </a>
+        <h2 class="fw-bold mt-2">{% if flight %}Editar Vuelo #{{ flight.idFlight }}{% else %}Añadir Nuevo Vuelo{% endif %}</h2>
+        <p class="text-muted">Configura los detalles de la ruta aérea y disponibilidad.</p>
+    </div>
+
+    <div class="form-card animate__animated animate__fadeInUp">
+        <form action="{{ url_for('flight.create_flight') if not flight else url_for('flight.edit_flight', id=flight.idFlight) }}" method="post">
             
-            <form action="{% if flight %}{{ url_for('flight_bp.edit_flight', id=flight.id) }}{% else %}{{ url_for('flight_bp.new_flight') }}{% endif %}" method="post">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label for="aeroline" class="form-label fw-bold">Aerolínea</label>
-                        <input type="text" id="aeroline" name="aeroline" class="form-control" value="{{ flight.aeroline if flight else '' }}" required placeholder="Ej: Iberia, Ryanair...">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="startLocation" class="form-label fw-bold">Origen</label>
-                        <select id="startLocation" name="startLocation" class="form-select" required>
-                            <option value="" disabled selected>Seleccione origen...</option>
-                            {% for loc in locations %}
-                            <option value="{{ loc['id'] }}" {% if flight and flight.startLocation == loc['id'] %}selected{% endif %}>
-                                {{ loc['city'] }}, {{ loc['country'] }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="endLocation" class="form-label fw-bold">Destino</label>
-                        <select id="endLocation" name="endLocation" class="form-select" required>
-                            <option value="" disabled selected>Seleccione destino...</option>
-                            {% for loc in locations %}
-                            <option value="{{ loc['id'] }}" {% if flight and flight.endLocation == loc['id'] %}selected{% endif %}>
-                                {{ loc['city'] }}, {{ loc['country'] }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="startDate" class="form-label fw-bold">Fecha de Salida</label>
-                        <input type="datetime-local" id="startDate" name="startDate" class="form-control" value="{{ flight.startDate if flight else '' }}" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="endDate" class="form-label fw-bold">Fecha de Llegada</label>
-                        <input type="datetime-local" id="endDate" name="endDate" class="form-control" value="{{ flight.endDate if flight else '' }}" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="price" class="form-label fw-bold">Precio (€)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" id="price" name="price" class="form-control" value="{{ flight.price if flight else '' }}" required>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="maxOccupants" class="form-label fw-bold">Plazas Disponibles</label>
-                        <input type="number" id="maxOccupants" name="maxOccupants" class="form-control" value="{{ flight.maxOccupants if flight else '' }}" required>
+            <h5 class="form-section-title">Compañía y Trayecto</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-12 mb-2">
+                    <label for="aeroline" class="form-label">Nombre de la Aerolínea</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-plane"></i></span>
+                        <input type="text" id="aeroline" name="aeroline" class="form-control" value="{{ flight.aeroline if flight else '' }}" required placeholder="Ej: Iberia, Lufthansa, Emirates...">
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-                    <a href="{{ url_for('flight_bp.get_flights') }}" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-primary px-4">
+                <div class="col-md-5">
+                    <label for="startLocation" class="form-label">Aeropuerto de Origen</label>
+                    <select id="startLocation" name="startLocation" class="form-select" required>
+                        <option value="" disabled selected>Selecciona origen...</option>
+                        {% for loc in locations %}
+                        <option value="{{ loc.idLocation }}" {% if flight and flight.startLocation == loc.idLocation %}selected{% endif %}>
+                            {{ loc.city }} ({{ loc.country }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-none d-md-block">
+                    <div class="route-divider">
+                        <i class="fas fa-long-arrow-alt-right"></i>
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <label for="endLocation" class="form-label">Aeropuerto de Destino</label>
+                    <select id="endLocation" name="endLocation" class="form-select" required>
+                        <option value="" disabled selected>Selecciona destino...</option>
+                        {% for loc in locations %}
+                        <option value="{{ loc.idLocation }}" {% if flight and flight.endLocation == loc.idLocation %}selected{% endif %}>
+                            {{ loc.city }} ({{ loc.country }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <h5 class="form-section-title">Programación y Logística</h5>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label for="startDate" class="form-label">Fecha y Hora de Salida</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        <input type="datetime-local" id="startDate" name="startDate" class="form-control" value="{{ flight.startDate.strftime('%Y-%m-%dT%H:%M') if flight and flight.startDate else '' }}" required>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="endDate" class="form-label">Fecha y Hora de Llegada</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="far fa-calendar-check"></i></span>
+                        <input type="datetime-local" id="endDate" name="endDate" class="form-control" value="{{ flight.endDate.strftime('%Y-%m-%dT%H:%M') if flight and flight.endDate else '' }}" required>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="maxOccupants" class="form-label">Plazas Totales (Capacidad)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-users"></i></span>
+                        <input type="number" id="maxOccupants" name="maxOccupants" class="form-control" value="{{ flight.maxOccupants if flight else '' }}" min="1" required placeholder="Ej: 150">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="price" class="form-label">Precio del Billete</label>
+                    <div class="input-group">
+                        <span class="input-group-text fw-bold">€</span>
+                        <input type="number" step="0.01" id="price" name="price" class="form-control" value="{{ flight.price if flight else '' }}" required placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                <a href="{{ url_for('flight.list_flights') }}" class="btn-cancel">Descartar cambios</a>
+                <div style="width: 220px;">
+                    <button type="submit" class="btn-submit">
                         <i class="fas fa-save me-2"></i>{% if flight %}Actualizar{% else %}Guardar{% endif %} Vuelo
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+
+        </form>
     </div>
 </div>
 {% endblock %}

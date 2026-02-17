@@ -2,6 +2,107 @@
 
 {% block title %}Editar Propiedad | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+
+    .form-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--b-text);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        background-color: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.1);
+    }
+
+    .input-group-text {
+        background-color: #f9f9f9;
+        border: 1px solid #ced4da;
+        color: #666;
+    }
+
+    .btn-submit {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: background 0.2s;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .btn-cancel {
+        background-color: transparent;
+        color: var(--b-blue-light);
+        font-weight: 600;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-cancel:hover {
+        text-decoration: underline;
+        color: var(--b-blue);
+    }
+
+    .helper-text {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 4px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5" style="max-width: 800px;">
     <div class="card shadow-sm border-0">
@@ -10,78 +111,104 @@
         </div>
         <div class="card-body p-4">
 
-            <form action="{{ url_for('aco.edit', id=accommodation.id) }}" method="POST" enctype="multipart/form-data">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label for="image" class="form-label fw-bold">Cambiar Imagen (Dejar vacío para mantener la actual)</label>
-                        <input type="file" id="image" name="image" class="form-control" accept="image/*">
-                    </div>
-                    <div class="col-12">
-                        <label for="name" class="form-label fw-bold">Nombre de la Propiedad</label>
-                        <input type="text" id="name" name="name" class="form-control" value="{{ accommodation.name }}"
-                            required>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="address" class="form-label fw-bold">Dirección Completa</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                            <input type="text" id="address" name="address" class="form-control"
-                                value="{{ accommodation.address }}" required>
+    <div class="form-card animate__animated animate__fadeInUp">
+        <form action="{{ url_for('aco.edit', id=accommodation.id) }}" method="POST" enctype="multipart/form-data">
+            
+            <h5 class="form-section-title">Información General</h5>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <label for="image" class="form-label fw-bold">Imagen de la Propiedad</label>
+                    <input type="file" id="image" name="image" class="form-control" accept="image/*">
+                    {% if accommodation.image %}
+                        <div class="mt-2">
+                            <small class="text-muted d-block mb-1">Imagen actual:</small>
+                            {% if accommodation.image.startswith('http') %}
+                                <img src="{{ accommodation.image }}" alt="Preview" style="height: 80px; border-radius: 4px; border: 1px solid #ddd;">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/' + accommodation.image) }}" alt="Preview" style="height: 80px; border-radius: 4px; border: 1px solid #ddd;">
+                            {% endif %}
                         </div>
-                    </div>
+                    {% endif %}
+                    <div class="helper-text">Sube una foto nueva si quieres cambiar la actual.</div>
+                </div>
 
-                    <div class="col-md-6">
-                        <label for="type" class="form-label fw-bold">Tipo de Propiedad</label>
-                        <select id="type" name="type" class="form-select">
-                            <option value="hotel" {% if accommodation.type=='hotel' %}selected{% endif %}>Hotel</option>
-                            <option value="house" {% if accommodation.type=='house' %}selected{% endif %}>Casa / Apartamento</option>
-                        </select>
-                    </div>
+                <div class="col-12">
+                    <label for="name" class="form-label">Nombre del alojamiento <span class="text-danger">*</span></label>
+                    <input type="text" id="name" name="name" class="form-control" value="{{ accommodation.name }}" required>
+                </div>
 
-                    <div class="col-md-6">
-                        <label for="stars_quality" class="form-label fw-bold">Calidad (Estrellas)</label>
-                        <select id="stars_quality" name="stars_quality" class="form-select">
-                            {% for i in range(1, 6) %}
-                            <option value="{{ i }}" {% if accommodation.stars_quality==i %}selected{% endif %}>
-                                {{ i }} Estrella{{ 's' if i > 1 else '' }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                <div class="col-md-6">
+                    <label for="type" class="form-label">Tipo de propiedad</label>
+                    <select id="type" name="type" class="form-select">
+                        <option value="hotel" {% if accommodation.type == 'hotel' %}selected{% endif %}>Hotel</option>
+                        <option value="house" {% if accommodation.type == 'house' %}selected{% endif %}>Casa / Apartamento</option>
+                        <option value="apartment" {% if accommodation.type == 'apartment' %}selected{% endif %}>Apartamento</option>
+                        <option value="resort" {% if accommodation.type == 'resort' %}selected{% endif %}>Resort</option>
+                        <option value="hostel" {% if accommodation.type == 'hostel' %}selected{% endif %}>Hostal</option>
+                        <option value="villa" {% if accommodation.type == 'villa' %}selected{% endif %}>Villa</option>
+                    </select>
+                </div>
 
-                    <div class="col-md-6">
-                        <label for="phoneNumber" class="form-label fw-bold">Teléfono</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                            <input type="text" id="phoneNumber" name="phoneNumber" class="form-control"
-                                value="{{ accommodation.phoneNumber }}">
-                        </div>
-                    </div>
+                <div class="col-md-6">
+                    <label for="stars_quality" class="form-label">Categoría (Estrellas)</label>
+                    <select id="stars_quality" name="stars_quality" class="form-select">
+                        {% for i in range(1, 6) %}
+                        <option value="{{ i }}" {% if accommodation.stars_quality == i %}selected{% endif %}>
+                            {{ i }} Estrella{{ 's' if i > 1 else '' }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
 
-                    <div class="col-md-6">
-                        <label for="web" class="form-label fw-bold">Sitio Web (Opcional)</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-globe"></i></span>
-                            <input type="text" id="web" name="web" class="form-control" value="{{ accommodation.web }}">
-                        </div>
-                    </div>
+            <h5 class="form-section-title mt-5">Ubicación y Contacto</h5>
 
-                    <div class="col-12">
-                        <label for="description" class="form-label fw-bold">Descripción</label>
-                        <textarea id="description" name="description" class="form-control" rows="5"
-                            required>{{ accommodation.description }}</textarea>
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <label for="address" class="form-label">Dirección completa <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                        <input type="text" id="address" name="address" class="form-control" value="{{ accommodation.address }}" required>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-                    <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-save me-2"></i>Actualizar Propiedad
+                <div class="col-md-6">
+                    <label for="phoneNumber" class="form-label">Teléfono de contacto</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                        <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" value="{{ accommodation.phoneNumber }}">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="web" class="form-label">Sitio web (Opcional)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                        <input type="text" id="web" name="web" class="form-control" value="{{ accommodation.web }}">
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="form-section-title mt-5">Descripción</h5>
+
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <label for="description" class="form-label">Sobre el alojamiento <span class="text-danger">*</span></label>
+                    <textarea id="description" name="description" class="form-control" rows="6" required>{{ accommodation.description }}</textarea>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                <a href="{{ url_for('aco.manage_hotels') }}" class="btn-cancel">Cancelar cambios</a>
+                <div style="width: 200px;">
+                    <button type="submit" class="btn-submit">
+                        Actualizar Propiedad
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+
+        </form>
     </div>
 </div>
 {% endblock %}

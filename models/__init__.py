@@ -8,7 +8,8 @@ from .Location import Location
 from .Cruise import Cruise
 from .Flight import Flight
 from .BusTrain import BusTrain
-from .CarRenting import CarRenting
+from .Car import Car  # New: Vehicle inventory
+from .CarRental import CarRental  # New: Rental bookings
 from .CulinaryExperience import CulinaryExperience
 from .Tour import Tour
 from .Accommodation import Accommodation
@@ -30,3 +31,7 @@ from .AccommodationBookingLine import AccommodationBookingLine
 # 5. NIVEL TRANSACCIONAL Y SOCIAL: Dependen de casi todos los anteriores
 from .Review import Review
 from .Trip import Trip
+
+# 6. TRIP BUILDER: User's custom multi-service trips
+from .UserTrip import UserTrip
+from .TripItem import TripItem

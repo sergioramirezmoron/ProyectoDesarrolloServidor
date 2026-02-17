@@ -1,77 +1,305 @@
 {% extends 'base.html' %}
 
-{% block title %}Gestionar Reservas | TravelDream{% endblock %}
+{% block title %}Gestionar Reservas | TravelDream Partner{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+        --b-red: #d4111e;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+    }
+
+    /* --- Page Header --- */
+    .management-header {
+        background-color: white;
+        padding: 30px 0;
+        border-bottom: 1px solid #e7e7e7;
+        margin-bottom: 30px;
+    }
+
+    .header-title {
+        font-weight: 700;
+        color: var(--b-text);
+        margin: 0;
+    }
+
+    /* --- Table Card --- */
+    .table-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    /* --- Table Styling --- */
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+    .custom-table th {
+        background-color: #f9f9f9;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #666;
+        padding: 15px;
+        border-bottom: 2px solid #e7e7e7;
+    }
+
+    .custom-table td {
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.95rem;
+        color: #333;
+    }
+
+    .custom-table tr:hover {
+        background-color: #f0f6fd;
+    }
+
+    /* --- Columns Specifics --- */
+    .id-cell {
+        font-family: monospace;
+        font-weight: 600;
+        color: #666;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-avatar {
+        width: 35px;
+        height: 35px;
+        background-color: #ebf3ff;
+        color: var(--b-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+
+    .user-details div { line-height: 1.2; }
+    .user-email { font-size: 0.8rem; color: #888; }
+
+    .room-info small { color: #888; }
+
+    .price-cell {
+        font-weight: 700;
+        color: #333;
+    }
+
+    /* --- Badges --- */
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+    .badge-confirmed { background: #e6f6e8; color: var(--b-green); }
+    .badge-cancelled { background: #fde8ea; color: var(--b-red); }
+    .badge-pending { background: #fff8e1; color: #b86a04; }
+
+    /* --- Actions --- */
+    .btn-icon-cancel {
+        color: #666;
+        background: white;
+        border: 1px solid #ccc;
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .btn-icon-cancel:hover {
+        color: white;
+        background: var(--b-red);
+        border-color: var(--b-red);
+    }
+
+    .btn-icon-accept {
+        color: var(--b-green);
+        background: white;
+        border: 1px solid var(--b-green);
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        margin-right: 5px;
+    }
+
+    .btn-icon-accept:hover {
+        color: white;
+        background: var(--b-green);
+    }
+
+    .availability-warning {
+        font-size: 0.75rem;
+        color: var(--b-red);
+        font-weight: 600;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-primary-action {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    .btn-primary-action:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 mb-0">Gestionar Reservas</h1>
-        <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline-primary">
-            <i class="fas fa-building me-2"></i>Mis Propiedades
-        </a>
+    
+    <div class="management-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="header-title">Reservas Recibidas</h2>
+                    <p class="text-muted mb-0 small">Gestiona las estancias de tus huéspedes.</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('aco.manage_hotels') }}" class="btn-primary-action">
+                        <i class="fas fa-building me-2"></i>Propiedades
+                    </a>
+                    <a href="{{ url_for('car.list_rentals') }}" class="btn-primary-action ms-2" style="background-color: var(--b-green); border-color: var(--b-green);">
+                        <i class="fas fa-car me-2"></i>Reservas Vehículos
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
+    <div class="container pb-5">
+        
+        <div class="table-card animate__animated animate__fadeInUp">
             {% if bookings %}
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+                <table class="custom-table">
+                    <thead>
                         <tr>
-                            <th class="py-3 px-4">ID</th>
-                            <th class="py-3">Propiedad</th>
-                            <th class="py-3">Huésped</th>
-                            <th class="py-3">Habitación</th>
-                            <th class="py-3">Check-in</th>
-                            <th class="py-3">Check-out</th>
-                            <th class="py-3">Total</th>
-                            <th class="py-3">Estado</th>
-                            <th class="py-3 text-end px-4">Acciones</th>
+                            <th>Ref.</th>
+                            <th>Huésped</th>
+                            <th>Alojamiento / Habitación</th>
+                            <th>Fechas (In/Out)</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for booking in bookings %}
                         <tr>
-                            <td class="px-4 text-muted small">#{{ booking.id }}</td>
-                            <td class="fw-bold">{{ booking.accommodation.name }}</td>
+                            <td class="id-cell">#{{ booking.id }}</td>
+                            
                             <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-light rounded-circle p-2 me-2">
-                                        <i class="fas fa-user text-secondary"></i>
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        {{ booking.user.name[0].upper() }}
                                     </div>
-                                    {{ booking.user.name }}
+                                    <div class="user-details">
+                                        <div class="fw-bold">{{ booking.user.name }}</div>
+                                        <div class="user-email">{{ booking.user.email }}</div>
+                                    </div>
                                 </div>
                             </td>
+
                             <td>
-                                {% if booking.room %}
-                                <span class="badge bg-light text-dark border">
-                                    {{ booking.room.type }} <span class="text-muted ms-1">#{{ booking.room.roomNumber }}</span>
+                                <div class="fw-bold text-primary">{{ booking.accommodation.name }}</div>
+                                <div class="room-info">
+                                    {% if booking.room %}
+                                        <small><i class="fas fa-bed me-1"></i> {{ booking.room.type }} ({{ booking.room.roomNumber }})</small>
+                                    {% else %}
+                                        <small class="fst-italic text-muted">Habitación no asignada</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="small">
+                                    <div><i class="fas fa-arrow-right text-success me-1"></i> {{ booking.startDate }}</div>
+                                    <div><i class="fas fa-arrow-left text-danger me-1"></i> {{ booking.endDate }}</div>
+                                </div>
+                            </td>
+
+                            <td class="price-cell">
+                                {{ booking.totalPrice }}€
+                            </td>
+
+                            <td>
+                                <span class="status-badge 
+                                    {% if booking.status == 'confirmed' %}badge-confirmed
+                                    {% elif booking.status == 'cancelled' %}badge-cancelled
+                                    {% else %}badge-pending{% endif %}">
+                                    {{ booking.status }}
                                 </span>
-                                {% else %}
-                                <span class="text-muted fst-italic">N/A</span>
-                                {% endif %}
                             </td>
-                            <td class="small">{{ booking.startDate }}</td>
-                            <td class="small">{{ booking.endDate }}</td>
-                            <td class="fw-bold text-success">${{ booking.totalPrice }}</td>
-                            <td>
-                                {% if booking.status == 'confirmed' %}
-                                <span class="badge bg-success">Confirmada</span>
-                                {% elif booking.status == 'cancelled' %}
-                                <span class="badge bg-danger">Cancelada</span>
-                                {% else %}
-                                <span class="badge bg-secondary">{{ booking.status|capitalize }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-end px-4">
-                                {% if booking.status != 'cancelled' %}
-                                <form action="{{ url_for('booking.cancel_booking', id=booking.id) }}" method="POST"
-                                    onsubmit="return confirm('¿Está seguro de cancelar esta reserva?');" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Cancelar Reserva">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </form>
-                                {% endif %}
+
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end">
+                                    {% if booking.status == 'pending' %}
+                                        {# Check if there's a conflict before showing Accept button alone #}
+                                        {% set is_available = booking.room.is_available(booking.startDate, booking.endDate) if booking.room else True %}
+                                        
+                                        {% if is_available %}
+                                            <form action="{{ url_for('booking.accept_booking', id=booking.id) }}" method="POST" style="display: inline-block;">
+                                                <button type="submit" class="btn-icon-accept" title="Confirmar Reserva">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <div class="availability-warning me-2" title="Esta habitación ya tiene una reserva confirmada en estas fechas">
+                                                <i class="fas fa-exclamation-triangle"></i> Conflicto
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if booking.status != 'cancelled' %}
+                                    <form action="{{ url_for('booking.cancel_booking', id=booking.id) }}" method="POST" 
+                                          onsubmit="return confirm('¿Está seguro de que desea cancelar esta reserva? Se notificará al huésped.');"
+                                          style="display: inline-block;">
+                                        <button type="submit" class="btn-icon-cancel" title="Cancelar Reserva">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted small">-</span>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -80,13 +308,13 @@
             </div>
             {% else %}
             <div class="text-center py-5">
-                <div class="mb-3">
-                    <i class="fas fa-inbox fa-3x text-muted opacity-50"></i>
-                </div>
-                <p class="text-muted">No se encontraron reservas para sus propiedades.</p>
+                <i class="fas fa-inbox fa-3x text-muted opacity-25 mb-3"></i>
+                <h5 class="fw-bold text-dark">No hay reservas todavía</h5>
+                <p class="text-muted">Cuando recibas una reserva, aparecerá aquí.</p>
             </div>
             {% endif %}
         </div>
+
     </div>
-</div>
+
 {% endblock %}

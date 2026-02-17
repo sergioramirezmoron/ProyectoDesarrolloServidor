@@ -2,86 +2,207 @@
 
 {% block title %}Añadir Propiedad | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+
+    .form-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--b-text);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        background-color: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.1);
+    }
+
+    .input-group-text {
+        background-color: #f9f9f9;
+        border: 1px solid #ced4da;
+        color: #666;
+    }
+
+    .btn-submit {
+        background-color: var(--b-blue-light);
+        color: black;
+        font-weight: 700;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: background 0.2s;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .btn-cancel {
+        background-color: transparent;
+        color: var(--b-blue-light);
+        font-weight: 600;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-cancel:hover {
+        text-decoration: underline;
+        color: var(--b-blue);
+    }
+
+    .helper-text {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 4px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5" style="max-width: 800px;">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white">
-            <h1 class="h3 mb-0"><i class="fas fa-hotel me-2"></i>Añadir Nueva Propiedad</h1>
-        </div>
-        <div class="card-body p-4">
+<div class="container form-container">
+    
+    <div class="mb-4">
+        <a href="{{ url_for('aco.manage_hotels') }}" class="text-decoration-none fw-bold text-primary small">
+            <i class="fas fa-arrow-left me-1"></i> Volver al listado
+        </a>
+        <h2 class="fw-bold mt-2">Dar de alta un nuevo alojamiento</h2>
+        <p class="text-muted">Completa la información básica para empezar a recibir reservas.</p>
+    </div>
 
-            <form action="{{ url_for('aco.create') }}" method="POST" enctype="multipart/form-data">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label for="image" class="form-label fw-bold">Imagen de la Propiedad</label>
-                        <input type="file" id="image" name="image" class="form-control" accept="image/*">
-                    </div>
-                    <div class="col-12">
-                        <label for="name" class="form-label fw-bold">Nombre de la Propiedad</label>
-                        <input type="text" id="name" name="name" class="form-control" required
-                            placeholder="Ej: Ocean View Resort">
-                    </div>
+    <div class="form-card animate__animated animate__fadeInUp">
+        <form action="{{ url_for('aco.create') }}" method="POST" enctype="multipart/form-data">
+            
+            <h5 class="form-section-title">Información General</h5>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <label for="image" class="form-label fw-bold">Imagen de la Propiedad</label>
+                    <input type="file" id="image" name="image" class="form-control" accept="image/*">
+                    <div class="helper-text">Sube una foto atractiva para destacar tu alojamiento.</div>
+                </div>
+                <div class="col-12">
+                    <label for="name" class="form-label">Nombre del alojamiento <span class="text-danger">*</span></label>
+                    <input type="text" id="name" name="name" class="form-control" required placeholder="Ej: Hotel Gran Vía">
+                    <div class="helper-text">Este es el nombre que verán los huéspedes en TravelDream.</div>
+                </div>
 
-                    <div class="col-12">
-                        <label for="address" class="form-label fw-bold">Dirección Completa</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                            <input type="text" id="address" name="address" class="form-control" required
-                                placeholder="Calle, Número, Ciudad, País">
-                        </div>
-                    </div>
+                <div class="col-md-6">
+                    <label for="type" class="form-label">Tipo de propiedad</label>
+                    <select id="type" name="type" class="form-select">
+                        <option value="hotel" selected>Hotel</option>
+                        <option value="apartment">Apartamento</option>
+                        <option value="resort">Resort</option>
+                        <option value="villa">Villa</option>
+                        <option value="hostel">Hostal</option>
+                        <option value="house">Casa vacacional</option>
+                    </select>
+                </div>
 
-                    <div class="col-md-6">
-                        <label for="type" class="form-label fw-bold">Tipo de Propiedad</label>
-                        <select id="type" name="type" class="form-select">
-                            <option value="hotel">Hotel</option>
-                            <option value="house">Casa / Apartamento</option>
-                        </select>
-                    </div>
+                <div class="col-md-6">
+                    <label for="stars_quality" class="form-label">Categoría (Estrellas)</label>
+                    <select id="stars_quality" name="stars_quality" class="form-select">
+                        <option value="0">Sin categoría</option>
+                        <option value="1">1 Estrella</option>
+                        <option value="2">2 Estrellas</option>
+                        <option value="3">3 Estrellas</option>
+                        <option value="4">4 Estrellas</option>
+                        <option value="5">5 Estrellas</option>
+                    </select>
+                </div>
+            </div>
 
-                    <div class="col-md-6">
-                        <label for="stars_quality" class="form-label fw-bold">Calidad (Estrellas)</label>
-                        <select id="stars_quality" name="stars_quality" class="form-select">
-                            <option value="1">1 Estrella</option>
-                            <option value="2">2 Estrellas</option>
-                            <option value="3">3 Estrellas</option>
-                            <option value="4">4 Estrellas</option>
-                            <option value="5" selected>5 Estrellas</option>
-                        </select>
-                    </div>
+            <h5 class="form-section-title mt-5">Ubicación y Contacto</h5>
 
-                    <div class="col-md-6">
-                        <label for="phoneNumber" class="form-label fw-bold">Teléfono</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                            <input type="text" id="phoneNumber" name="phoneNumber" class="form-control"
-                                placeholder="+1 234 567 890">
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="web" class="form-label fw-bold">Sitio Web (Opcional)</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-globe"></i></span>
-                            <input type="text" id="web" name="web" class="form-control" placeholder="https://ejemplo.com">
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="description" class="form-label fw-bold">Descripción</label>
-                        <textarea id="description" name="description" class="form-control" rows="5" required
-                            placeholder="Describa su propiedad, servicios, entorno..."></textarea>
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <label for="address" class="form-label">Dirección completa <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                        <input type="text" id="address" name="address" class="form-control" required placeholder="Calle, número, ciudad, código postal">
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-                    <a href="{{ url_for('aco.manage_hotels') }}" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-save me-2"></i>Crear Propiedad
+                <div class="col-md-6">
+                    <label for="phoneNumber" class="form-label">Teléfono de contacto</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="+34 600 000 000">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="web" class="form-label">Sitio web (Opcional)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                        <input type="url" id="web" name="web" class="form-control" placeholder="https://mihotel.com">
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="form-section-title mt-5">Descripción</h5>
+
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <label for="description" class="form-label">Sobre el alojamiento <span class="text-danger">*</span></label>
+                    <textarea id="description" name="description" class="form-control" rows="6" required placeholder="Describe las características principales, entorno, servicios destacados, etc."></textarea>
+                    <div class="helper-text">Una buena descripción aumenta las reservas. Menciona lo que hace único a tu lugar.</div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                <a href="{{ url_for('aco.manage_hotels') }}" class="btn-cancel">Cancelar</a>
+                <div style="width: 200px;"> <button type="submit" class="btn-submit">
+                        Guardar y Continuar
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+
+        </form>
     </div>
 </div>
 {% endblock %}

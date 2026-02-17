@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Alquiler de Vehículos | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+    }
+
+    /* --- Page Header --- */
+    .page-header {
+        margin-bottom: 40px;
+    }
+
+    /* --- Car Card Style --- */
+    .car-catalog-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .car-catalog-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    /* Image Wrapper */
+    .car-img-wrapper {
+        height: 200px;
+        position: relative;
+        background-color: #f2f6fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .car-img-wrapper img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .category-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    /* Body */
+    .car-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .car-brand {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--b-text);
+        margin-bottom: 2px;
+    }
+
+    .car-model {
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+
+    .car-features {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .feature-item i {
+        color: var(--b-blue-light);
+        margin-right: 5px;
+    }
+
+    /* Footer */
+    .car-footer {
+        border-top: 1px solid #f0f0f0;
+        padding-top: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .price-box {
+        line-height: 1.2;
+    }
+
+    .price-label {
+        font-size: 0.75rem;
+        color: #666;
+        display: block;
+    }
+
+    .price-amount {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--b-text);
+    }
+
+    .btn-group-actions {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .btn-details {
+        background: white;
+        color: var(--b-blue-light);
+        border: 1px solid var(--b-blue-light);
+        font-weight: 600;
+        flex: 1;
+    }
+
+    .btn-details:hover {
+        background-color: #f0f6fd;
+    }
+
+    .btn-book {
+        background: var(--b-blue-light);
+        color: white;
+        border: none;
+        font-weight: 700;
+        flex: 1.5;
+    }
+
+    .btn-book:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <div class="page-header text-center">
+        <h1 class="fw-bold mb-2">Alquiler de Coches para tu Viaje</h1>
+        <p class="text-muted lead">Compara las mejores flotas y reserva con cancelación gratuita.</p>
+    </div>
+
+    {% if cars %}
+    <div class="row g-4">
+        {% for car in cars %}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
+            <div class="car-catalog-card">
+                <div class="car-img-wrapper">
+                    <span class="category-badge">Disponible</span>
+                    {% if car.image %}
+                        {% if car.image.startswith('http') %}
+                            <img src="{{ car.image }}" alt="{{ car.brand }} {{ car.model }}">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='uploads/' + car.image) }}" alt="{{ car.brand }} {{ car.model }}">
+                        {% endif %}
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=600&auto=format&fit=crop" alt="Vehículo">
+                    {% endif %}
+                </div>
+
+                <div class="car-body">
+                    <div class="car-brand">{{ car.brand }}</div>
+                    <div class="car-model">{{ car.model }}</div>
+                    
+                    <div class="car-features">
+                        <span class="feature-item"><i class="fas fa-user"></i> {{ car.maxPeople }} plazas</span>
+                        <span class="feature-item"><i class="fas fa-briefcase"></i> Maletas</span>
+                        <span class="feature-item"><i class="fas fa-snowflake"></i> A/C</span>
+                    </div>
+
+                    <div class="mt-auto">
+                        <div class="car-footer">
+                            <div class="price-box">
+                                <span class="price-label">Precio por día</span>
+                                <span class="price-amount">{{ car.pricePerDay }}€</span>
+                            </div>
+                            <div class="text-end text-success small fw-bold">
+                                <i class="fas fa-check"></i> Cancelación gratis
+                            </div>
+                        </div>
+
+                        <div class="btn-group-actions">
+                            <a href="{{ url_for('carRental.view_car_for_rental', idCar=car.idCar) }}" class="btn btn-details">
+                                Ver Detalles
+                            </a>
+                            <a href="{{ url_for('carRental.show_booking_form', idCar=car.idCar) }}" class="btn btn-book">
+                                Reservar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 bg-white border rounded shadow-sm">
+        <i class="fas fa-car-side fa-4x text-muted mb-4 opacity-25"></i>
+        <h3 class="fw-bold">No hay vehículos en este momento</h3>
+        <p class="text-muted">Estamos actualizando nuestra flota. Vuelve a intentarlo en unos minutos.</p>
+        <a href="{{ url_for('aco.home') }}" class="btn btn-primary mt-3">Volver al Inicio</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

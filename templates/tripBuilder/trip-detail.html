@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle del Itinerario: {{ trip.tripName }} | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+        --b-red: #d4111e;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Hero Section --- */
+    .trip-detail-header {
+        background-color: var(--b-blue);
+        color: white;
+        padding: 40px 0 60px 0;
+        margin-top: 56px;
+    }
+
+    .badge-status {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-weight: 700;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    .status-confirmed { background: var(--b-green); color: white; }
+    .status-cancelled { background: var(--b-red); color: white; }
+    .status-pending { background: #febb02; color: #333; }
+
+    /* --- Content Card --- */
+    .detail-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 30px;
+        margin-top: -30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* --- Service Items --- */
+    .service-item {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 20px 0;
+    }
+    .service-item:last-child {
+        border-bottom: none;
+    }
+
+    .service-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: #ebf3ff;
+        color: var(--b-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .service-title {
+        font-weight: 700;
+        color: var(--b-text);
+        margin-bottom: 4px;
+    }
+
+    .service-meta {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .service-price {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #333;
+        text-align: right;
+    }
+
+    /* --- Summary Box --- */
+    .summary-box {
+        background: #f9f9f9;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 30px;
+    }
+
+    .total-price-large {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #333;
+    }
+
+    /* --- Buttons --- */
+    .btn-print {
+        border: 1px solid var(--b-blue-light);
+        color: var(--b-blue-light);
+        background: white;
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    .btn-print:hover {
+        background: #ebf3ff;
+    }
+
+    .btn-cancel-trip {
+        color: var(--b-red);
+        background: transparent;
+        border: 1px solid var(--b-red);
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    .btn-cancel-trip:hover {
+        background: #fde8ea;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="trip-detail-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span class="badge-status 
+                        {% if trip.status == 'cancelled' %}status-cancelled
+                        {% elif trip.status == 'confirmed' %}status-confirmed
+                        {% else %}status-pending{% endif %}">
+                        {{ trip.status|capitalize }}
+                    </span>
+                    <h1 class="fw-bold mb-2">{{ trip.tripName }}</h1>
+                    <p class="mb-0 opacity-75">
+                        <i class="far fa-calendar-alt me-2"></i>
+                        {% if trip.startDate and trip.endDate %}
+                            {{ trip.startDate.strftime('%d/%m/%Y') }} — {{ trip.endDate.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            Fechas por definir
+                        {% endif %}
+                        <span class="mx-2">|</span>
+                        Ref: #{{ trip.idUserTrip }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="detail-card animate__animated animate__fadeInUp">
+                    
+                    <div class="mb-4">
+                        <a href="{{ url_for('tripBuilder.my_trips') }}" class="text-decoration-none fw-bold text-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a mis viajes
+                        </a>
+                    </div>
+
+                    <h4 class="fw-bold mb-4 border-bottom pb-3">Detalle de servicios</h4>
+
+                    {% if trip.items %}
+                        {% for item in trip.items %}
+                        <div class="service-item">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="service-icon">
+                                        {% if item.itemType == 'accommodation' %}<i class="fas fa-bed"></i>
+                                        {% elif item.itemType == 'flight' %}<i class="fas fa-plane"></i>
+                                        {% elif item.itemType == 'cruise' %}<i class="fas fa-anchor"></i>
+                                        {% elif item.itemType == 'car_rental' %}<i class="fas fa-car"></i>
+                                        {% elif item.itemType == 'tour' %}<i class="fas fa-ticket-alt"></i>
+                                        {% elif item.itemType == 'transport' %}<i class="fas fa-bus"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    {% set details = item.itemDetails|from_json if item.itemDetails else {} %}
+                                    <h6 class="service-title">
+                                        {% if item.itemType == 'accommodation' %}{{ details.get('name', 'Hotel') }}
+                                        {% elif item.itemType == 'flight' %}Vuelo: {{ details.get('origin', 'Origen') }} <i class="fas fa-arrow-right mx-1 small"></i> {{ details.get('destination', 'Destino') }}
+                                        {% elif item.itemType == 'cruise' %}{{ details.get('name', 'Crucero') }}
+                                        {% elif item.itemType == 'car_rental' %}Coche: {{ details.get('brand', '') }} {{ details.get('model', '') }}
+                                        {% elif item.itemType == 'tour' %}{{ details.get('name', 'Tour') }}
+                                        {% elif item.itemType == 'transport' %}Traslado: {{ details.get('origin', 'Origen') }} <i class="fas fa-arrow-right mx-1 small"></i> {{ details.get('destination', 'Destino') }}
+                                        {% endif %}
+                                    </h6>
+                                    <div class="service-meta">
+                                        {% if item.itemType == 'accommodation' %}{{ details.get('address') }}
+                                        {% elif item.itemType == 'flight' %}{{ details.get('aeroline') }}
+                                        {% elif item.itemType == 'cruise' %}{{ details.get('description')|truncate(60) }}
+                                        {% elif item.itemType == 'car_rental' %}Recogida en destino
+                                        {% elif item.itemType == 'transport' %}{{ details.get('type', '')|capitalize }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="service-price">{{ item.itemPrice }}€</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted py-4">No hay servicios registrados en este itinerario.</p>
+                    {% endif %}
+
+                    <div class="summary-box">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <p class="mb-1 text-muted"><strong>Política de cancelación:</strong></p>
+                                <p class="small text-muted mb-0">La mayoría de reservas permiten cancelación gratuita hasta 48 horas antes. Revisa los detalles individuales.</p>
+                            </div>
+                            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                <div class="text-muted small">Precio Total</div>
+                                <div class="total-price-large">{{ trip.totalPrice }}€</div>
+                                <small class="text-muted">Impuestos incluidos</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <button onclick="window.print()" class="btn-print">
+                            <i class="fas fa-print me-2"></i>Imprimir
+                        </button>
+                        
+                        {% if trip.status != 'cancelled' %}
+                        <form action="{{ url_for('tripBuilder.cancel_trip', idUserTrip=trip.idUserTrip) }}" method="post" onsubmit="return confirm('¿Estás seguro de que deseas cancelar este itinerario completo? Esta acción no se puede deshacer.');">
+                            <button type="submit" class="btn-cancel-trip">
+                                Cancelar Itinerario
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

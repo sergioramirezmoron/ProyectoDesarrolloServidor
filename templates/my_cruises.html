@@ -1,51 +1,240 @@
 {% extends 'base.html' %}
 
-{% block title %}Mis Cruceros | TravelDream{% endblock %}
+{% block title %}Mis Cruceros | TravelDream Partner{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header --- */
+    .page-header {
+        background: white;
+        padding: 30px 0;
+        border-bottom: 1px solid #e7e7e7;
+        margin-bottom: 30px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* --- Cruise Card --- */
+    .cruise-manage-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: box-shadow 0.2s, transform 0.2s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+        .cruise-manage-card {
+            flex-direction: row;
+            align-items: center;
+        }
+    }
+
+    .cruise-manage-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #ccc;
+        transform: translateY(-2px);
+    }
+
+    /* Icon Section */
+    .cruise-icon-box {
+        width: 60px;
+        height: 60px;
+        background-color: #f0f6fd;
+        color: var(--b-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 768px) {
+        .cruise-icon-box {
+            margin-bottom: 0;
+            margin-right: 20px;
+        }
+    }
+
+    /* Content Section */
+    .cruise-info {
+        flex-grow: 1;
+    }
+
+    .ship-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--b-blue);
+        margin-bottom: 5px;
+    }
+
+    .cruise-dates {
+        font-size: 0.9rem;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+
+    .cruise-desc {
+        font-size: 0.85rem;
+        color: #666;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Actions Section */
+    .cruise-actions {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    @media (min-width: 768px) {
+        .cruise-actions {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+            padding-left: 20px;
+            border-left: 1px solid #f0f0f0;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 180px;
+        }
+    }
+
+    .btn-manage {
+        background-color: white;
+        color: var(--b-blue-light);
+        border: 1px solid var(--b-blue-light);
+        padding: 8px 16px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.2s;
+        text-align: center;
+        width: 100%;
+    }
+
+    .btn-manage:hover {
+        background-color: #f0f6fd;
+    }
+
+    /* Empty State */
+    .empty-state-box {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Mis Cruceros</h1>
-        <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Crear Nuevo Crucero
-        </a>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 px-4">Barco</th>
-                            <th class="py-3">Fecha Inicio</th>
-                            <th class="py-3">Fecha Fin</th>
-                            <th class="py-3">Descripción</th>
-                            <th class="py-3 text-end px-4">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cruise in cruises %}
-                        <tr>
-                            <td class="px-4 fw-bold text-primary">{{ cruise.ship.cruiseName if cruise.ship else '-' }}</td>
-                            <td>{{ cruise.startDate.strftime('%d/%m/%Y %H:%M') }}</td>
-                            <td>{{ cruise.endDate.strftime('%d/%m/%Y %H:%M') }}</td>
-                            <td>{{ cruise.description or '-' }}</td>
-                            <td class="text-end px-4">
-                                <a href="{{ url_for('cruise.cruise_detail', idCruise=cruise.idCruise) }}" class="btn btn-sm btn-outline-info">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">No has creado ningún crucero todavía.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    
+    <div class="page-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">Mis Rutas de Crucero</h2>
+                    <p class="text-muted mb-0">Gestiona los itinerarios y fechas de tu flota.</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{{ url_for('userBp.company_dashboard') }}" class="btn btn-outline-secondary fw-bold">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-primary fw-bold">
+                        <i class="fas fa-plus me-2"></i>Crear Nuevo
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                {% if cruises %}
+                    {% for cruise in cruises %}
+                    <div class="cruise-manage-card animate__animated animate__fadeInUp">
+                        <div class="cruise-icon-box">
+                            <i class="fas fa-anchor"></i>
+                        </div>
+
+                        <div class="cruise-info">
+                            <div class="ship-name">
+                                {{ cruise.ship.cruiseName if cruise.ship else 'Barco no asignado' }}
+                            </div>
+                            
+                            <div class="cruise-dates">
+                                <span>
+                                    <i class="far fa-calendar-alt text-success me-1"></i> 
+                                    <strong>Salida:</strong> {{ cruise.startDate.strftime('%d/%m/%Y %H:%M') }}
+                                </span>
+                                <i class="fas fa-arrow-right text-muted small d-none d-md-inline"></i>
+                                <span>
+                                    <i class="far fa-calendar-check text-danger me-1"></i> 
+                                    <strong>Fin:</strong> {{ cruise.endDate.strftime('%d/%m/%Y %H:%M') }}
+                                </span>
+                            </div>
+
+                            <div class="cruise-desc">
+                                {{ cruise.description or 'Sin descripción disponible para esta ruta.' }}
+                            </div>
+                        </div>
+
+                        <div class="cruise-actions">
+                            <a href="{{ url_for('cruise.cruise_detail', idCruise=cruise.idCruiseRoute) }}" class="btn-manage">
+                                Gestionar Itinerario
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                
+                {% else %}
+                    <div class="empty-state-box animate__animated animate__fadeIn">
+                        <div class="mb-3">
+                            <i class="fas fa-ship fa-3x text-muted opacity-25"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">No tienes cruceros creados</h4>
+                        <p class="text-muted mb-4">Empieza a definir tus rutas marítimas ahora mismo.</p>
+                        <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-primary fw-bold px-4">
+                            Crear mi primer crucero
+                        </a>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

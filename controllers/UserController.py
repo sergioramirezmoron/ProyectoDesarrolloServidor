@@ -9,7 +9,7 @@ class UserController:
     @staticmethod
     @userBp.route('/login', methods=['GET', 'POST'])
     def login():
-        if 'userId' in session:
+        if 'user_id' in session:
             return redirect('/')
 
         if request.method == 'POST':
@@ -19,7 +19,7 @@ class UserController:
             
             if user and check_password_hash(user.password, password):
                 session['email'] = user.email
-                session['userId'] = user.idUser
+                session['user_id'] = user.idUser
                 session['role'] = user.role 
                 return redirect('/')
             
@@ -59,8 +59,8 @@ class UserController:
     @staticmethod
     @userBp.route('/company/dashboard')
     def company_dashboard():
-        if 'userId' not in session or session.get('role') != 'company':
+        if 'user_id' not in session or session.get('role') != 'company':
             return redirect(url_for('userBp.login'))
         
-        user = User.query.get(session['userId'])
+        user = User.query.get(session['user_id'])
         return render_template('company_dashboard.html', user=user)

@@ -1,54 +1,184 @@
 {% extends 'base.html' %}
 
-{% block title %}Reseñas del Alojamiento | TravelDream{% endblock %}
+{% block title %}Comentarios de clientes | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-yellow: #febb02;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Layout --- */
+    .reviews-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* --- Header --- */
+    .page-header {
+        background: white;
+        padding: 30px 0;
+        border-bottom: 1px solid #e7e7e7;
+        margin-bottom: 30px;
+    }
+
+    /* --- Review Card --- */
+    .review-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 15px;
+        display: flex;
+        gap: 20px;
+    }
+
+    /* User Column */
+    .review-user-col {
+        flex-shrink: 0;
+        width: 60px; /* Ancho fijo para avatar */
+        text-align: center;
+    }
+
+    .user-avatar {
+        width: 48px;
+        height: 48px;
+        background-color: #ebf3ff;
+        color: var(--b-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin: 0 auto 5px auto;
+    }
+
+    .user-name {
+        font-size: 0.75rem;
+        color: #666;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    /* Content Column */
+    .review-content-col {
+        flex-grow: 1;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+
+    .review-date {
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .star-rating {
+        color: var(--b-yellow);
+        font-size: 0.9rem;
+    }
+
+    .review-text {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #333;
+    }
+
+    /* --- Empty State --- */
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        background: white;
+        border-radius: 4px;
+        border: 1px dashed #ccc;
+    }
+
+    .btn-back {
+        text-decoration: none;
+        color: var(--b-blue-light);
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .btn-back:hover { text-decoration: underline; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h1 class="mb-4 text-center"><i class="fas fa-comments me-2 text-primary"></i>Reseñas del Alojamiento</h1>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            {% if reviews %}
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 px-4">ID Reseña</th>
-                            <th class="py-3">Usuario</th>
-                            <th class="py-3">Calificación</th>
-                            <th class="py-3" style="width: 40%;">Comentario</th>
-                            <th class="py-3 text-end px-4">Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for r in reviews %}
-                        <tr>
-                            <td class="px-4 text-secondary">#{{ r.id }}</td>
-                            <td class="fw-bold"><i class="fas fa-user-circle me-1 text-secondary"></i>User {{ r.idUser }}</td>
-                            <td>
-                                <span class="text-warning">
-                                    {% for i in range(r.ratingStars) %}<i class="fas fa-star"></i>{% endfor %}
-                                    {% for i in range(5 - r.ratingStars) %}<i class="far fa-star"></i>{% endfor %}
-                                </span>
-                            </td>
-                            <td class="text-muted fst-italic">"{{ r.reviewComment }}"</td>
-                            <td class="text-end px-4 text-muted small">{{ r.createdAt.strftime('%d/%m/%Y %H:%M') }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="text-center py-5">
-                <i class="far fa-comment-dots fa-3x text-muted mb-3 opacity-50"></i>
-                <p class="text-muted mb-0">No hay reseñas para este alojamiento aún.</p>
-            </div>
-            {% endif %}
+    
+    <div class="page-header">
+        <div class="container reviews-container">
+            <a href="javascript:history.back()" class="btn-back mb-3">
+                <i class="fas fa-chevron-left"></i> Volver al alojamiento
+            </a>
+            <h2 class="fw-bold mb-1">Comentarios de los huéspedes</h2>
+            <p class="text-muted mb-0">Lo que otros viajeros opinan sobre su estancia.</p>
         </div>
     </div>
-    
-    <div class="mt-4 text-center">
-        <a href="javascript:history.back()" class="btn btn-outline-primary"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+
+    <div class="container reviews-container pb-5">
+        
+        {% if reviews %}
+            {% for r in reviews %}
+            <div class="review-card animate__animated animate__fadeInUp">
+                <div class="review-user-col d-none d-sm-block">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-name">User #{{ r.idUser }}</div>
+                </div>
+
+                <div class="review-content-col">
+                    <div class="review-header">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 d-sm-none mb-2">
+                                <div class="user-avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span class="fw-bold small">Usuario #{{ r.idUser }}</span>
+                            </div>
+
+                            <div class="star-rating">
+                                {% for i in range(r.ratingStars) %}<i class="fas fa-star"></i>{% endfor %}
+                                {% for i in range(5 - r.ratingStars) %}<i class="far fa-star text-muted opacity-25"></i>{% endfor %}
+                                <span class="ms-2 fw-bold text-dark small">{{ r.ratingStars }}/5</span>
+                            </div>
+                        </div>
+                        <div class="review-date">
+                            Comentado el {{ r.createdAt.strftime('%d %b %Y') }}
+                        </div>
+                    </div>
+
+                    <p class="review-text">
+                        "{{ r.reviewComment }}"
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        
+        {% else %}
+            <div class="empty-state">
+                <i class="far fa-comment-dots fa-3x text-muted opacity-25 mb-3"></i>
+                <h5 class="fw-bold">Aún no hay comentarios</h5>
+                <p class="text-muted">Sé el primero en reservar y compartir tu experiencia.</p>
+            </div>
+        {% endif %}
+
     </div>
-</div>
+
 {% endblock %}

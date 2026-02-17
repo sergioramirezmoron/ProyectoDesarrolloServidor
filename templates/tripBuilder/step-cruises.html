@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+
+{% block title %}Paso 3: Cruceros | Planifica tu Viaje{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body { background-color: var(--b-bg-gray); color: var(--b-text); }
+
+    /* --- Progress Bar --- */
+    .wizard-progress {
+        background: white;
+        padding: 20px 0;
+        margin-bottom: 30px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .progress-step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6b6b6b;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .progress-step.completed { color: var(--b-green); }
+
+    .progress-step.active {
+        color: var(--b-blue);
+        font-weight: 700;
+        border-bottom: 2px solid var(--b-blue);
+        padding-bottom: 5px;
+    }
+
+    .step-number {
+        background: #ebf3ff;
+        color: var(--b-blue);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .progress-step.active .step-number { background: var(--b-blue); color: white; }
+    .progress-step.completed .step-number { background: var(--b-green); color: white; }
+
+    /* --- Cruise Card --- */
+    .cruise-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .cruise-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .cruise-img-container { height: 200px; position: relative; background-color: #eee; }
+    .cruise-img { width: 100%; height: 100%; object-fit: cover; }
+
+    .cruise-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 53, 128, 0.9);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .cruise-body { padding: 20px; flex-grow: 1; }
+    .cruise-title { font-weight: 700; font-size: 1.15rem; color: var(--b-text); margin-bottom: 12px; }
+
+    .cruise-info-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #555;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+    .segment-selector {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+    }
+    
+    .segment-selector label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 4px;
+        display: block;
+    }
+    
+    .form-select-sm {
+        font-size: 0.9rem;
+        border-color: #ddd;
+    }
+
+    .price-section {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .price-value { font-size: 1.4rem; font-weight: 800; color: var(--b-text); }
+
+    .btn-select-cruise {
+        background-color: var(--b-blue-light);
+        color: white;
+        border: none;
+        font-weight: 700;
+        padding: 10px 25px;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+
+    .btn-select-cruise:hover { background-color: var(--b-blue); }
+    
+    .btn-skip-link { color: #6b6b6b; text-decoration: none; border: none; background: none; font-weight: 600; }
+    .btn-skip-link:hover { color: var(--b-blue); text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="wizard-progress sticky-top" style="z-index: 999; top: 70px;">
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Alojamiento</span>
+        </div>
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Vuelos</span>
+        </div>
+        <div class="progress-step active">
+            <div class="step-number">3</div>
+            <span>Cruceros</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">4</div>
+            <span>Coches</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">5</div>
+            <span>Tours</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">6</div>
+            <span>Fin</span>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <div class="mb-4">
+                    <h2 class="fw-bold mb-1">Añade un crucero a tu itinerario</h2>
+                    <p class="text-muted">Selecciona una ruta marítima y personaliza tus puertos de embarque y desembarque.</p>
+                </div>
+
+                {% if routes %}
+                <div class="row">
+                    {% for route in routes %}
+                    <div class="col-md-6 mb-4">
+                        <div class="cruise-card h-100 animate__animated animate__fadeInUp" id="card-{{ route.idCruiseRoute }}">
+                            <div class="cruise-img-container">
+                                <img src="https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=800&q=80" class="cruise-img" alt="Crucero">
+                                <span class="cruise-badge">
+                                    <i class="fas fa-ship me-1"></i> {{ route.ship.cruiseName if route.ship else 'Barco Premium' }}
+                                </span>
+                            </div>
+
+                            <div class="cruise-body">
+                                <h5 class="cruise-title">{{ route.description or 'Ruta escénica' }}</h5>
+                                
+                                <div class="cruise-info-row">
+                                    <i class="far fa-calendar-alt text-primary"></i>
+                                    <span>Salida Ruta: <strong>{{ route.startDate.strftime('%d/%m/%Y') }}</strong></span>
+                                </div>
+                                <div class="cruise-info-row">
+                                    <i class="fas fa-map-marker-alt text-primary"></i>
+                                    <span>Ruta: {{ route.idCruiseRoute }}</span>
+                                </div>
+                                
+                                <!-- Segment Selector -->
+                                <div class="segment-selector">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="origin-{{ route.idCruiseRoute }}">Embarque en:</label>
+                                            <select class="form-select form-select-sm origin-select" 
+                                                    data-route-id="{{ route.idCruiseRoute }}" 
+                                                    id="origin-{{ route.idCruiseRoute }}">
+                                                <!-- Populated by JS -->
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="destination-{{ route.idCruiseRoute }}">Desembarque en:</label>
+                                            <select class="form-select form-select-sm destination-select" 
+                                                    data-route-id="{{ route.idCruiseRoute }}" 
+                                                    id="destination-{{ route.idCruiseRoute }}">
+                                                <!-- Populated by JS -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-muted small">
+                                        <i class="far fa-clock me-1"></i> <span id="dates-{{ route.idCruiseRoute }}">Fechas calculadas...</span>
+                                    </div>
+                                </div>
+
+                                <div class="price-section">
+                                    <div>
+                                        <div class="text-muted small">Precio total</div>
+                                        <div class="price-value" id="price-{{ route.idCruiseRoute }}">Calculando...</div> 
+                                    </div>
+                                    
+                                    <form method="POST" action="{{ url_for('tripBuilder.save_cruise') }}">
+                                        <input type="hidden" name="route_id" value="{{ route.idCruiseRoute }}">
+                                        <input type="hidden" name="action" value="add">
+                                        <input type="hidden" name="origin_id" id="input-origin-{{ route.idCruiseRoute }}">
+                                        <input type="hidden" name="destination_id" id="input-destination-{{ route.idCruiseRoute }}">
+                                        
+                                        <button type="submit" class="btn btn-select-cruise">
+                                            Seleccionar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5 bg-white border rounded shadow-sm">
+                    <i class="fas fa-anchor fa-3x text-muted mb-3 opacity-25"></i>
+                    <h4 class="fw-bold text-dark">Sin cruceros disponibles</h4>
+                    <p class="text-muted">No hay rutas marítimas que coincidan con tu itinerario actual.</p>
+                    <form method="POST" action="{{ url_for('tripBuilder.save_cruise') }}">
+                        <input type="hidden" name="action" value="skip">
+                        <button type="submit" class="btn btn-primary px-4">Saltar a Alquiler de Coches</button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                    <a href="{{ url_for('tripBuilder.step_flights') }}" class="btn btn-outline-secondary border-0">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a Vuelos
+                    </a>
+                    
+                    <form method="POST" action="{{ url_for('tripBuilder.save_cruise') }}">
+                        <input type="hidden" name="action" value="skip">
+                        <button type="submit" class="btn btn-skip-link">
+                            Omitir crucero <i class="fas fa-arrow-right ms-1"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Routes data injected from backend
+        const routesData = {{ routes_data|tojson|safe }};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize each route card
+            Object.keys(routesData).forEach(routeId => {
+                const data = routesData[routeId];
+                const stops = data.stops;
+                const originSelect = document.getElementById(`origin-${routeId}`);
+                const destSelect = document.getElementById(`destination-${routeId}`);
+                
+                if (!originSelect || !destSelect) return;
+                
+                // Populate Origin Options (all stops except last)
+                stops.slice(0, stops.length - 1).forEach((stop, index) => {
+                    const option = new Option(`${stop.name} (${stop.date})`, stop.id);
+                    originSelect.add(option);
+                });
+                
+                // Event listener for Origin change
+                originSelect.addEventListener('change', () => {
+                   updateDestinationOptions(routeId);
+                });
+                
+                // Event listener for Destination change
+                destSelect.addEventListener('change', () => {
+                    updatePriceAndInputs(routeId);
+                });
+                
+                // Initial population
+                // Set initial values if stops exist
+                if (stops.length > 0) {
+                    originSelect.value = stops[0].id;
+                    updateDestinationOptions(routeId);
+                }
+            });
+        });
+        
+        function updateDestinationOptions(routeId) {
+            const data = routesData[routeId];
+            const stops = data.stops;
+            const originSelect = document.getElementById(`origin-${routeId}`);
+            const destSelect = document.getElementById(`destination-${routeId}`);
+            
+            const selectedOriginId = parseInt(originSelect.value);
+            const selectedOriginStop = stops.find(s => s.id === selectedOriginId);
+            
+            // Save current selection if possible
+            const currentDestId = parseInt(destSelect.value);
+            
+            // Clear current options
+            destSelect.innerHTML = '';
+            
+            // Add options that are strictly AFTER the selected origin order
+            let lastOptionValue = null;
+            stops.forEach(stop => {
+                if (stop.order > selectedOriginStop.order) {
+                    const option = new Option(`${stop.name} (${stop.date})`, stop.id);
+                    destSelect.add(option);
+                    lastOptionValue = stop.id;
+                }
+            });
+            
+            // Restore selection if valid, otherwise select last
+            const options = Array.from(destSelect.options);
+            const stillExists = options.some(opt => parseInt(opt.value) === currentDestId);
+            
+            if (stillExists) {
+                destSelect.value = currentDestId;
+            } else if (lastOptionValue !== null) {
+                destSelect.value = lastOptionValue; 
+            }
+            
+            // Trigger price update after options update
+            updatePriceAndInputs(routeId);
+        }
+        
+        function updatePriceAndInputs(routeId) {
+            const data = routesData[routeId];
+            const stops = data.stops;
+            const segments = data.segments;
+            
+            const originSelect = document.getElementById(`origin-${routeId}`);
+            const destSelect = document.getElementById(`destination-${routeId}`);
+            const priceDisplay = document.getElementById(`price-${routeId}`);
+            const dateDisplay = document.getElementById(`dates-${routeId}`);
+            
+            const inputOrigin = document.getElementById(`input-origin-${routeId}`);
+            const inputDest = document.getElementById(`input-destination-${routeId}`);
+            
+            const originId = parseInt(originSelect.value);
+            const destId = parseInt(destSelect.value);
+            
+            if (!originId || !destId) return;
+            
+            // Update hidden inputs
+            inputOrigin.value = originId;
+            inputDest.value = destId;
+            
+            // Find start and end logical order
+            const originStop = stops.find(s => s.id === originId);
+            const destStop = stops.find(s => s.id === destId);
+            
+            // Calculate Date Range String
+            if (originStop && destStop) {
+                dateDisplay.textContent = `${originStop.date} - ${destStop.date}`;
+            }
+            
+            // Calculate Price
+            let totalPrice = 0;
+            
+            // Iterate through stops from origin to destination to find connecting segments
+            let currentOrder = originStop.order;
+            const endOrder = destStop.order;
+            
+            // Safety break
+            let attempts = 0;
+            
+            while (currentOrder < endOrder && attempts < 50) {
+                // Find segment where origin matches current logical step
+                
+                // Find the stop object for current order
+                const currentStopObj = stops.find(s => s.order === currentOrder);
+                
+                if (!currentStopObj) break;
+                
+                // Find segment starting at this stop ID
+                const segment = segments.find(s => s.origin === currentStopObj.id);
+                
+                if (segment) {
+                    totalPrice += segment.price;
+                    // Find the order of the destination of this segment
+                    const nextStopObj = stops.find(s => s.id === segment.destination);
+                    if (nextStopObj) {
+                        currentOrder = nextStopObj.order;
+                    } else {
+                        break; 
+                    }
+                } else {
+                    break; // Gap in segments
+                }
+                attempts++;
+            }
+            
+            // Fallback if price is 0 (shouldn't happen with correct data)
+            if (totalPrice === 0) totalPrice = data.base_price;
+            
+            priceDisplay.textContent = totalPrice.toFixed(2) + '€';
+        }
+    </script>
+{% endblock %}

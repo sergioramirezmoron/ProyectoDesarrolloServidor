@@ -2,47 +2,176 @@
 
 {% block title %}Escribir Reseña | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-yellow: #febb02;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    .review-container {
+        max-width: 600px;
+        margin: 40px auto;
+    }
+
+    .review-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+
+    .review-title {
+        font-weight: 800;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: var(--b-text);
+    }
+
+    .review-subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 0.95rem;
+    }
+
+    /* --- Star Rating Widget (CSS Only) --- */
+    .rating-group {
+        display: inline-flex;
+        flex-direction: row-reverse; /* Para que el hover funcione hacia la izquierda */
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .rating-group input {
+        display: none; /* Ocultar radio buttons reales */
+    }
+
+    .rating-group label {
+        font-size: 2.5rem;
+        color: #e0e0e0;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    /* Lógica de coloreado: al hacer hover o check, colorea el actual y los siguientes (que por row-reverse son los anteriores visualmente) */
+    .rating-group input:checked ~ label,
+    .rating-group label:hover,
+    .rating-group label:hover ~ label {
+        color: var(--b-yellow);
+    }
+
+    /* --- Form Elements --- */
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 12px;
+        font-size: 1rem;
+        resize: none;
+    }
+
+    .form-control:focus {
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.15);
+    }
+
+    .btn-submit {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        padding: 14px;
+        width: 100%;
+        border: none;
+        border-radius: 4px;
+        font-size: 1.1rem;
+        transition: background 0.2s;
+        margin-top: 20px;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .btn-cancel {
+        display: block;
+        margin-top: 15px;
+        color: #666;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .btn-cancel:hover { text-decoration: underline; color: var(--b-blue); }
+
+    .technical-ids {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        text-align: left;
+        border: 1px dashed #ddd;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5" style="max-width: 600px;">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white">
-            <h1 class="h3 mb-0"><i class="fas fa-star me-2"></i>Escribir Reseña</h1>
-        </div>
-        <div class="card-body p-4">
-
-            <form method="POST" action="/accommodation/review">
-                <!-- Hidden inputs for IDs if they are passed dynamically, otherwise kept as inputs for now based on original -->
-                <div class="mb-3">
-                    <label for="idUser" class="form-label fw-bold">ID Usuario</label>
-                    <input type="number" id="idUser" name="idUser" class="form-control" placeholder="ID Usuario" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="idAccommodation" class="form-label fw-bold">ID Alojamiento</label>
-                    <input type="number" id="idAccommodation" name="idAccommodation" class="form-control" placeholder="ID Alojamiento" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="ratingStars" class="form-label fw-bold">Calificación (Estrellas)</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-star text-warning"></i></span>
-                        <input type="number" id="ratingStars" name="ratingStars" class="form-control" min="1" max="5" placeholder="1-5" required>
+<div class="container review-container">
+    
+    <div class="review-card animate__animated animate__fadeInUp">
+        <h2 class="review-title">¿Cómo fue tu estancia?</h2>
+        <form method="POST" action="{{ url_for('booking.add_review', accommodation_id=accommodation.id) }}">
+            
+            <div class="technical-ids mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary text-white p-2 rounded">
+                        <i class="fas fa-hotel fa-lg"></i>
+                    </div>
+                    <div class="text-start">
+                        <h5 class="mb-0 fw-bold">{{ accommodation.name }}</h5>
+                        <small class="text-muted">{{ accommodation.address }}</small>
                     </div>
                 </div>
+            </div>
 
-                <div class="mb-3">
-                    <label for="reviewComment" class="form-label fw-bold">Tu Comentario</label>
-                    <textarea id="reviewComment" name="reviewComment" class="form-control" rows="4" placeholder="Comparte tu experiencia..." required></textarea>
-                </div>
+            <div class="mb-2 fw-bold text-muted small">Puntúa tu experiencia</div>
+            <div class="rating-group">
+                <input type="radio" id="star5" name="ratingStars" value="5" required>
+                <label for="star5" title="Excelente"><i class="fas fa-star"></i></label>
+                
+                <input type="radio" id="star4" name="ratingStars" value="4">
+                <label for="star4" title="Muy bueno"><i class="fas fa-star"></i></label>
+                
+                <input type="radio" id="star3" name="ratingStars" value="3">
+                <label for="star3" title="Normal"><i class="fas fa-star"></i></label>
+                
+                <input type="radio" id="star2" name="ratingStars" value="2">
+                <label for="star2" title="Malo"><i class="fas fa-star"></i></label>
+                
+                <input type="radio" id="star1" name="ratingStars" value="1">
+                <label for="star1" title="Terrible"><i class="fas fa-star"></i></label>
+            </div>
 
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-paper-plane me-2"></i>Enviar Reseña
-                    </button>
-                    <a href="javascript:history.back()" class="btn btn-outline-secondary">Cancelar</a>
-                </div>
-            </form>
-        </div>
+            <div class="text-start">
+                <label for="reviewComment" class="form-label fw-bold small">Cuéntanos más detalles</label>
+                <textarea id="reviewComment" name="reviewComment" class="form-control" rows="5" placeholder="¿Qué te gustó más? ¿Qué se podría mejorar?" required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Publicar comentario
+            </button>
+            
+            <a href="javascript:history.back()" class="btn-cancel">Cancelar</a>
+        </form>
     </div>
 </div>
 {% endblock %}

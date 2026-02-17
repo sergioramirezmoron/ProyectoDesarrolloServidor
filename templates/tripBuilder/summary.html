@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Resumen de tu Viaje | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Summary Header --- */
+    .summary-header {
+        background-color: var(--b-blue);
+        color: white;
+        padding: 40px 0 60px 0;
+        margin-top: 56px;
+    }
+
+    /* --- Cards --- */
+    .summary-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .item-row {
+        display: flex;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .item-row:last-child {
+        border-bottom: none;
+    }
+
+    .item-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background-color: #ebf3ff;
+        color: var(--b-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-right: 16px;
+    }
+
+    .item-details h6 {
+        font-weight: 700;
+        margin-bottom: 2px;
+        color: var(--b-text);
+    }
+
+    .item-details p {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0;
+    }
+
+    .item-price {
+        margin-left: auto;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+    /* --- Price Box --- */
+    .price-box {
+        background: #ebf3ff;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        padding: 24px;
+        position: sticky;
+        top: 80px;
+    }
+
+    .total-price {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #333;
+    }
+
+    .btn-confirm {
+        background-color: var(--b-blue-light);
+        color: black;
+        font-weight: 700;
+        font-size: 1.1rem;
+        padding: 12px;
+        border: none;
+        border-radius: 4px;
+        width: 100%;
+        margin-top: 16px;
+        transition: background 0.2s;
+    }
+
+    .btn-confirm:hover {
+        background-color: var(--b-blue);
+        color: green;
+    }
+
+    .btn-back-link {
+        color: var(--b-blue-light);
+        text-decoration: none;
+        font-weight: 600;
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+    }
+    
+    .btn-back-link:hover {
+        text-decoration: underline;
+    }
+
+    .badge-date {
+        background: rgba(255,255,255,0.2);
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="summary-header">
+        <div class="container">
+            <h1 class="fw-bold mb-2">{{ trip_data.trip_name }}</h1>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge-date"><i class="far fa-calendar-alt me-2"></i>{{ trip_data.start_date }} - {{ trip_data.end_date }}</span>
+                <span class="badge bg-success">En proceso</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: -30px;">
+        <div class="row">
+            
+            <div class="col-lg-8">
+                {% if trip_data['items'] %}
+                <div class="summary-card animate__animated animate__fadeInUp">
+                    <h4 class="fw-bold mb-4">Detalles de tu reserva</h4>
+                    
+                    {% for item in trip_data['items'] %}
+                    <div class="item-row">
+                        <div class="item-icon">
+                            {% if item.type == 'accommodation' %}<i class="fas fa-bed"></i>
+                            {% elif item.type == 'flight' %}<i class="fas fa-plane"></i>
+                            {% elif item.type == 'cruise' %}<i class="fas fa-anchor"></i>
+                            {% elif item.type == 'car_rental' %}<i class="fas fa-car"></i>
+                            {% elif item.type == 'tour' %}<i class="fas fa-ticket-alt"></i>
+                            {% elif item.type == 'transport' %}<i class="fas fa-bus"></i>
+                            {% endif %}
+                        </div>
+
+                        {% set details = item.details|from_json if item.details else {} %}
+                        <div class="item-details">
+                            <h6>
+                                {% if item.type == 'accommodation' %}{{ details.get('name', 'Hotel') }}
+                                {% elif item.type == 'flight' %}Vuelo a {{ details.get('destination', 'Destino') }}
+                                {% elif item.type == 'cruise' %}{{ details.get('name', 'Crucero') }}
+                                {% elif item.type == 'car_rental' %}{{ details.get('brand') }} {{ details.get('model') }}
+                                {% elif item.type == 'tour' %}{{ details.get('name', 'Actividad') }}
+                                {% elif item.type == 'transport' %}Traslado {{ details.get('type')|capitalize }}
+                                {% endif %}
+                            </h6>
+                            <p>
+                                {% if item.type == 'accommodation' %}{{ details.get('address') }}
+                                {% elif item.type == 'flight' %}{{ details.get('aeroline') }} • {{ details.get('origin') }}
+                                {% elif item.type == 'cruise' %}{{ details.get('description')|truncate(60) }}
+                                {% elif item.type == 'car_rental' %}Coche de alquiler
+                                {% elif item.type == 'tour' %}{{ details.get('startDate') }}
+                                {% elif item.type == 'transport' %}{{ details.get('origin') }} → {{ details.get('destination') }}
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <div class="item-price">
+                            {{ item.price }}€
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="mt-4 p-3 bg-light rounded d-flex align-items-start gap-2">
+                        <i class="fas fa-check-circle text-success mt-1"></i>
+                        <div>
+                            <strong>Cancelación gratuita</strong> en la mayoría de servicios hasta 48 horas antes.
+                        </div>
+                    </div>
+                </div>
+
+                {% else %}
+                <div class="summary-card text-center py-5">
+                    <i class="fas fa-suitcase fa-3x text-muted mb-3 opacity-25"></i>
+                    <h4>Tu viaje está vacío</h4>
+                    <p class="text-muted">Parece que no has añadido ningún servicio todavía.</p>
+                    <a href="{{ url_for('tripBuilder.step_accommodation') }}" class="btn btn-primary">Empezar a añadir</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4">
+                <div class="price-box shadow-sm">
+                    <h5 class="fw-bold mb-3">Resumen de precio</h5>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Servicios ({{ trip_data['items']|length }})</span>
+                        <span>{{ total }}€</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Impuestos y cargos</span>
+                        <span>0€</span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between align-items-end mb-4">
+                        <span class="fw-bold fs-5">Total</span>
+                        <div class="text-end">
+                            <div class="total-price">{{ total }}€</div>
+                            <small class="text-muted">Incluye impuestos</small>
+                        </div>
+                    </div>
+
+                    {% if trip_data['items'] %}
+                    <form method="post" action="{{ url_for('tripBuilder.confirm') }}">
+                        <button type="submit" class="btn-confirm">
+                            Confirmar Reserva
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <a href="{{ url_for('tripBuilder.step_transport') }}" class="btn-back-link">
+                        <i class="fas fa-arrow-left me-1"></i> Seguir editando
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,58 +1,229 @@
 {% extends 'base.html' %}
 
-{% block title %}Mis Tours | TravelDream{% endblock %}
+{% block title %}Mis Tours | TravelDream Partner{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header --- */
+    .page-header {
+        background: white;
+        padding: 30px 0;
+        border-bottom: 1px solid #e7e7e7;
+        margin-bottom: 30px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* --- Tour Card --- */
+    .tour-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tour-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #ccc;
+    }
+
+    .tour-img-wrapper {
+        height: 160px;
+        background-color: #eee;
+        position: relative;
+    }
+
+    .tour-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .tour-price-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 53, 128, 0.9);
+        color: white;
+        padding: 4px 8px;
+        font-weight: 700;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+
+    .tour-body {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tour-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--b-text);
+        margin-bottom: 5px;
+        line-height: 1.3;
+    }
+
+    .tour-location {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .tour-dates {
+        font-size: 0.85rem;
+        background-color: #f9f9f9;
+        padding: 8px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        border: 1px solid #eee;
+    }
+
+    .tour-actions {
+        margin-top: auto;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 15px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .btn-action-icon {
+        color: #666;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-action-icon:hover {
+        background-color: #f0f6fd;
+        color: var(--b-blue);
+        border-color: var(--b-blue);
+    }
+
+    .btn-delete:hover {
+        background-color: #fde8ea;
+        color: #d4111e;
+        border-color: #d4111e;
+    }
+
+    /* Empty State */
+    .empty-box {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Mis Tours</h1>
-        <a href="{{ url_for('tour.create_tour') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Nuevo Tour
-        </a>
-    </div>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 px-4">Título</th>
-                            <th class="py-3">Ubicación</th>
-                            <th class="py-3">Fechas</th>
-                            <th class="py-3 text-end px-4">Precio</th>
-                            <th class="py-3 text-end px-4">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for tour in tours %}
-                        <tr>
-                            <td class="px-4 fw-bold">{{ tour.title }}</td>
-                            <td><i class="fas fa-map-marker-alt me-1 text-secondary"></i>{{ tour.location.city }}</td>
-                            <td>
-                                <div class="small">
-                                    <div><span class="text-success">Incio:</span> {{ tour.startDate.strftime('%d/%m/%Y') }}</div>
-                                    <div><span class="text-danger">Fin:</span> {{ tour.endDate.strftime('%d/%m/%Y') }}</div>
-                                </div>
-                            </td>
-                            <td class="text-end px-4 fw-bold text-primary">{{ tour.price }}€</td>
-                            <td class="text-end px-4">
-                                <a href="#" class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-edit"></i></a>
-                                <a href="#" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">
-                                <i class="fas fa-map-marked-alt fa-3x mb-3 opacity-50"></i>
-                                <p>No has creado ningún tour todavía.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    
+    <div class="page-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">Mis Tours y Actividades</h2>
+                    <p class="text-muted mb-0">Gestiona tus excursiones y experiencias.</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{{ url_for('userBp.company_dashboard') }}" class="btn btn-outline-secondary fw-bold">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    <a href="{{ url_for('tour.create_tour') }}" class="btn btn-primary fw-bold">
+                        <i class="fas fa-plus me-2"></i>Crear Tour
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="container pb-5">
+        <div class="row g-4">
+            
+            {% if tours %}
+                {% for tour in tours %}
+                <div class="col-lg-3 col-md-4 col-sm-6 animate__animated animate__fadeInUp">
+                    <div class="tour-card">
+                        <div class="tour-img-wrapper">
+                            <img src="https://placehold.co/400x300?text={{ tour.title|urlencode }}" class="tour-img" alt="Tour">
+                            <div class="tour-price-badge">{{ tour.price }}€</div>
+                        </div>
+
+                        <div class="tour-body">
+                            <div class="tour-title">{{ tour.title }}</div>
+                            <div class="tour-location">
+                                <i class="fas fa-map-marker-alt text-danger me-1"></i> {{ tour.location.city }}
+                            </div>
+
+                            <div class="tour-dates">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span><i class="far fa-calendar-alt text-primary me-1"></i> Inicio</span>
+                                    <strong>{{ tour.startDate.strftime('%d/%m/%y') }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="far fa-calendar-check text-success me-1"></i> Fin</span>
+                                    <strong>{{ tour.endDate.strftime('%d/%m/%y') }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="tour-actions">
+                                <a href="#" class="btn-action-icon" title="Editar Tour">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a href="#" class="btn-action-icon btn-delete" title="Eliminar Tour">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            
+            {% else %}
+                <div class="col-12">
+                    <div class="empty-box animate__animated animate__fadeIn">
+                        <div class="mb-3">
+                            <i class="fas fa-map-marked-alt fa-3x text-muted opacity-25"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">No has creado ningún tour</h4>
+                        <p class="text-muted mb-4">Empieza a ofrecer experiencias únicas a tus clientes.</p>
+                        <a href="{{ url_for('tour.create_tour') }}" class="btn btn-primary fw-bold px-4">
+                            Crear mi primer tour
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
 {% endblock %}

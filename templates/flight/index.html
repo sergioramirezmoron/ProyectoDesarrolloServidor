@@ -2,78 +2,253 @@
 
 {% block title %}Vuelos Disponibles | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    /* --- Flight Card (Boarding Pass Style) --- */
+    .flight-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+    }
+
+    .flight-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #c6c6c6;
+    }
+
+    .airline-brand {
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: var(--b-blue);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    /* Route Visual */
+    .flight-route-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .route-node {
+        text-align: center;
+        min-width: 100px;
+    }
+
+    .route-time {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--b-text);
+        display: block;
+    }
+
+    .route-city {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .route-date {
+        font-size: 0.75rem;
+        color: #666;
+    }
+
+    .flight-path {
+        flex-grow: 1;
+        position: relative;
+        height: 2px;
+        background: #e0e0e0;
+        margin: 0 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .flight-path i {
+        background: white;
+        padding: 0 10px;
+        color: var(--b-blue-light);
+        font-size: 1.2rem;
+    }
+
+    /* Details & Pricing */
+    .flight-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-top: 1px dashed #eee;
+        padding-top: 15px;
+        margin-top: 15px;
+    }
+
+    .flight-meta {
+        font-size: 0.85rem;
+        color: #666;
+        display: flex;
+        gap: 15px;
+    }
+
+    .price-block {
+        text-align: right;
+    }
+
+    .price-value {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--b-green);
+        line-height: 1;
+    }
+
+    .price-label {
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 2px;
+    }
+
+    /* Actions */
+    .admin-actions {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        background: white;
+        color: #666;
+        transition: all 0.2s;
+    }
+    .btn-edit:hover { background-color: #f0f6fd; color: var(--b-blue); border-color: var(--b-blue); }
+    .btn-delete:hover { background-color: #fde8ea; color: #d4111e; border-color: #fde8ea; }
+
+    @media (max-width: 576px) {
+        .flight-route-container { flex-direction: column; gap: 20px; }
+        .flight-path { width: 2px; height: 40px; margin: 10px 0; }
+        .flight-path i { transform: rotate(90deg); }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-plane-departure me-2 text-primary"></i>Vuelos Disponibles</h1>
-        {% if user_role == 'company' or user_role == 'admin' %}
-        <a href="{{ url_for('flight_bp.new_flight') }}" class="btn btn-primary">
+    
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-1">Vuelos Disponibles</h1>
+            <p class="text-muted mb-0">Encuentra las mejores rutas aéreas para tu próximo destino.</p>
+        </div>
+        
+        {% if session.get('role') in ['company', 'admin'] %}
+        <a href="{{ url_for('flight.create_flight') }}" class="btn btn-primary fw-bold shadow-sm">
             <i class="fas fa-plus me-2"></i>Añadir Vuelo
         </a>
         {% endif %}
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 px-4">ID</th>
-                            <th class="py-3">Aerolínea</th>
-                            <th class="py-3">Origen</th>
-                            <th class="py-3">Destino</th>
-                            <th class="py-3">Fechas</th>
-                            <th class="py-3">Plazas</th>
-                            <th class="py-3 text-end">Precio</th>
-                            <th class="py-3 text-end px-4">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for flight in flights %}
-                        <tr>
-                            <td class="px-4 text-secondary">#{{ flight.id }}</td>
-                            <td class="fw-bold text-primary">{{ flight.aeroline }}</td>
-                            <td>{{ flight.startLocation }}</td> <!-- Consider resolving ID to Name via template logical or controller -->
-                            <td>{{ flight.endLocation }}</td>
-                            <td>
-                                <div class="small">
-                                    <div class="text-nowrap"><i class="fas fa-plane-departure me-1 text-muted"></i>{{ flight.startDate }}</div>
-                                    <div class="text-nowrap"><i class="fas fa-plane-arrival me-1 text-muted"></i>{{ flight.endDate }}</div>
-                                </div>
-                            </td>
-                            <td><span class="badge bg-info text-dark">{{ flight.maxOccupants }}</span></td>
-                            <td class="text-end fw-bold text-success">{{ flight.price }}€</td>
-                            <td class="text-end px-4">
-                                <div class="d-flex justify-content-end gap-2">
-                                    {% if user_role == 'admin' or (user_role == 'company' and flight.idCompany == session.user_id) %}
-                                    <a href="{{ url_for('flight_bp.edit_flight', id=flight.id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="{{ url_for('flight_bp.delete_flight', id=flight.id) }}" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este vuelo?');">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                    {% endif %}
-                                    
-                                    {% if user_role == 'user' %}
-                                    <a href="{{ url_for('flight_bp.book_flight', id=flight.id) }}" class="btn btn-sm btn-success">
-                                        <i class="fas fa-ticket-alt me-1"></i>Reservar
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                <i class="fas fa-plane-slash fa-3x mb-3 opacity-50"></i>
-                                <p>No hay vuelos disponibles en este momento.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {% if flights %}
+                {% for flight in flights %}
+                <div class="flight-card animate__animated animate__fadeInUp">
+                    
+                    {% if session.get('role') == 'admin' or (session.get('role') == 'company' and flight.idCompany == session.get('user_id')) %}
+                    <div class="admin-actions">
+                        <a href="{{ url_for('flight.edit_flight', id=flight.idFlight) }}" class="btn-action btn-edit" title="Editar">
+                            <i class="fas fa-pen small"></i>
+                        </a>
+                        <form action="{{ url_for('flight.delete_flight', id=flight.idFlight) }}" method="post" class="d-inline">
+                            <button type="submit" class="btn-action btn-delete" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este vuelo?');">
+                                <i class="fas fa-trash-alt small"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    <div class="airline-brand">
+                        <i class="fas fa-plane text-primary"></i>
+                        {{ flight.aeroline }}
+                        <span class="text-muted fw-normal small">#{{ flight.idFlight }}</span>
+                    </div>
+
+                    <div class="flight-route-container">
+                        <div class="route-node">
+                            <span class="route-time">{{ flight.startDate.strftime('%H:%M') if flight.startDate else '--:--' }}</span>
+                            <span class="route-city">{{ flight.locationStart.city if flight.locationStart else flight.startLocation }}</span>
+                            <span class="route-date">{{ flight.startDate.strftime('%d %b %Y') if flight.startDate else '' }}</span>
+                        </div>
+
+                        <div class="flight-path">
+                            <i class="fas fa-plane"></i>
+                        </div>
+
+                        <div class="route-node">
+                            <span class="route-time">{{ flight.endDate.strftime('%H:%M') if flight.endDate else '--:--' }}</span>
+                            <span class="route-city">{{ flight.locationEnd.city if flight.locationEnd else flight.endLocation }}</span>
+                            <span class="route-date">{{ flight.endDate.strftime('%d %b %Y') if flight.endDate else '' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flight-footer">
+                        <div class="flight-meta">
+                            <span><i class="fas fa-chair me-1"></i> {{ flight.maxOccupants }} plazas disponibles</span>
+                            <span><i class="fas fa- suitcase-rolling me-1"></i> Equipaje incluido</span>
+                        </div>
+                        
+                        <div class="price-block">
+                            {% if session.get('role') == 'user' %}
+                            <a href="{{ url_for('tripBuilder.start') }}" class="btn btn-success fw-bold me-3">
+                                <i class="fas fa-plus me-2"></i>Añadir al Viaje
+                            </a>
+                            {% endif %}
+                            <div class="d-inline-block align-bottom">
+                                <div class="price-label">Precio final desde</div>
+                                <div class="price-value">{{ flight.price }}€</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5 bg-white border rounded shadow-sm">
+                    <i class="fas fa-plane-slash fa-4x text-muted mb-3 opacity-25"></i>
+                    <h3 class="fw-bold text-dark">No hay vuelos disponibles</h3>
+                    <p class="text-muted">En este momento no hay rutas registradas que coincidan con la búsqueda.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

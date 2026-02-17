@@ -32,7 +32,7 @@ def admin_dashboard():
 def manage_hotels():
     if "user_id" not in session or session.get("role") != "company":
          flash('Access denied.')
-         return redirect(url_for('login'))
+         return redirect(url_for('userBp.login'))
          
     accommodations = Accommodation.query.filter_by(idCompany=session["user_id"]).all()
     return render_template('manage_hotels.html', accommodations=accommodations)
@@ -71,7 +71,7 @@ def create():
 
     if "user_id" not in session:
         flash('Debes iniciar sesión')
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
 
     if session.get("role") not in ["company", "admin"]:
         flash('No tienes permisos')
@@ -113,14 +113,54 @@ def create():
 @acomodation_bp.route('/acomodation/show/<int:id>', methods=['GET'])
 def show(id):
     accommodation = Accommodation.query.get_or_404(id)
+    
+    # Check if user can leave a review
+    can_review = False
+    if "user_id" in session:
+        from models import AccommodationBookingLine, Review
+        has_stayed = AccommodationBookingLine.query.filter_by(
+            idUser=session["user_id"], 
+            idAccommodation=id, 
+            status='confirmed'
+        ).first()
+        
+        # Optionally check if they already reviewed (to not show the button again)
+        already_reviewed = Review.query.filter_by(
+            idUser=session["user_id"],
+            idAccommodation=id
+        ).first()
+
+        if has_stayed and not already_reviewed:
+            can_review = True
+
     # Get dates from query params if available
     checkin = request.args.get('checkin')
     checkout = request.args.get('checkout')
     
-    # In a real scenario, we would filter rooms based on availability here
-    # For now, we pass all rooms and let the template handle the basic booking form
+    # If dates are provided, filter or flag rooms based on availability
+    rooms_data = []
+    if checkin and checkout:
+        try:
+            start_date = datetime.strptime(checkin, '%Y-%m-%d').date()
+            end_date = datetime.strptime(checkout, '%Y-%m-%d').date()
+            for room in accommodation.rooms:
+                is_available = room.is_available(start_date, end_date)
+                rooms_data.append({
+                    'room': room,
+                    'is_available': is_available
+                })
+        except ValueError:
+            # If dates are invalid, just show all as available
+            rooms_data = [{'room': r, 'is_available': True} for r in accommodation.rooms]
+    else:
+        rooms_data = [{'room': r, 'is_available': True} for r in accommodation.rooms]
     
-    return render_template('acomodationShow.html', accommodation=accommodation, checkin=checkin, checkout=checkout)
+    return render_template('acomodationShow.html', 
+                           accommodation=accommodation, 
+                           rooms_data=rooms_data,
+                           checkin=checkin, 
+                           checkout=checkout,
+                           can_review=can_review)
 
 
 # =========================
@@ -131,7 +171,7 @@ def delete(id):
 
     if "user_id" not in session:
         flash('Debes iniciar sesión')
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
 
     accommodation = Accommodation.query.get_or_404(id)
 
@@ -152,7 +192,7 @@ def edit(id):
 
     if "user_id" not in session:
         flash('Debes iniciar sesión')
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
 
     accommodation = Accommodation.query.get_or_404(id)
 
@@ -174,8 +214,8 @@ def edit(id):
             file = request.files['image']
             if file and file.filename != '':
                 filename = secure_filename(file.filename)
-                os.makedirs(current_app.app_context().app.config['UPLOAD_FOLDER'], exist_ok=True)
-                file.save(os.path.join(current_app.app_context().app.config['UPLOAD_FOLDER'], filename))
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
                 accommodation.image = filename
 
         db.session.commit()
@@ -189,7 +229,7 @@ def edit(id):
 @acomodation_bp.route('/acomodation/<int:id>/rooms', methods=['GET'])
 def manage_rooms(id):
     if "user_id" not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
         
     accommodation = Accommodation.query.get_or_404(id)
     
@@ -203,7 +243,7 @@ def manage_rooms(id):
 @acomodation_bp.route('/acomodation/<int:id>/rooms/add', methods=['POST'])
 def add_room(id):
     if "user_id" not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
         
     accommodation = Accommodation.query.get_or_404(id)
     
@@ -228,7 +268,7 @@ def add_room(id):
 @acomodation_bp.route('/acomodation/rooms/delete/<int:id>', methods=['POST'])
 def delete_room(id):
     if "user_id" not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('userBp.login'))
         
     # Corrected import
     room = Room.query.get_or_404(id)

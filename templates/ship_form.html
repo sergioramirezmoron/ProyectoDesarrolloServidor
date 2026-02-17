@@ -1,33 +1,147 @@
 {% extends 'base.html' %}
 
-{% block title %}Crear Barco | TravelDream{% endblock %}
+{% block title %}Registrar Barco | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    .form-container {
+        max-width: 600px; /* Un poco más estrecho ya que son pocos datos */
+        margin: 40px auto;
+    }
+
+    .form-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--b-text);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        background-color: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.1);
+    }
+
+    .input-group-text {
+        background-color: #f9f9f9;
+        border: 1px solid #ced4da;
+        color: #666;
+    }
+
+    .btn-submit {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: background 0.2s;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .btn-cancel {
+        background-color: transparent;
+        color: var(--b-blue-light);
+        font-weight: 600;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-cancel:hover {
+        text-decoration: underline;
+        color: var(--b-blue);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h3 class="mb-0 h5"><i class="fas fa-ship me-2"></i>Registrar Nuevo Barco</h3>
-                </div>
-                <div class="card-body p-4">
-                    <form method="post">
-                        <div class="mb-3">
-                            <label for="cruiseName" class="form-label fw-bold">Nombre del Barco</label>
-                            <input type="text" name="cruiseName" class="form-control" placeholder="Ej: Titanic II" required>
-                        </div>
-                        <div class="mb-4">
-                            <label for="capacity" class="form-label fw-bold">Capacidad de Pasajeros</label>
-                            <input type="number" name="capacity" class="form-control" min="1" required>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Registrar Barco</button>
-                            <a href="{{ url_for('ship.my_ships') }}" class="btn btn-outline-secondary">Cancelar</a>
-                        </div>
-                    </form>
+<div class="container form-container">
+    
+    <div class="mb-4">
+        <a href="{{ url_for('ship.my_ships') }}" class="text-decoration-none fw-bold text-primary small">
+            <i class="fas fa-arrow-left me-1"></i> Volver a la flota
+        </a>
+        <h2 class="fw-bold mt-2">Registrar Nuevo Barco</h2>
+        <p class="text-muted">Añade una embarcación a tu flota para empezar a crear rutas.</p>
+    </div>
+
+    <div class="form-card animate__animated animate__fadeInUp">
+        <form method="post">
+            
+            <h5 class="form-section-title">Detalles de la Embarcación</h5>
+            
+            <div class="mb-4">
+                <label for="cruiseName" class="form-label">Nombre del Barco</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-ship"></i></span>
+                    <input type="text" name="cruiseName" id="cruiseName" class="form-control" placeholder="Ej: MSC Grandiosa" required>
                 </div>
             </div>
-        </div>
+
+            <div class="mb-4">
+                <label for="capacity" class="form-label">Capacidad Máxima</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-users"></i></span>
+                    <input type="number" name="capacity" id="capacity" class="form-control" min="1" placeholder="Número total de pasajeros" required>
+                </div>
+                <div class="form-text text-muted small mt-1">
+                    Esto determinará el límite de reservas para los cruceros asociados.
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                <a href="{{ url_for('ship.my_ships') }}" class="btn-cancel">Cancelar</a>
+                <div style="width: 200px;">
+                    <button type="submit" class="btn-submit">
+                        Guardar Barco
+                    </button>
+                </div>
+            </div>
+
+        </form>
     </div>
 </div>
 {% endblock %}

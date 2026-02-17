@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Itinerarios | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+        --b-red: #d4111e;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header Section --- */
+    .trips-header {
+        background-color: var(--b-blue);
+        padding: 60px 0 80px 0;
+        margin-top: 56px;
+        color: white;
+    }
+
+    /* --- Trip Card --- */
+    .trip-card-container {
+        margin-top: -40px;
+    }
+
+    .trip-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .trip-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        border-color: #c6c6c6;
+    }
+
+    .trip-icon-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #ebf3ff;
+        color: var(--b-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .trip-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--b-text);
+        margin-bottom: 5px;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .trip-title:hover {
+        color: var(--b-blue-light);
+    }
+
+    .trip-meta {
+        font-size: 0.9rem;
+        color: #666;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    .status-confirmed { background: #e6f6e8; color: var(--b-green); }
+    .status-cancelled { background: #fde8ea; color: var(--b-red); }
+    .status-pending { background: #fff8e1; color: #b86a04; }
+
+    .price-tag-large {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #333;
+    }
+
+    .btn-details {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.2s;
+        display: inline-block;
+    }
+
+    .btn-details:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .btn-cancel {
+        color: var(--b-red);
+        background: transparent;
+        border: 1px solid transparent;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 6px 12px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background: #fde8ea;
+        border-color: #fde8ea;
+    }
+
+    /* Empty State */
+    .empty-state-box {
+        background: white;
+        padding: 60px 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="trips-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="fw-bold mb-1">Mis Viajes</h1>
+                    <p class="mb-0 opacity-75">Gestiona tus reservas y próximos itinerarios.</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('tripBuilder.start') }}" class="btn btn-warning fw-bold shadow-sm">
+                        <i class="fas fa-plus me-2"></i>Nuevo Viaje
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container trip-card-container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                {% if trips %}
+                    {% for trip in trips %}
+                    <div class="trip-card animate__animated animate__fadeInUp">
+                        <div class="row align-items-center">
+                            <div class="col-auto d-none d-md-block">
+                                <div class="trip-icon-circle">
+                                    <i class="fas fa-suitcase-rolling"></i>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="status-badge 
+                                        {% if trip.status == 'cancelled' %}status-cancelled
+                                        {% elif trip.status == 'confirmed' %}status-confirmed
+                                        {% else %}status-pending{% endif %}">
+                                        {% if trip.status == 'confirmed' %}Confirmado
+                                        {% elif trip.status == 'cancelled' %}Cancelado
+                                        {% else %}Pendiente{% endif %}
+                                    </span>
+                                    <small class="text-muted">ID: #{{ trip.idUserTrip }}</small>
+                                </div>
+                                
+                                <a href="{{ url_for('tripBuilder.trip_detail', idUserTrip=trip.idUserTrip) }}" class="trip-title">
+                                    {{ trip.tripName }}
+                                </a>
+                                
+                                <div class="trip-meta mt-2">
+                                    <span><i class="far fa-calendar-alt me-1"></i> 
+                                        {% if trip.startDate %}
+                                            {{ trip.startDate.strftime('%d %b %Y') }}
+                                        {% else %}
+                                            --/--/--
+                                        {% endif %}
+                                    </span>
+                                    <span><i class="fas fa-layer-group me-1"></i> {{ trip.items|length }} servicios</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 text-md-end border-start-md ps-md-4">
+                                <div class="text-muted small">Total</div>
+                                <div class="price-tag-large mb-3">{{ trip.totalPrice }}€</div>
+                                
+                                <div class="d-flex flex-column gap-2 align-items-md-end">
+                                    <a href="{{ url_for('tripBuilder.trip_detail', idUserTrip=trip.idUserTrip) }}" class="btn-details">
+                                        Gestionar reserva
+                                    </a>
+                                    
+                                    {% if trip.status != 'cancelled' %}
+                                    <form action="{{ url_for('tripBuilder.cancel_trip', idUserTrip=trip.idUserTrip) }}" method="post" onsubmit="return confirm('¿Estás seguro de que quieres cancelar este viaje?');">
+                                        <button type="submit" class="btn-cancel">
+                                            Cancelar viaje
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state-box animate__animated animate__fadeIn">
+                        <div class="mb-4">
+                            <i class="fas fa-globe-americas fa-4x text-muted opacity-25"></i>
+                        </div>
+                        <h3 class="fw-bold text-dark">Aún no tienes viajes</h3>
+                        <p class="text-muted mb-4">¡Es el momento perfecto para empezar a planificar tu próxima aventura!</p>
+                        <a href="{{ url_for('tripBuilder.start') }}" class="btn btn-primary btn-lg px-5 fw-bold">
+                            Crear mi primer viaje
+                        </a>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

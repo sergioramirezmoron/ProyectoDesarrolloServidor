@@ -1,29 +1,25 @@
 from .db import db
 
 class Cruise(db.Model):
-    __tablename__ = 'cruises'
-    # Definimos idCruise como Primary Key única
+    __tablename__ = 'cruise_ships'
+    
     idCruise = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    startLocation = db.Column(db.String(50), nullable=False)
-    endLocation = db.Column(db.String(50), nullable=False)
-    startDate = db.Column(db.DateTime, nullable=False)
-    endDate = db.Column(db.DateTime, nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    cruiseName = db.Column(db.String(100), nullable=False)
+    capacity = db.Column(db.Integer, nullable=False)
+    idCompany = db.Column(db.Integer, db.ForeignKey('user.idUser'), nullable=False)
 
-    def __init__(self, startLocation, endLocation, startDate, endDate, description, idCruise=None):
-        self.idCruise = idCruise
-        self.startLocation = startLocation
-        self.endLocation = endLocation
-        self.startDate = startDate
-        self.endDate = endDate
-        self.description = description
+    # Relación con las rutas (viajes) que realiza este barco
+    routes = db.relationship('CruiseRoute', backref='ship', lazy=True)
+
+    def __init__(self, cruiseName, capacity, idCompany):
+        self.cruiseName = cruiseName
+        self.capacity = capacity
+        self.idCompany = idCompany
 
     def to_dict(self):
         return {
             "idCruise": self.idCruise,
-            "startLocation": self.startLocation,
-            "endLocation": self.endLocation,
-            "startDate": self.startDate.isoformat(),
-            "endDate": self.endDate.isoformat(),
-            "description": self.description
+            "cruiseName": self.cruiseName,
+            "capacity": self.capacity,
+            "idCompany": self.idCompany
         }

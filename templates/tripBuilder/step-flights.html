@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Paso 2: Vuelos | Planifica tu Viaje{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Progress Bar --- */
+    .wizard-progress {
+        background: white;
+        padding: 20px 0;
+        margin-bottom: 30px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .progress-step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6b6b6b;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .progress-step.completed {
+        color: var(--b-green, #008009);
+    }
+
+    .progress-step.active {
+        color: var(--b-blue);
+        font-weight: 700;
+        border-bottom: 2px solid var(--b-blue);
+        padding-bottom: 5px;
+    }
+
+    .step-number {
+        background: #ebf3ff;
+        color: var(--b-blue);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .progress-step.active .step-number {
+        background: var(--b-blue);
+        color: white;
+    }
+    
+    .progress-step.completed .step-number {
+        background: var(--b-green, #008009);
+        color: white;
+    }
+
+    /* --- Flight Card Style --- */
+    .flight-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+        transition: box-shadow 0.2s;
+    }
+
+    .flight-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #c6c6c6;
+    }
+
+    .airline-logo-placeholder {
+        width: 40px;
+        height: 40px;
+        background-color: #f2f2f2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .flight-time {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--b-text);
+    }
+
+    .flight-route-line {
+        position: relative;
+        height: 2px;
+        background-color: #ccc;
+        width: 100px;
+        margin: 0 auto;
+    }
+
+    .flight-route-line::after {
+        content: '✈';
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #666;
+        background: white;
+        padding: 0 5px;
+    }
+
+    .flight-duration {
+        font-size: 0.8rem;
+        color: #666;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .airport-code {
+        font-weight: 500;
+        color: #666;
+    }
+
+    .price-large {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .btn-select-flight {
+        background-color: transparent;
+        color: var(--b-blue-light);
+        font-weight: 600;
+        border: 1px solid var(--b-blue-light);
+        padding: 8px 20px;
+        border-radius: 4px;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .btn-select-flight:hover {
+        background-color: #ebf3ff;
+    }
+
+    .btn-skip-link {
+        color: #6b6b6b;
+        text-decoration: none;
+        font-size: 0.95rem;
+    }
+    .btn-skip-link:hover {
+        text-decoration: underline;
+        color: var(--b-blue);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="wizard-progress sticky-top" style="z-index: 999; top: 56px;">
+        <div class="progress-step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <span>Alojamiento</span>
+        </div>
+        <div class="progress-step active">
+            <div class="step-number">2</div>
+            <span>Vuelos</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">3</div>
+            <span>Cruceros</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">4</div>
+            <span>Coches</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">5</div>
+            <span>Tours</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">6</div>
+            <span>Fin</span>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Selecciona tu vuelo</h2>
+                        <p class="text-muted mb-0">
+                            Viaje para las fechas: <strong>{{ trip_data.start_date }}</strong>
+                        </p>
+                    </div>
+                </div>
+
+                {% if flights %}
+                    {% for flight in flights %}
+                    <div class="flight-card animate__animated animate__fadeInUp">
+                        <div class="row align-items-center">
+                            
+                            <div class="col-md-3 mb-3 mb-md-0 d-flex align-items-center gap-3">
+                                <div class="airline-logo-placeholder">
+                                    <i class="fas fa-plane"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ flight.aeroline }}</div>
+                                    <small class="text-muted">Vuelo directo</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="d-flex justify-content-between align-items-center text-center">
+                                    <div>
+                                        <div class="flight-time">{{ flight.startDate.strftime('%H:%M') }}</div>
+                                        <div class="airport-code">{{ flight.locationStart.city if flight.locationStart else 'ORIGEN' }}</div>
+                                    </div>
+                                    
+                                    <div class="px-3 flex-grow-1">
+                                        <div class="flight-duration">Duración estimada</div>
+                                        <div class="flight-route-line"></div>
+                                        <div class="text-muted small mt-1">{{ flight.startDate.strftime('%d/%m/%Y') }}</div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flight-time">--:--</div> <div class="airport-code">{{ flight.locationEnd.city if flight.locationEnd else 'DESTINO' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 border-start-md ps-md-4 text-end text-md-end">
+                                <div class="text-muted small">Precio por persona</div>
+                                <div class="price-large mb-2">{{ flight.price }}€</div>
+                                
+                                <form method="post" action="{{ url_for('tripBuilder.save_flight') }}">
+                                    <input type="hidden" name="flight_id" value="{{ flight.idFlight }}">
+                                    <input type="hidden" name="action" value="add">
+                                    <button type="submit" class="btn btn-select-flight">
+                                        Seleccionar
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                {% else %}
+                    <div class="text-center py-5 bg-white border rounded shadow-sm">
+                        <i class="fas fa-plane-slash fa-3x text-muted mb-3 opacity-50"></i>
+                        <h4 class="fw-bold text-dark">No hay vuelos disponibles</h4>
+                        <p class="text-muted">No encontramos vuelos para estas fechas o ruta.</p>
+                        <form method="post" action="{{ url_for('tripBuilder.save_flight') }}" class="mt-3">
+                            <input type="hidden" name="action" value="skip">
+                            <button type="submit" class="btn btn-primary">Saltar a Cruceros</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                    <a href="{{ url_for('tripBuilder.step_accommodation') }}" class="btn btn-outline-secondary border-0">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    
+                    <form method="post" action="{{ url_for('tripBuilder.save_flight') }}">
+                        <input type="hidden" name="action" value="skip">
+                        <button type="submit" class="btn btn-skip-link">
+                            No necesito vuelo, siguiente <i class="fas fa-arrow-right ms-1"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
