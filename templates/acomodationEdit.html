@@ -10,8 +10,12 @@
         </div>
         <div class="card-body p-4">
 
-            <form action="{{ url_for('aco.edit', id=accommodation.id) }}" method="POST">
+            <form action="{{ url_for('aco.edit', id=accommodation.id) }}" method="POST" enctype="multipart/form-data">
                 <div class="row g-3">
+                    <div class="col-12">
+                        <label for="image" class="form-label fw-bold">Cambiar Imagen (Dejar vacío para mantener la actual)</label>
+                        <input type="file" id="image" name="image" class="form-control" accept="image/*">
+                    </div>
                     <div class="col-12">
                         <label for="name" class="form-label fw-bold">Nombre de la Propiedad</label>
                         <input type="text" id="name" name="name" class="form-control" value="{{ accommodation.name }}"

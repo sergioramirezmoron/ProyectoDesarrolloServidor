@@ -31,7 +31,7 @@
             {% endif %}
             {% endwith %}
 
-            <form method="post" action="{% if rent %}{{ url_for('carRenting.update_rent', idRent=rent.idRent) }}{% else %}{{ url_for('carRenting.create_rent') }}{% endif %}">
+            <form method="post" action="{% if rent %}{{ url_for('carRenting.update_rent', idRent=rent.idRent) }}{% else %}{{ url_for('carRenting.create_rent') }}{% endif %}" enctype="multipart/form-data">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="brand" class="form-label fw-bold">Marca</label>
@@ -69,8 +69,8 @@
                     </div>
 
                     <div class="col-12">
-                        <label for="image" class="form-label fw-bold">URL Imagen</label>
-                        <input type="text" id="image" name="image" class="form-control" value="{{ rent.image if rent else '' }}" placeholder="https://ejemplo.com/coche.jpg">
+                        <label for="image" class="form-label fw-bold">Imagen del Vehículo</label>
+                        <input type="file" id="image" name="image" class="form-control" accept="image/*">
                     </div>
                 </div>
 

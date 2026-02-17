@@ -1,5 +1,7 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request, session
+from flask import Blueprint, render_template, flash, redirect, url_for, request, session, current_app
 from models import User, Accommodation, db, AccommodationBookingLine, Room
+import os
+from werkzeug.utils import secure_filename
 
 acomodation_bp = Blueprint('aco', __name__, template_folder='../templates')
 
@@ -87,6 +89,16 @@ def create():
             idCompany=session["user_id"]
         )
 
+        # Handle Image Upload
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                # Ensure the upload folder exists
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                accommodation.image = filename
+
         db.session.add(accommodation)
         db.session.commit()
         flash('Propiedad creada exitosamente', 'success')
@@ -156,6 +168,15 @@ def edit(id):
         accommodation.stars_quality = request.form['stars_quality']
         accommodation.description = request.form['description']
         accommodation.type = request.form['type']
+
+        # Handle Image Upload
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                os.makedirs(current_app.app_context().app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.app_context().app.config['UPLOAD_FOLDER'], filename))
+                accommodation.image = filename
 
         db.session.commit()
         return redirect(url_for('aco.home'))

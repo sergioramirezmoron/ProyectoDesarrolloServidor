@@ -3,8 +3,10 @@
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from models import db, CarRenting
+import os
+from werkzeug.utils import secure_filename
 
 # This blueprint groups all routes for car renting.
 carRentingBlueprint = Blueprint("carRenting", __name__, url_prefix="/car-renting")
@@ -39,8 +41,17 @@ def create_rent():
             startDate=parse_datetime(request.form["startDate"]),
             endDate=parse_datetime(request.form["endDate"]),
             price=Decimal(request.form["price"]),
-            image=(request.form.get("image", "").strip() or None),
         )
+
+        # Handle Image Upload
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                rent.image = filename
+
         rent.validate_dates()
 
         db.session.add(rent)
@@ -80,7 +91,15 @@ def update_rent(idRent: int):
         rent.startDate = parse_datetime(request.form["startDate"])
         rent.endDate = parse_datetime(request.form["endDate"])
         rent.price = Decimal(request.form["price"])
-        rent.image = (request.form.get("image", "").strip() or None)
+
+        # Handle Image Upload
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                rent.image = filename
 
         rent.validate_dates()
 

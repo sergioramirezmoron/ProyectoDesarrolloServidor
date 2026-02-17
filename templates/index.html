@@ -305,7 +305,11 @@
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm border-0">
                          <!-- Placeholder image if none provided -->
+                        {% if acc.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + acc.image) }}" class="card-img-top" alt="{{ acc.name }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
                         <img src="https://placehold.co/600x400?text={{ acc.name }}" class="card-img-top" alt="{{ acc.name }}" style="height: 200px; object-fit: cover;">
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title fw-bold">{{ acc.name }}</h5>
                             <div class="mb-2">

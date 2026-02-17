@@ -19,7 +19,9 @@
   <p><strong>price:</strong> {{ rent.price }}</p>
 
   {% if rent.image %}
-  <img src="{{ rent.image }}" width="300" />
+  <div class="mt-4">
+    <img src="{{ url_for('static', filename='uploads/' + rent.image) }}" class="img-fluid rounded shadow-sm" style="max-width: 500px;" alt="{{ rent.brand }} {{ rent.model }}">
+  </div>
   {% endif %}
 
   <br /><br />
