@@ -234,8 +234,13 @@
 
                             <div class="prop-meta">
                                 <span>
+                                    <i class="fas fa-hotel text-secondary small"></i> 
+                                    <strong>{{ accommodation.stars_quality }}*</strong>
+                                </span>
+                                <span class="text-muted">|</span>
+                                <span>
                                     <i class="fas fa-star text-warning"></i> 
-                                    <strong>{{ accommodation.stars_quality }}</strong>
+                                    <strong>{{ accommodation.average_rating }}</strong> <small>({{ accommodation.reviews_count }})</small>
                                 </span>
                                 <span class="text-muted">|</span>
                                 <span>

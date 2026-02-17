@@ -241,9 +241,12 @@
                             </td>
                             <td><span class="badge bg-secondary">{{ acc.type|capitalize }}</span></td>
                             <td>
-                                <span class="text-warning">
+                                <div class="text-warning">
                                     {% for i in range(acc.stars_quality) %}<i class="fas fa-star fa-xs"></i>{% endfor %}
-                                </span>
+                                </div>
+                                <div class="small fw-bold">
+                                    <i class="fas fa-user-check text-primary me-1"></i>{{ acc.average_rating }}
+                                </div>
                             </td>
                             <td class="text-end">
                                 <div class="d-flex gap-2 justify-content-end">

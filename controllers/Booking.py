@@ -141,18 +141,35 @@ def book_accommodation():
 # =========================
 # FORMULARIO RESEÑA
 # =========================
-@booking_bp.route('/review', methods=['GET', 'POST'])
-def add_review():
+@booking_bp.route('/review/<int:accommodation_id>', methods=['GET', 'POST'])
+def add_review(accommodation_id):
+    if "user_id" not in session:
+        flash('Debes iniciar sesión para dejar una reseña', 'warning')
+        return redirect(url_for('userBp.login'))
+
+    user_id = session["user_id"]
+    accommodation = Accommodation.query.get_or_404(accommodation_id)
+
+    # SECURE: Verify user has a confirmed booking for this accommodation
+    has_stayed = AccommodationBookingLine.query.filter_by(
+        idUser=user_id, 
+        idAccommodation=accommodation_id, 
+        status='confirmed'
+    ).first()
+
+    if not has_stayed:
+        flash('Solo los huéspedes con estancias confirmadas pueden dejar una reseña.', 'danger')
+        return redirect(url_for('aco.show', id=accommodation_id))
+
     if request.method == 'POST':
-        user_id = request.form.get('user_id') or session.get('user_id')
-        accommodation_id = request.form.get('idAccommodation')
         rating = request.form.get('ratingStars')
         comment = request.form.get('reviewComment')
 
         try:
             rating = int(rating)
             if rating < 1 or rating > 5:
-                return render_template('review.html', error='La calificación debe estar entre 1 y 5.')
+                flash('La calificación debe estar entre 1 y 5.', 'warning')
+                return render_template('review.html', accommodation=accommodation)
 
             review = Review(
                 idUser=user_id,
@@ -162,15 +179,15 @@ def add_review():
             )
             db.session.add(review)
             db.session.commit()
-            return redirect(url_for('accommodation.list_accommodation_reviews_html', accommodation_id=accommodation_id))
+            flash('¡Gracias por tu reseña!', 'success')
+            return redirect(url_for('aco.show', id=accommodation_id))
 
         except Exception as e:
             db.session.rollback()
-            return render_template('review.html', error=str(e))
+            flash(f'Error al guardar la reseña: {str(e)}', 'danger')
+            return render_template('review.html', accommodation=accommodation)
 
-    accommodations = Accommodation.query.all()
-    users = User.query.all()
-    return render_template('review.html', accommodations=accommodations, users=users)
+    return render_template('review.html', accommodation=accommodation)
 
 
 # =========================
@@ -207,6 +224,7 @@ def list_accommodation_reviews(accommodation_id):
     return jsonify([{
         'idReview': r.id,
         'idUser': r.idUser,
+        'userName': r.user.name if r.user else "Anónimo",
         'ratingStars': r.ratingStars,
         'reviewComment': r.reviewComment,
         'createdAt': r.createdAt.isoformat()

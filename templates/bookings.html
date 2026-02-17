@@ -197,6 +197,13 @@
                             <div class="small text-muted mb-3">Precio total</div>
 
                             <a href="#" class="btn-action">Ver detalles</a>
+                            
+                            {% if b.status == 'confirmed' %}
+                                <a href="{{ url_for('booking.add_review', accommodation_id=b.idAccommodation) }}" 
+                                   class="btn btn-sm btn-outline-primary w-100 mt-2 fw-bold">
+                                    <i class="fas fa-star me-1"></i> Escribir reseña
+                                </a>
+                            {% endif %}
                         </div>
 
                     </div>

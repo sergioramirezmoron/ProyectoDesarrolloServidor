@@ -129,18 +129,16 @@
     
     <div class="review-card animate__animated animate__fadeInUp">
         <h2 class="review-title">¿Cómo fue tu estancia?</h2>
-        <p class="review-subtitle">Tu opinión ayuda a otros viajeros a encontrar el alojamiento perfecto.</p>
-
-        <form method="POST" action="/accommodation/review">
+        <form method="POST" action="{{ url_for('booking.add_review', accommodation_id=accommodation.id) }}">
             
-            <div class="technical-ids">
-                <p class="small fw-bold text-muted mb-2">Datos de Referencia:</p>
-                <div class="row g-2">
-                    <div class="col-6">
-                        <input type="number" id="idUser" name="idUser" class="form-control form-control-sm" placeholder="ID Usuario" required>
+            <div class="technical-ids mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary text-white p-2 rounded">
+                        <i class="fas fa-hotel fa-lg"></i>
                     </div>
-                    <div class="col-6">
-                        <input type="number" id="idAccommodation" name="idAccommodation" class="form-control form-control-sm" placeholder="ID Alojamiento" required>
+                    <div class="text-start">
+                        <h5 class="mb-0 fw-bold">{{ accommodation.name }}</h5>
+                        <small class="text-muted">{{ accommodation.address }}</small>
                     </div>
                 </div>
             </div>

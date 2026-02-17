@@ -102,6 +102,25 @@ def create():
 def show(id):
     accommodation = Accommodation.query.get_or_404(id)
     
+    # Check if user can leave a review
+    can_review = False
+    if "user_id" in session:
+        from models import AccommodationBookingLine, Review
+        has_stayed = AccommodationBookingLine.query.filter_by(
+            idUser=session["user_id"], 
+            idAccommodation=id, 
+            status='confirmed'
+        ).first()
+        
+        # Optionally check if they already reviewed (to not show the button again)
+        already_reviewed = Review.query.filter_by(
+            idUser=session["user_id"],
+            idAccommodation=id
+        ).first()
+
+        if has_stayed and not already_reviewed:
+            can_review = True
+
     # Get dates from query params if available
     checkin = request.args.get('checkin')
     checkout = request.args.get('checkout')
@@ -128,7 +147,8 @@ def show(id):
                            accommodation=accommodation, 
                            rooms_data=rooms_data,
                            checkin=checkin, 
-                           checkout=checkout)
+                           checkout=checkout,
+                           can_review=can_review)
 
 
 # =========================

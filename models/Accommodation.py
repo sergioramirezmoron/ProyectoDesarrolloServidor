@@ -20,6 +20,17 @@ class Accommodation(db.Model):
     bookings = db.relationship('AccommodationBookingLine', back_populates='accommodation', cascade="all, delete-orphan")
     reviews = db.relationship('Review', back_populates='accommodation', cascade="all, delete-orphan")
 
+    @property
+    def average_rating(self):
+        if not self.reviews:
+            return 0
+        total = sum(r.ratingStars for r in self.reviews)
+        return round(total / len(self.reviews), 1)
+
+    @property
+    def reviews_count(self):
+        return len(self.reviews)
+
     __table_args__ = (
         CheckConstraint('stars_quality BETWEEN 1 AND 5', name='check_stars_quality'),
     )

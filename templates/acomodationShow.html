@@ -163,15 +163,43 @@
                 <div class="d-flex align-items-center flex-wrap">
                     <span class="hotel-type-badge">{{ accommodation.type }}</span>
                     <h1 class="hotel-title mb-0 me-2">{{ accommodation.name }}</h1>
-                    <div class="text-warning">
-                        {% for i in range(accommodation.stars_quality) %}
-                            <i class="fas fa-star fa-xs"></i>
+                    <div class="text-warning d-flex align-items-center">
+                        {% set avg = accommodation.average_rating %}
+                        {% for i in range(1, 6) %}
+                            {% if avg >= i %}
+                                <i class="fas fa-star fa-xs"></i>
+                            {% elif avg >= i - 0.5 %}
+                                <i class="fas fa-star-half-alt fa-xs"></i>
+                            {% else %}
+                                <i class="far fa-star fa-xs"></i>
+                            {% endif %}
                         {% endfor %}
+                        <span class="ms-1 small text-muted">({{ accommodation.reviews_count }})</span>
                     </div>
                 </div>
                 <p class="hotel-address">
                     <i class="fas fa-map-marker-alt me-1"></i> {{ accommodation.address }}
                 </p>
+                
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="bg-primary text-white px-2 py-1 rounded fw-bold" style="font-size: 0.9rem;">
+                        {% if accommodation.average_rating > 0 %}
+                            {{ accommodation.average_rating }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                    <div class="small">
+                        <span class="fw-bold d-block">
+                             {% if accommodation.average_rating >= 4.5 %} Excelente
+                             {% elif accommodation.average_rating >= 4 %} Muy bueno
+                             {% elif accommodation.average_rating >= 3 %} Bueno
+                             {% elif accommodation.average_rating > 0 %} Regular
+                             {% else %} Sin reseñas {% endif %}
+                        </span>
+                        <span class="text-muted">{{ accommodation.reviews_count }} reseñas</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-lg-3 text-lg-end">
@@ -308,7 +336,14 @@
     </div>
 
     <div class="mb-5">
-        <h4 class="fw-bold mb-4">Comentarios de clientes</h4>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0">Comentarios de clientes</h4>
+            {% if can_review %}
+                <a href="{{ url_for('booking.add_review', accommodation_id=accommodation.id) }}" class="btn btn-outline-primary fw-bold">
+                    <i class="fas fa-edit me-2"></i>Añadir mi reseña
+                </a>
+            {% endif %}
+        </div>
         <div id="reviews-container" class="bg-white p-4 border rounded">
             <div class="text-center py-4 text-muted">
                 <div class="spinner-border text-primary mb-2" role="status"></div>
@@ -446,7 +481,7 @@
                                     <div>
                                         <div class="text-warning mb-1">${starsHtml}</div>
                                         <p class="mb-1 text-dark">"${r.reviewComment}"</p>
-                                        <small class="text-muted">Usuario #${r.idUser}</small>
+                                        <small class="text-muted"><i class="fas fa-user-circle me-1"></i> ${r.userName}</small>
                                     </div>
                                 </div>
                             </div>
