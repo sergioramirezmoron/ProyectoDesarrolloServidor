@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
-      {% block title %}TravelDream | La plataforma integral de viajes{% endblock
-      %}
+      {% block title %}TravelDream | Tu viaje empieza aquí{% endblock %}
     </title>
 
     <link
@@ -17,82 +16,108 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=BlinkMacSystemFont,-apple-system,Segoe+UI,Roboto,Helvetica,Arial,sans-serif"
       rel="stylesheet"
     />
-    <!-- Flatpickr for dates -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
 
     <style>
       :root {
-          --primary-color: #0d6efd; /* Azul Booking/Expedia */
-          --secondary-color: #003580; /* Azul oscuro corporativo */
-          --accent-color: #febb02; /* Amarillo llamada a la acción */
-          --bg-light: #f5f7fa;
-          --text-dark: #1a1a1a;
+          --b-blue: #003580;       /* Azul Booking Corporativo */
+          --b-blue-light: #006ce4; /* Azul Botones */
+          --b-yellow: #febb02;     /* Amarillo Acción */
+          --b-bg-gray: #f5f5f5;    /* Fondo General */
+          --b-text: #1a1a1a;
       }
 
       body {
-          font-family: 'Poppins', sans-serif;
-          background-color: var(--bg-light);
-          color: var(--text-dark);
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          background-color: var(--b-bg-gray);
+          color: var(--b-text);
           display: flex;
           flex-direction: column;
           min-height: 100vh;
+          padding-top: 70px;
       }
 
-      /* --- Navbar --- */
-      .navbar {
-          background-color: var(--secondary-color) !important;
-          padding: 1rem 0;
+      /* --- Navbar Custom --- */
+      .navbar-custom {
+          background-color: var(--b-blue) !important;
+          padding: 12px 0;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       }
 
       .navbar-brand {
-          font-weight: 700;
-          font-size: 1.8rem;
-          letter-spacing: -1px;
+          font-weight: 800;
+          font-size: 1.6rem;
+          letter-spacing: -0.5px;
       }
 
       .nav-link {
-          color: rgba(255,255,255,0.9) !important;
+          color: white !important;
           font-weight: 500;
-          transition: color 0.3s;
+          padding: 8px 15px !important;
+          border-radius: 4px;
+          transition: background-color 0.2s;
       }
 
       .nav-link:hover {
-          color: var(--accent-color) !important;
+          background-color: rgba(255, 255, 255, 0.1);
       }
 
-      /* --- Global Styles --- */
-      .btn-search {
-          background-color: var(--primary-color);
+      /* Botones Auth */
+      .btn-nav-light {
+          background-color: white;
+          color: var(--b-blue);
+          font-weight: 600;
+          border-radius: 4px;
+          border: 1px solid white;
+          padding: 8px 16px;
+      }
+      .btn-nav-outline {
+          background-color: transparent;
           color: white;
           font-weight: 600;
-          padding: 12px;
-          font-size: 1.1rem;
+          border-radius: 4px;
+          border: 1px solid white;
+          padding: 8px 16px;
       }
 
-      .btn-search:hover {
-          background-color: var(--secondary-color);
-          color: white;
+      .user-avatar {
+          width: 32px;
+          height: 32px;
+          background-color: var(--b-yellow);
+          color: var(--b-text);
+          font-weight: bold;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid #fff;
       }
 
+      /* --- Footer --- */
       footer {
           margin-top: auto;
+          background-color: var(--b-blue);
+          color: white;
       }
+      footer a { color: #e0e0e0; text-decoration: none; }
+      footer a:hover { color: var(--b-yellow); text-decoration: underline; }
 
       {% block extra_css %}{% endblock %}
     </style>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-custom">
       <div class="container">
-        <a class="navbar-brand" href="{{ url_for('aco.home') }}">
-          <i class="fas fa-paper-plane me-2 text-warning"></i>TravelDream
-        </a>
+        <a class="navbar-brand" href="{{ url_for('aco.home') }}">TravelDream</a>
+
         <button
-          class="navbar-toggler"
+          class="navbar-toggler border-0"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#mainNav"
@@ -113,119 +138,124 @@
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('cruise.list_cruises') }}"
-                ><i class="fas fa-ship me-1"></i> Cruceros</a
-              >
-            </li>
-            <li class="nav-item">
               <a class="nav-link" href="{{ url_for('carRental.browse_cars') }}"
                 ><i class="fas fa-car me-1"></i> Coches</a
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('tour.list_tours') }}"
-                ><i class="fas fa-ticket-alt me-1"></i> Tours</a
+              <a class="nav-link" href="{{ url_for('cruise.my_cruises') }}"
+                ><i class="fas fa-anchor me-1"></i> Cruceros</a
               >
             </li>
-            {% if session.get('role') == 'user' %}
             <li class="nav-item">
-              <a class="nav-link fw-bold text-primary" href="{{ url_for('tripBuilder.start') }}"
-                ><i class="fas fa-route me-1"></i> Planificar Viaje</a
+              <a class="nav-link" href="{{ url_for('tour.list_tours') }}"
+                ><i class="fas fa-ticket-alt me-1"></i> Actividades</a
               >
             </li>
-            {% endif %}
             <li class="nav-item">
               <a
                 class="nav-link"
                 href="{{ url_for('transport.list_transports') }}"
-                ><i class="fas fa-bus me-1"></i> Transporte</a
+                ><i class="fas fa-bus me-1"></i> Bus/Tren</a
               >
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('trip.list_trips') }}"
-                ><i class="fas fa-suitcase me-1"></i> Viajes</a
+
+            {% if session.get('role') == 'user' %}
+            <li class="nav-item ms-lg-3">
+              <a
+                class="nav-link text-warning fw-bold"
+                href="{{ url_for('tripBuilder.start') }}"
               >
+                <i class="fas fa-magic me-1"></i> Planificar Viaje
+              </a>
             </li>
+            {% endif %}
           </ul>
 
           <div class="d-flex align-items-center gap-2">
             {% if session.get('user_id') %}
             <div class="dropdown">
               <button
-                class="btn btn-outline-light dropdown-toggle d-flex align-items-center gap-2"
+                class="btn btn-nav-outline border-0 dropdown-toggle d-flex align-items-center gap-2 py-1 px-3"
                 type="button"
                 data-bs-toggle="dropdown"
               >
-                <div
-                  class="bg-warning text-dark rounded-circle d-flex justify-content-center align-items-center"
-                  style="width: 32px; height: 32px; font-weight: bold"
-                >
+                <div class="user-avatar">
                   {{ session.get('email')[0].upper() }}
                 </div>
-                <span>Mi Cuenta</span>
+                <span class="d-none d-lg-inline"
+                  >{{ session.get('name') or 'Mi Cuenta' }}</span
+                >
               </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li class="dropdown-header">
-                  Hola, {{ session.get('email') }}
+
+              <ul
+                class="dropdown-menu dropdown-menu-end shadow border-0 mt-2"
+                style="min-width: 250px"
+              >
+                <li class="dropdown-header border-bottom mb-2 pb-2">
+                  <div class="fw-bold text-dark">
+                    {{ session.get('email') }}
+                  </div>
+                  <small class="text-muted">
+                    {% if session.get('role') == 'company' %}Socio Colaborador
+                    {% elif session.get('role') == 'admin' %}Administrador {%
+                    else %}Viajero TravelDream{% endif %}
+                  </small>
                 </li>
 
                 {% if session.get('role') == 'company' %}
                 <li>
                   <a
-                    class="dropdown-item fw-bold text-primary"
+                    class="dropdown-item py-2 fw-bold text-primary"
                     href="{{ url_for('userBp.company_dashboard') }}"
-                    ><i class="fas fa-briefcase me-2"></i>Panel Empresa</a
+                    ><i class="fas fa-chart-line me-2 w-20"></i>Panel de
+                    Control</a
                   >
                 </li>
                 <li>
                   <a
-                    class="dropdown-item"
+                    class="dropdown-item py-2"
                     href="{{ url_for('booking.company_bookings') }}"
-                    ><i class="fas fa-book me-2"></i>Reservas Recibidas</a
+                    ><i class="fas fa-calendar-check me-2 w-20"></i>Gestionar
+                    Reservas</a
                   >
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 {% endif %} {% if session.get('role') == 'admin' %}
                 <li>
                   <a
-                    class="dropdown-item fw-bold text-danger"
+                    class="dropdown-item py-2 fw-bold text-danger"
                     href="{{ url_for('aco.admin_dashboard') }}"
-                    ><i class="fas fa-user-shield me-2"></i>Panel Admin</a
+                    ><i class="fas fa-shield-alt me-2 w-20"></i
+                    >Administración</a
                   >
                 </li>
                 <li><hr class="dropdown-divider" /></li>
+                {% endif %} {% if session.get('role') == 'user' %}
+                <li>
+                  <a
+                    class="dropdown-item py-2 fw-bold"
+                    href="{{ url_for('tripBuilder.my_trips') }}"
+                    ><i class="fas fa-map-marked-alt me-2 w-20"></i>Mis
+                    Itinerarios</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item py-2"
+                    href="{{ url_for('booking.list_user_bookings_html', user_id=session.get('user_id')) }}"
+                    ><i class="fas fa-suitcase me-2 w-20"></i>Mis Reservas</a
+                  >
+                </li>
                 {% endif %}
 
-                <li>
-                  <a
-                    class="dropdown-item"
-                    href="{{ url_for('booking.list_user_bookings_html', user_id=session.get('user_id')) }}"
-                    ><i class="fas fa-suitcase me-2"></i>Mis Reservas</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="dropdown-item"
-                    href="{{ url_for('tripBuilder.my_trips') }}"
-                    ><i class="fas fa-route me-2"></i>Mis Itinerarios</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item" href="#"
-                    ><i class="fas fa-heart me-2"></i>Favoritos</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item" href="#"
-                    ><i class="fas fa-cog me-2"></i>Ajustes</a
-                  >
-                </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
                   <a
-                    class="dropdown-item text-danger"
+                    class="dropdown-item py-2 text-danger"
                     href="{{ url_for('userBp.logout') }}"
-                    ><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a
+                    ><i class="fas fa-sign-out-alt me-2 w-20"></i>Cerrar
+                    Sesión</a
                   >
                 </li>
               </ul>
@@ -233,10 +263,12 @@
             {% else %}
             <a
               href="{{ url_for('userBp.register') }}"
-              class="btn btn-light text-primary fw-bold"
-              >Hazte una cuenta</a
+              class="btn btn-nav-light btn-sm"
+              >Regístrate</a
             >
-            <a href="{{ url_for('userBp.login') }}" class="btn btn-primary"
+            <a
+              href="{{ url_for('userBp.login') }}"
+              class="btn btn-nav-outline btn-sm"
               >Iniciar sesión</a
             >
             {% endif %}
@@ -245,138 +277,76 @@
       </div>
     </nav>
 
-    <!-- Flash Messages -->
-    <div class="container mt-5 pt-4">
+    <div class="container mt-3">
       {% with messages = get_flashed_messages(with_categories=true) %} {% if
       messages %} {% for category, message in messages %}
       <div
-        class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show"
+        class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show shadow-sm border-0"
         role="alert"
       >
-        {{ message }}
+        <i class="fas fa-info-circle me-2"></i> {{ message }}
         <button
           type="button"
           class="btn-close"
           data-bs-dismiss="alert"
-          aria-label="Close"
         ></button>
       </div>
       {% endfor %} {% endif %} {% endwith %}
     </div>
 
-    {% block content %}{% endblock %}
+    <main class="flex-grow-1">{% block content %}{% endblock %}</main>
 
-    <footer class="bg-dark text-white pt-5 pb-4">
+    <footer class="pt-5 pb-4">
       <div class="container">
-        <div class="row">
-          <div class="col-lg-4 col-md-6 mb-4">
-            <h5 class="text-uppercase fw-bold text-warning mb-3">
-              TravelDream
-            </h5>
-            <p class="small text-secondary">
-              La solución tecnológica integral para la gestión turística.
-              Conectamos viajeros con experiencias inolvidables a través de una
-              plataforma unificada y eficiente.
+        <div class="row g-4 mb-4 text-center">
+          <div class="col-12">
+            <a
+              href="{{ url_for('userBp.register') }}"
+              class="btn btn-outline-light rounded-pill px-4"
+              >Registra tu empresa o alojamiento</a
+            >
+            <p class="small mt-2 opacity-75">
+              Únete a nuestra red de colaboradores y llega a miles de viajeros.
             </p>
-            <div class="d-flex gap-3">
-              <a href="#" class="text-white"
-                ><i class="fab fa-facebook fa-lg"></i
-              ></a>
-              <a href="#" class="text-white"
-                ><i class="fab fa-twitter fa-lg"></i
-              ></a>
-              <a href="#" class="text-white"
-                ><i class="fab fa-instagram fa-lg"></i
-              ></a>
-              <a href="#" class="text-white"
-                ><i class="fab fa-linkedin fa-lg"></i
-              ></a>
-            </div>
-          </div>
-          <div class="col-lg-2 col-md-6 mb-4">
-            <h6 class="text-uppercase fw-bold mb-3">Descubrir</h6>
-            <ul class="list-unstyled small text-secondary">
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary"
-                  >Vuelos Baratos</a
-                >
-              </li>
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary"
-                  >Hoteles Top</a
-                >
-              </li>
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary"
-                  >Alquiler de Coches</a
-                >
-              </li>
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary"
-                  >Paquetes Vacacionales</a
-                >
-              </li>
-            </ul>
-          </div>
-          <div class="col-lg-2 col-md-6 mb-4">
-            <h6 class="text-uppercase fw-bold mb-3">Compañía</h6>
-            <ul class="list-unstyled small text-secondary">
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary"
-                  >Sobre Nosotros</a
-                >
-              </li>
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary"
-                  >Empleo</a
-                >
-              </li>
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary"
-                  >Prensa</a
-                >
-              </li>
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary">Blog</a>
-              </li>
-            </ul>
-          </div>
-          <div class="col-lg-4 col-md-6 mb-4">
-            <h6 class="text-uppercase fw-bold mb-3">Ayuda & Soporte</h6>
-            <ul class="list-unstyled small text-secondary">
-              <li class="mb-2">
-                <i class="fas fa-phone me-2"></i>+34 900 123 456
-              </li>
-              <li class="mb-2">
-                <i class="fas fa-envelope me-2"></i>support@traveldream.com
-              </li>
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary"
-                  >Gestionar Reserva</a
-                >
-              </li>
-              <li class="mb-2">
-                <a href="#" class="text-decoration-none text-secondary"
-                  >Atención al Cliente</a
-                >
-              </li>
-            </ul>
           </div>
         </div>
-        <hr class="border-secondary mt-4" />
-        <div class="row align-items-center">
-          <div class="col-md-6 text-center text-md-start small text-secondary">
-            &copy; 2026 TravelDream Group. Todos los derechos reservados.
+
+        <div class="row g-4 border-top border-secondary pt-4">
+          <div class="col-lg-3 col-md-6">
+            <h6 class="fw-bold mb-3">Ayuda</h6>
+            <ul class="list-unstyled small d-flex flex-column gap-2">
+              <li><a href="#">Atención al Cliente</a></li>
+              <li><a href="#">Información de seguridad</a></li>
+              <li><a href="#">Términos y condiciones</a></li>
+            </ul>
           </div>
-          <div class="col-md-6 text-center text-md-end small text-secondary">
-            <a href="#" class="text-decoration-none text-secondary me-3"
-              >Privacidad</a
-            >
-            <a href="#" class="text-decoration-none text-secondary me-3"
-              >Términos</a
-            >
-            <a href="#" class="text-decoration-none text-secondary">Cookies</a>
+          <div class="col-lg-3 col-md-6">
+            <h6 class="fw-bold mb-3">Servicios</h6>
+            <ul class="list-unstyled small d-flex flex-column gap-2">
+              <li><a href="#">Vuelos</a></li>
+              <li><a href="#">Hoteles</a></li>
+              <li><a href="#">Alquiler de coches</a></li>
+            </ul>
           </div>
+          <div class="col-lg-3 col-md-6">
+            <h6 class="fw-bold mb-3">TravelDream</h6>
+            <p class="small opacity-75">
+              Tu plataforma de confianza para planificar el viaje perfecto.
+              Conectando sueños desde 2024.
+            </p>
+          </div>
+          <div class="col-lg-3 col-md-6 text-lg-end">
+            <h6 class="fw-bold mb-3">Síguenos</h6>
+            <div class="d-flex gap-3 justify-content-lg-end">
+              <a href="#"><i class="fab fa-facebook fa-lg"></i></a>
+              <a href="#"><i class="fab fa-instagram fa-lg"></i></a>
+              <a href="#"><i class="fab fa-twitter fa-lg"></i></a>
+            </div>
+          </div>
+        </div>
+        <hr class="border-secondary opacity-25 mt-4" />
+        <div class="text-center small opacity-50">
+          &copy; 2026 TravelDream. Todos los derechos reservados.
         </div>
       </div>
     </footer>

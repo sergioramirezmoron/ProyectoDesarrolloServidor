@@ -8,7 +8,6 @@ from .Location import Location
 from .Cruise import Cruise
 from .Flight import Flight
 from .BusTrain import BusTrain
-from .CarRenting import CarRenting  # Legacy - will be deprecated
 from .Car import Car  # New: Vehicle inventory
 from .CarRental import CarRental  # New: Rental bookings
 from .CulinaryExperience import CulinaryExperience

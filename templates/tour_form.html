@@ -2,75 +2,201 @@
 
 {% block title %}Crear Tour | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+
+    .form-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--b-text);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f0f0f0;
+        margin-top: 30px;
+    }
+
+    .form-section-title:first-child { margin-top: 0; }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        background-color: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.1);
+    }
+
+    .input-group-text {
+        background-color: #f9f9f9;
+        border: 1px solid #ced4da;
+        color: #666;
+    }
+
+    .btn-submit {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: background 0.2s;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .btn-cancel {
+        background-color: transparent;
+        color: var(--b-blue-light);
+        font-weight: 600;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-cancel:hover {
+        text-decoration: underline;
+        color: var(--b-blue);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5" style="max-width: 800px;">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white">
-            <h1 class="h3 mb-0"><i class="fas fa-map-marked-alt me-2"></i>Crear Nuevo Tour</h1>
-        </div>
-        <div class="card-body p-4">
+<div class="container form-container">
+    
+    <div class="mb-4">
+        <a href="{{ url_for('tour.my_tours') }}" class="text-decoration-none fw-bold text-primary small">
+            <i class="fas fa-arrow-left me-1"></i> Volver a mis tours
+        </a>
+        <h2 class="fw-bold mt-2">Crear Nuevo Tour</h2>
+        <p class="text-muted">Publica una nueva experiencia o actividad turística.</p>
+    </div>
 
-            <form method="post">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label for="title" class="form-label fw-bold">Título del Tour</label>
-                        <input type="text" name="title" class="form-control" required
-                            placeholder="Ej: Aventura en los Alpes">
-                    </div>
+    <div class="form-card animate__animated animate__fadeInUp">
+        <form method="post">
+            
+            <h5 class="form-section-title">Información Principal</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <label for="title" class="form-label">Título del Tour <span class="text-danger">*</span></label>
+                    <input type="text" name="title" id="title" class="form-control" required placeholder="Ej: Visita guiada a la Alhambra nocturna">
+                </div>
 
-                    <div class="col-md-6">
-                        <label for="idLocation" class="form-label fw-bold">Ubicación</label>
-                        <select name="idLocation" class="form-select" required>
+                <div class="col-md-12">
+                    <label for="idLocation" class="form-label">Ubicación (Ciudad) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                        <select name="idLocation" id="idLocation" class="form-select" required>
                             <option value="" disabled selected>Seleccione ubicación...</option>
                             {% for loc in locations %}
                             <option value="{{ loc.idLocation }}">{{ loc.city }} ({{ loc.country }})</option>
                             {% endfor %}
                         </select>
                     </div>
+                </div>
+            </div>
 
-                    <div class="col-md-6">
-                        <label for="price" class="form-label fw-bold">Precio (€)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-                            <input type="number" name="price" step="0.01" class="form-control" placeholder="0.00" required>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="startDate" class="form-label fw-bold">Fecha de Inicio</label>
-                        <input type="datetime-local" name="startDate" class="form-control" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="endDate" class="form-label fw-bold">Fecha de Fin</label>
-                        <input type="datetime-local" name="endDate" class="form-control" required>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="occupants" class="form-label fw-bold">Número de Plazas (Capacidad)</label>
-                        <input type="number" name="occupants" class="form-control" min="1" required placeholder="Ej: 20">
-                    </div>
-
-                    <div class="col-12">
-                        <label for="image" class="form-label fw-bold">URL de la Imagen (Opcional)</label>
-                        <input type="text" name="image" class="form-control" placeholder="https://ejemplo.com/imagen.jpg">
-                    </div>
-
-                    <div class="col-12">
-                        <label for="description" class="form-label fw-bold">Descripción</label>
-                        <textarea name="description" class="form-control" rows="5" required
-                            placeholder="Describa el itinerario y las actividades..."></textarea>
+            <h5 class="form-section-title">Logística y Tarifas</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="startDate" class="form-label">Fecha de Inicio</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        <input type="datetime-local" name="startDate" id="startDate" class="form-control" required>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-                    <a href="{{ url_for('tour.my_tours') }}" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-save me-2"></i>Guardar Tour
+                <div class="col-md-6">
+                    <label for="endDate" class="form-label">Fecha de Fin</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="far fa-calendar-check"></i></span>
+                        <input type="datetime-local" name="endDate" id="endDate" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="occupants" class="form-label">Cupo Máximo (Plazas)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-users"></i></span>
+                        <input type="number" name="occupants" id="occupants" class="form-control" min="1" required placeholder="Ej: 20">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="price" class="form-label">Precio por Persona</label>
+                    <div class="input-group">
+                        <span class="input-group-text fw-bold">€</span>
+                        <input type="number" name="price" id="price" step="0.01" class="form-control" placeholder="0.00" required>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="form-section-title">Detalles y Multimedia</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <label for="image" class="form-label">URL de Imagen (Portada)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-image"></i></span>
+                        <input type="text" name="image" id="image" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="form-text text-muted small">Recomendamos una imagen horizontal de alta calidad.</div>
+                </div>
+
+                <div class="col-12">
+                    <label for="description" class="form-label">Descripción del Tour <span class="text-danger">*</span></label>
+                    <textarea name="description" id="description" class="form-control" rows="6" required placeholder="Describe el itinerario, qué incluye y qué deben llevar los turistas..."></textarea>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                <a href="{{ url_for('tour.my_tours') }}" class="btn-cancel">Cancelar</a>
+                <div style="width: 200px;">
+                    <button type="submit" class="btn-submit">
+                        Publicar Tour
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+
+        </form>
     </div>
 </div>
 {% endblock %}

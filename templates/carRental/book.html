@@ -3,70 +3,187 @@
 {% block title %}Reservar {{ car.brand }} {{ car.model }} | TravelDream{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-yellow: #febb02;
+    }
+
+    body { background-color: var(--b-bg-gray); }
+
+    .booking-form-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    }
+
+    /* Resumen del coche estilo Ticket */
+    .car-summary-header {
+        background-color: #f0f6fd;
+        border-radius: 8px;
+        padding: 20px;
+        border-left: 5px solid var(--b-blue-light);
+    }
+
+    .form-section-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--b-text);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-label-custom {
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #555;
+        margin-bottom: 8px;
+    }
+
+    .input-icon-group {
+        position: relative;
+    }
+
+    .input-icon-group i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--b-blue-light);
+        z-index: 10;
+    }
+
+    .input-icon-group .form-control {
+        padding-left: 45px;
+        height: 55px;
+        border-radius: 4px;
+        border: 1px solid #ced4da;
+    }
+
+    .input-icon-group .form-control:focus {
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.1);
+    }
+
+    .btn-confirm {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .btn-confirm:hover {
+        background-color: var(--b-blue);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-cancel {
+        color: #666;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .btn-cancel:hover { color: #333; text-decoration: underline; }
+
+    /* Alert Estilo Booking */
+    .booking-notice {
+        background-color: #ebf3ff;
+        border: none;
+        border-radius: 4px;
+        color: #003580;
+        font-size: 0.9rem;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card car-form-card">
-                <div class="card-header border-0">
-                    <h2 class="h4 mb-0 fw-bold">
-                        <i class="fas fa-calendar-check me-2"></i>
-                        Reservar {{ car.brand }} {{ car.model }}
-                    </h2>
-                </div>
-                <div class="card-body p-4 p-md-5">
-                    <!-- Car Info Summary -->
-                    <div class="alert alert-info rounded-4 mb-4">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-car fa-3x me-3"></i>
-                            <div>
-                                <h5 class="mb-1">{{ car.brand }} {{ car.model }}</h5>
-                                <p class="mb-0"><strong>{{ car.pricePerDay }}€</strong> por día | Capacidad: {{ car.maxPeople }} pasajeros</p>
+        <div class="col-lg-7">
+            
+            <div class="booking-form-card animate__animated animate__fadeIn">
+                <div class="p-4 p-md-5">
+                    
+                    <h2 class="fw-bold mb-4">Finalizar Reserva</h2>
+
+                    <div class="car-summary-header mb-4 d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-white p-2 rounded shadow-sm">
+                                <i class="fas fa-car fa-2x text-primary"></i>
                             </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">{{ car.brand }} {{ car.model }}</h5>
+                                <small class="text-muted">{{ car.maxPeople }} pasajeros • Kilometraje ilimitado</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <span class="d-block fw-bold text-dark">{{ car.pricePerDay }}€</span>
+                            <small class="text-muted">por día</small>
                         </div>
                     </div>
 
                     <form method="post" action="{{ url_for('carRental.create_booking', idCar=car.idCar) }}">
+                        
+                        <div class="form-section-title">
+                            <i class="fas fa-clock text-primary"></i> ¿Cuándo necesitas el coche?
+                        </div>
+
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label for="startDate" class="form-label small text-uppercase fw-bold text-muted">
-                                    <i class="far fa-calendar-alt text-primary me-2"></i>Fecha de Recogida
-                                </label>
-                                <input type="text" id="startDate" name="startDate" class="form-control form-control-lg rounded-3 date-picker" required placeholder="Selecciona fecha y hora">
-                                <div class="form-text">Cuándo recoges el vehículo</div>
+                                <label for="startDate" class="form-label-custom">Lugar y Fecha de Recogida</label>
+                                <div class="input-icon-group">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <input type="text" id="startDate" name="startDate" class="form-control date-picker" required placeholder="Recogida">
+                                </div>
                             </div>
 
                             <div class="col-md-6">
-                                <label for="endDate" class="form-label small text-uppercase fw-bold text-muted">
-                                    <i class="far fa-calendar-check text-primary me-2"></i>Fecha de Devolución
-                                </label>
-                                <input type="text" id="endDate" name="endDate" class="form-control form-control-lg rounded-3 date-picker" required placeholder="Selecciona fecha y hora">
-                                <div class="form-text">Cuándo devuelves el vehículo</div>
+                                <label for="endDate" class="form-label-custom">Lugar y Fecha de Entrega</label>
+                                <div class="input-icon-group">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <input type="text" id="endDate" name="endDate" class="form-control date-picker" required placeholder="Entrega">
+                                </div>
                             </div>
 
                             <div class="col-12">
-                                <div class="alert alert-warning rounded-4">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    <strong>Importante:</strong> El precio total se calculará automáticamente según los días de alquiler.
+                                <div class="alert booking-notice d-flex align-items-center gap-3">
+                                    <i class="fas fa-info-circle fa-lg"></i>
+                                    <div>
+                                        <strong>Confirmación inmediata:</strong> Recibirás el bono de reserva en tu email al confirmar. La cancelación es gratuita hasta 48h antes.
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 gap-3">
-                            <a href="{{ url_for('carRental.browse_cars') }}" class="btn btn-light btn-lg rounded-pill px-5 text-muted order-2 order-md-1">
-                                Cancelar
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 pt-4 border-top">
+                            <a href="{{ url_for('carRental.browse_cars') }}" class="btn-cancel order-2 order-md-1">
+                                Volver al catálogo
                             </a>
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow order-1 order-md-2">
-                                <i class="fas fa-check-circle me-2"></i>Confirmar Reserva
+                            <button type="submit" class="btn-confirm order-1 order-md-2 shadow-sm">
+                                Confirmar Reserva <i class="fas fa-chevron-right ms-2 small"></i>
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted small"><i class="fas fa-lock me-1"></i> Pago seguro procesado por TravelDream Pay</p>
+            </div>
+
         </div>
     </div>
 </div>
@@ -78,27 +195,24 @@
     document.addEventListener('DOMContentLoaded', function() {
         const now = new Date();
         
-        flatpickr("#startDate", {
+        // Configuración de Inicio
+        const startPicker = flatpickr("#startDate", {
             enableTime: true,
-            enableSeconds: true,
             dateFormat: "Y/m/d H:i:S",
             time_24hr: true,
             minDate: now,
             defaultDate: now,
-            locale: {
-                firstDayOfWeek: 1
+            onChange: function(selectedDates, dateStr, instance) {
+                endPicker.set('minDate', dateStr); // No permitir devolver antes de recoger
             }
         });
         
-        flatpickr("#endDate", {
+        // Configuración de Fin
+        const endPicker = flatpickr("#endDate", {
             enableTime: true,
-            enableSeconds: true,
             dateFormat: "Y/m/d H:i:S",
             time_24hr: true,
             minDate: now,
-            locale: {
-                firstDayOfWeek: 1
-            }
         });
     });
 </script>

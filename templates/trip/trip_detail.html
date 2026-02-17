@@ -1,94 +1,280 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 
-{% block title %}Detalles del Viaje - Travel Booking{% endblock %} 
+{% block title %}Explorar Viajes | TravelDream{% endblock %}
 
-{% block extra_css %} {% endblock %} 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header --- */
+    .page-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    /* --- Promo Box (User) --- */
+    .promo-box {
+        background: linear-gradient(135deg, #003580 0%, #006ce4 100%);
+        color: white;
+        border-radius: 8px;
+        padding: 20px 30px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0, 53, 128, 0.2);
+    }
+
+    .promo-content h5 { font-weight: 700; margin-bottom: 5px; }
+    .promo-content p { margin-bottom: 0; opacity: 0.9; font-size: 0.9rem; }
+    
+    .btn-promo {
+        background-color: white;
+        color: var(--b-blue);
+        font-weight: 700;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: transform 0.2s;
+        white-space: nowrap;
+    }
+    .btn-promo:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
+    /* --- Trip Card --- */
+    .trip-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+    }
+
+    .trip-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #ccc;
+    }
+
+    /* Route Visuals */
+    .route-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+
+    .city-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .city-name {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--b-text);
+    }
+
+    .city-time {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .route-arrow {
+        flex-grow: 1;
+        height: 2px;
+        background-color: #e0e0e0;
+        position: relative;
+        min-width: 50px;
+        max-width: 100px;
+    }
+
+    .route-arrow::after {
+        content: '✈'; /* O icono de coche/bus */
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #ccc;
+        font-size: 0.8rem;
+        background: white;
+        padding: 0 5px;
+    }
+
+    /* Details */
+    .trip-details {
+        display: flex;
+        gap: 20px;
+        font-size: 0.85rem;
+        color: #666;
+        padding-top: 15px;
+        border-top: 1px dashed #eee;
+    }
+
+    .detail-item i { color: var(--b-blue-light); margin-right: 5px; }
+
+    /* Price & Action (Right Side) */
+    .trip-price-col {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        padding-left: 20px;
+        border-left: 1px solid #f0f0f0;
+    }
+
+    .price-tag {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--b-text);
+        line-height: 1;
+    }
+
+    .price-label {
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .btn-view {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 600;
+        border-radius: 4px;
+        padding: 8px 16px;
+        text-decoration: none;
+        margin-top: 10px;
+        display: inline-block;
+        transition: background 0.2s;
+    }
+    .btn-view:hover { background-color: var(--b-blue); color: white; }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+        .trip-price-col {
+            border-left: none;
+            border-top: 1px solid #f0f0f0;
+            margin-top: 15px;
+            padding-top: 15px;
+            padding-left: 0;
+            text-align: left;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-view { margin-top: 0; }
+        .promo-box { flex-direction: column; text-align: center; gap: 15px; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h2 class="h4 mb-0"><i class="fas fa-route me-2"></i>Detalles del Viaje #{{ trip.idTrip }}</h2>
-                    <div class="actions">
-                        {% if user_role == 'ADMIN' or (user_role == 'COMPANY' and trip.idCompany == current_user_id) %}
-                        <a href="{{ url_for('trip.edit_trip', id=trip.idTrip) }}" class="btn btn-sm btn-light text-primary fw-bold me-1">
-                            <i class="fas fa-edit me-1"></i>Editar
-                        </a>
-                        <form method="POST" action="{{ url_for('trip.delete_trip', id=trip.idTrip) }}" style="display: inline" onsubmit="return confirm('¿Estás seguro de eliminar este viaje?');">
-                            <button type="submit" class="btn btn-sm btn-outline-light"><i class="fas fa-trash me-1"></i>Eliminar</button>
-                        </form>
-                        {% endif %}
-                    </div>
-                </div>
+    
+    <div class="page-header">
+        <div>
+            <h1 class="fw-bold mb-1">Paquetes de Viaje</h1>
+            <p class="text-muted mb-0">Descubre experiencias completas organizadas para ti.</p>
+        </div>
+    </div>
 
-                <div class="card-body p-4">
-                    <!-- Route Visual -->
-                    <div class="alert alert-light border text-center mb-4 py-4">
-                        <div class="d-flex justify-content-center align-items-center gap-4">
-                            <div class="text-end">
-                                <h4 class="mb-0 text-primary fw-bold">{{ trip.start_location_ref.name if trip.start_location_ref else 'N/A' }}</h4>
-                                <small class="text-muted">{{ trip.start_location_ref.country if trip.start_location_ref else 'N/A' }}</small>
+    {% if session.get('role') == 'user' %}
+    <div class="promo-box animate__animated animate__fadeIn">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-white bg-opacity-25 p-3 rounded-circle d-none d-md-block">
+                <i class="fas fa-drafting-compass fa-2x"></i>
+            </div>
+            <div class="promo-content">
+                <h5>¿Prefieres diseñar tu propio viaje?</h5>
+                <p>Accede a tus itinerarios personalizados y sigue planificando tu aventura.</p>
+            </div>
+        </div>
+        <a href="{{ url_for('tripBuilder.my_trips') }}" class="btn-promo">
+            Ver Mis Itinerarios <i class="fas fa-arrow-right ms-2"></i>
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-12">
+            {% if trips %}
+                {% for trip in trips %}
+                <div class="trip-card animate__animated animate__fadeInUp">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="route-container">
+                                <div class="city-group text-start">
+                                    <span class="city-time">{{ trip.startDate.strftime('%H:%M') }}</span>
+                                    <span class="city-name">{{ trip.start_location_ref.name if trip.start_location_ref else 'Origen' }}</span>
+                                    <small class="text-muted">{{ trip.startDate.strftime('%d %b') }}</small>
+                                </div>
+
+                                <div class="route-arrow"></div>
+
+                                <div class="city-group text-end">
+                                    <span class="city-time">{{ trip.endDate.strftime('%H:%M') }}</span>
+                                    <span class="city-name">{{ trip.end_location_ref.name if trip.end_location_ref else 'Destino' }}</span>
+                                    <small class="text-muted">{{ trip.endDate.strftime('%d %b') }}</small>
+                                </div>
                             </div>
-                            <div class="flex-grow-1 border-top border-2 border-primary position-relative" style="max-width: 100px;">
-                                <i class="fas fa-arrow-right position-absolute top-0 start-50 translate-middle text-primary bg-white px-2 mt-0"></i>
-                            </div>
-                            <div class="text-start">
-                                <h4 class="mb-0 text-primary fw-bold">{{ trip.end_location_ref.name if trip.end_location_ref else 'N/A' }}</h4>
-                                <small class="text-muted">{{ trip.end_location_ref.country if trip.end_location_ref else 'N/A' }}</small>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Details Grid -->
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label class="text-muted fw-bold text-uppercase small">Fecha de Salida</label>
-                            <p class="fs-5 mb-0"><i class="far fa-calendar-alt me-2 text-info"></i>{{ trip.startDate.strftime('%d/%m/%Y %H:%M') }}</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="text-muted fw-bold text-uppercase small">Fecha de Llegada</label>
-                            <p class="fs-5 mb-0"><i class="far fa-calendar-check me-2 text-info"></i>{{ trip.endDate.strftime('%d/%m/%Y %H:%M') }}</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="text-muted fw-bold text-uppercase small">Conductor</label>
-                            <p class="fs-5 mb-0"><i class="fas fa-id-card me-2 text-info"></i>{{ trip.company_ref.name if trip.company_ref else 'N/A' }}</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="text-muted fw-bold text-uppercase small">Número de Personas</label>
-                            <p class="fs-5 mb-0"><i class="fas fa-users me-2 text-info"></i>{{ trip.occupants }} persona{{ 's' if trip.occupants > 1 else '' }}</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="text-muted fw-bold text-uppercase small">Precio por Persona</label>
-                            <p class="fs-5 mb-0 text-success fw-bold">€{{ "%.2f"|format(trip.price) }}</p>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="bg-success bg-opacity-10 p-3 rounded border border-success">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <label class="text-success fw-bold text-uppercase small">Precio Total</label>
-                                        <div class="small text-muted">({{ trip.occupants }} personas x €{{ "%.2f"|format(trip.price) }})</div>
-                                    </div>
-                                    <h2 class="mb-0 text-success fw-bold">€{{ "%.2f"|format(trip.totalPrice) }}</h2>
+                            <div class="trip-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-building"></i> 
+                                    {{ trip.company_ref.name if trip.company_ref else 'Agencia' }}
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-user-friends"></i> 
+                                    {{ trip.occupants }} Pasajeros
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-hashtag"></i> 
+                                    Ref: {{ trip.idTrip }}
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="mt-4 pt-3 border-top">
-                        <a href="{{ url_for('trip.list_trips') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Volver al listado
-                        </a>
+                        <div class="col-md-3">
+                            <div class="trip-price-col">
+                                <div>
+                                    <span class="price-label">Precio Total</span>
+                                    <div class="price-tag">€{{ "%.0f"|format(trip.totalPrice) }}</div>
+                                </div>
+                                <a href="{{ url_for('trip.view_trip', id=trip.idTrip) }}" class="btn-view">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5 bg-white border rounded">
+                    <i class="fas fa-globe-americas fa-4x text-muted mb-3 opacity-25"></i>
+                    <h3 class="fw-bold text-dark">No hay viajes disponibles</h3>
+                    <p class="text-muted">Actualmente no hay paquetes ofertados. ¡Vuelve pronto!</p>
+                </div>
+            {% endif %}
         </div>
     </div>
+
 </div>
 {% endblock %}

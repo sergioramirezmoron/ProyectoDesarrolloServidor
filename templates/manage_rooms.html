@@ -2,112 +2,248 @@
 
 {% block title %}Gestionar Habitaciones - {{ accommodation.name }} | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header --- */
+    .room-header {
+        margin-bottom: 30px;
+    }
+
+    .room-header-title {
+        font-weight: 700;
+        color: var(--b-text);
+        margin-bottom: 5px;
+    }
+
+    .btn-back {
+        color: var(--b-blue-light);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .btn-back:hover { text-decoration: underline; }
+
+    /* --- Create Form --- */
+    .form-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        padding: 25px;
+        margin-bottom: 40px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #333;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus {
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.15);
+    }
+
+    .btn-add {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        transition: background 0.2s;
+        height: 100%; /* Match height */
+    }
+    .btn-add:hover { background-color: var(--b-blue); }
+
+    /* --- Room List Cards --- */
+    .room-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        padding: 20px;
+        height: 100%;
+        transition: box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .room-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #ccc;
+    }
+
+    .room-type {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--b-blue);
+        margin-bottom: 5px;
+    }
+
+    .room-number {
+        font-size: 0.8rem;
+        background-color: #f0f6fd;
+        color: var(--b-blue);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    .room-meta {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .room-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .btn-delete {
+        color: #d4111e;
+        background: white;
+        border: 1px solid #e7e7e7;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+        background-color: #fde8ea;
+        border-color: #fde8ea;
+    }
+
+    /* Empty State */
+    .empty-rooms {
+        text-align: center;
+        padding: 40px;
+        background: white;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5" style="max-width: 900px;">
-
-    <div class="mb-4">
-        <a href="{{ url_for('aco.manage_hotels') }}" class="text-decoration-none text-muted transition-hover">
-            <i class="fas fa-arrow-left me-2"></i>Volver a mis Propiedades
+<div class="container py-5" style="max-width: 1000px;">
+    
+    <div class="room-header">
+        <a href="{{ url_for('aco.manage_hotels') }}" class="btn-back mb-2">
+            <i class="fas fa-chevron-left"></i> Volver a Propiedades
         </a>
+        <h2 class="room-header-title">Inventario: {{ accommodation.name }}</h2>
+        <p class="text-muted mb-0">Añade y gestiona las habitaciones disponibles para este alojamiento.</p>
     </div>
 
-    <div class="card shadow-sm border-0 mb-4 bg-light">
-        <div class="card-body">
-            <h1 class="h2 mb-1">Gestionar Habitaciones</h1>
-            <p class="text-muted mb-0">Para la propiedad: <strong class="text-primary">{{ accommodation.name }}</strong></p>
-        </div>
-    </div>
-
-    <!-- Add Room Form -->
-    <div class="card shadow mb-5">
-        <div class="card-header bg-primary text-white">
-            <h4 class="h5 mb-0"><i class="fas fa-plus-circle me-2"></i>Añadir Nueva Habitación</h4>
-        </div>
-        <div class="card-body">
-            <form action="{{ url_for('aco.add_room', id=accommodation.id) }}" method="POST">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold small">Número / Nombre</label>
-                        <input type="text" name="roomNumber" class="form-control" placeholder="Ej: 101 o Suite A" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold small">Tipo de Habitación</label>
-                        <input type="text" name="type" class="form-control" placeholder="Ej: Doble, King, Suite" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold small">Precio por Noche (€)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" name="priceNight" class="form-control" placeholder="0.00" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold small">Capacidad (Huéspedes)</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-users"></i></span>
-                            <input type="number" name="capacity" class="form-control" placeholder="Ej: 2" required min="1">
-                        </div>
+    <div class="form-card animate__animated animate__fadeInUp">
+        <h5 class="fw-bold mb-3 border-bottom pb-2">Añadir Nueva Habitación</h5>
+        <form action="{{ url_for('aco.add_room', id=accommodation.id) }}" method="POST">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Número / ID</label>
+                    <input type="text" name="roomNumber" class="form-control" placeholder="Ej: 101" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tipo de Habitación</label>
+                    <input type="text" name="type" class="form-control" placeholder="Ej: Doble Estándar" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Capacidad</label>
+                    <input type="number" name="capacity" class="form-control" placeholder="Pax" min="1" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Precio/Noche (€)</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" name="priceNight" class="form-control" placeholder="0.00" required>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-save me-2"></i>Guardar Habitación
+                <div class="col-12 mt-3 text-end">
+                    <button type="submit" class="btn-add">
+                        <i class="fas fa-plus me-1"></i> Guardar Habitación
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 
-    <!-- Existing Rooms List -->
-    <h3 class="h4 mb-4 border-bottom pb-2">Habitaciones Existentes</h3>
+    <h5 class="fw-bold mb-3">Habitaciones Registradas ({{ accommodation.rooms|length }})</h5>
     
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for room in accommodation.rooms %}
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 room-card hover-elevate transition-all">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title fw-bold text-dark mb-0">{{ room.type }}</h5>
-                        <span class="badge bg-light text-dark border">No. {{ room.roomNumber }}</span>
+    <div class="row g-4">
+        {% if accommodation.rooms %}
+            {% for room in accommodation.rooms %}
+            <div class="col-md-4 col-sm-6 animate__animated animate__fadeIn">
+                <div class="room-card">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="room-type">{{ room.type }}</div>
+                            <div class="room-number">#{{ room.roomNumber }}</div>
+                        </div>
+                        
+                        <div class="room-meta">
+                            <i class="fas fa-user-friends"></i> 
+                            <span>Máx. {{ room.capacity }} personas</span>
+                        </div>
                     </div>
-                    
-                    <p class="text-muted small mb-3">
-                        <i class="fas fa-user-friends me-2"></i>{{ room.capacity }} Huéspedes
-                    </p>
-                    
-                    <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
-                        <span class="fw-bold text-success fs-5">{{ room.priceNight }}€ <small class="text-muted fw-normal fs-6">/noche</small></span>
 
-                        <form action="{{ url_for('aco.delete_room', id=room.id) }}" method="POST"
-                            onsubmit="return confirm('¿Está seguro de querer eliminar esta habitación?');">
-                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle" title="Eliminar Habitación">
+                    <div class="d-flex justify-content-between align-items-end pt-3 border-top mt-2">
+                        <div>
+                            <div class="small text-muted">Precio base</div>
+                            <div class="room-price">{{ room.priceNight }}€</div>
+                        </div>
+                        
+                        <form action="{{ url_for('aco.delete_room', id=room.id) }}" method="POST" onsubmit="return confirm('¿Eliminar esta habitación permanentemente?');">
+                            <button type="submit" class="btn-delete" title="Eliminar">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
+            {% endfor %}
         {% else %}
-        <div class="col-12">
-            <div class="text-center py-5 bg-white rounded border border-dashed">
-                <i class="fas fa-bed fa-3x text-muted mb-3 opacity-50"></i>
-                <h5 class="text-muted">No hay habitaciones registradas.</h5>
-                <p class="small text-muted mb-0">Utilice el formulario de arriba para añadir la primera habitación.</p>
+            <div class="col-12">
+                <div class="empty-rooms">
+                    <i class="fas fa-bed fa-2x mb-3 opacity-25"></i>
+                    <p class="mb-0">No hay habitaciones registradas. Utiliza el formulario superior para crear la primera.</p>
+                </div>
             </div>
-        </div>
-        {% endfor %}
+        {% endif %}
     </div>
 
 </div>
-
-<style>
-    .hover-elevate:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-    }
-    .transition-all {
-        transition: all 0.3s ease;
-    }
-</style>
 {% endblock %}

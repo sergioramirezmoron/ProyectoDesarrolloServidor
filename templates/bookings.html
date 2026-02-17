@@ -2,72 +2,217 @@
 
 {% block title %}Mis Reservas | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+        --b-red: #d4111e;
+        --b-yellow: #febb02;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header --- */
+    .page-header {
+        margin-bottom: 30px;
+    }
+    
+    .page-title {
+        font-weight: 800;
+        color: var(--b-text);
+        margin-bottom: 5px;
+    }
+
+    /* --- Booking Card --- */
+    .booking-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .booking-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Icon Box */
+    .booking-img-placeholder {
+        width: 80px;
+        height: 80px;
+        background-color: #f2f6fa;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--b-blue);
+        font-size: 2rem;
+    }
+
+    /* Info Section */
+    .booking-id {
+        font-size: 0.8rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .booking-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--b-blue);
+        text-decoration: none;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .booking-date-row {
+        display: flex;
+        gap: 20px;
+        font-size: 0.9rem;
+        color: #333;
+    }
+
+    .date-label {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #666;
+        display: block;
+    }
+
+    /* Price & Status Section */
+    .price-total {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #333;
+        line-height: 1;
+    }
+
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+
+    .status-confirmed { background: #e6f6e8; color: var(--b-green); }
+    .status-cancelled { background: #fde8ea; color: var(--b-red); }
+    .status-pending { background: #fff8e1; color: #b86a04; }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e7e7e7;
+    }
+    
+    .btn-action {
+        color: var(--b-blue-light);
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border: 1px solid var(--b-blue-light);
+        padding: 6px 12px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    
+    .btn-action:hover {
+        background-color: #f0f6fd;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
-    <h1 class="text-center mb-4">Mis Reservas</h1>
+    
+    <div class="page-header">
+        <h1 class="page-title">Mis Reservas</h1>
+        <p class="text-muted">Gestiona tus estancias próximas y pasadas.</p>
+    </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
             {% if bookings %}
-            <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th class="py-3 px-4">Referencia</th>
-                            <th class="py-3">Alojamiento</th>
-                            <th class="py-3">Entrada</th>
-                            <th class="py-3">Salida</th>
-                            <th class="py-3">Fecha Reserva</th>
-                            <th class="py-3 text-end px-4">Precio Total</th>
-                            <th class="py-3 text-center">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in bookings %}
-                        <tr>
-                            <td class="px-4 fw-bold">#{{ b.id }}</td>
-                            <td>
+                {% for b in bookings %}
+                <div class="booking-card animate__animated animate__fadeInUp">
+                    <div class="row align-items-center">
+                        
+                        <div class="col-md-2 col-3 mb-3 mb-md-0">
+                            <div class="booking-img-placeholder">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-9 mb-3 mb-md-0">
+                            <div class="booking-id">Ref: #{{ b.id }} • Reservado el {{ b.bookingDate.strftime('%d/%m/%Y') if b.bookingDate else '-' }}</div>
+                            
+                            <div class="booking-title">
                                 {% if b.accommodation %}
-                                    <span class="text-primary fw-bold">{{ b.accommodation.name }}</span>
+                                    {{ b.accommodation.name }}
                                 {% else %}
-                                    <span class="text-muted fst-italic">ID: {{ b.idAccommodation }}</span>
+                                    Alojamiento ID: {{ b.idAccommodation }}
                                 {% endif %}
-                            </td>
-                            <td>{{ b.startDate.strftime('%d/%m/%Y') }}</td>
-                            <td>{{ b.endDate.strftime('%d/%m/%Y') }}</td>
-                            <td>
-                                {% if b.bookingDate %}
-                                    {{ b.bookingDate.strftime('%d/%m/%Y') }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                            <td class="text-end px-4 fw-bold">{{ b.totalPrice }}€</td>
-                            <td class="text-center">
-                                {% if b.status == 'confirmed' %}
-                                    <span class="badge bg-success">Confirmada</span>
-                                {% elif b.status == 'cancelled' %}
-                                    <span class="badge bg-danger">Cancelada</span>
-                                {% elif b.status == 'pending' %}
-                                    <span class="badge bg-warning text-dark">Pendiente</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{{ b.status }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="text-center py-5">
-                <div class="mb-3">
-                    <i class="fas fa-calendar-times fa-4x text-muted"></i>
+                            </div>
+
+                            <div class="booking-date-row mt-2">
+                                <div>
+                                    <span class="date-label">Entrada</span>
+                                    <i class="far fa-calendar-check me-1 text-primary"></i> {{ b.startDate.strftime('%d %b %Y') }}
+                                </div>
+                                <div style="border-left: 1px solid #ddd; padding-left: 20px;">
+                                    <span class="date-label">Salida</span>
+                                    <i class="far fa-calendar-times me-1 text-danger"></i> {{ b.endDate.strftime('%d %b %Y') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 text-md-end border-start-md ps-md-4 mt-3 mt-md-0">
+                            <div class="mb-2">
+                                <span class="status-badge 
+                                    {% if b.status == 'confirmed' %}status-confirmed
+                                    {% elif b.status == 'cancelled' %}status-cancelled
+                                    {% else %}status-pending{% endif %}">
+                                    {{ b.status|capitalize }}
+                                </span>
+                            </div>
+                            
+                            <div class="price-total mb-1">{{ b.totalPrice }}€</div>
+                            <div class="small text-muted mb-3">Precio total</div>
+
+                            <a href="#" class="btn-action">Ver detalles</a>
+                        </div>
+
+                    </div>
                 </div>
-                <h4 class="text-muted">No tienes reservas activas</h4>
-                <p class="text-muted">¡Es hora de planear tu próxima aventura!</p>
-                <a href="{{ url_for('aco.home') }}" class="btn btn-primary mt-3">Explorar Alojamientos</a>
-            </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state animate__animated animate__fadeIn">
+                    <div class="mb-4">
+                        <i class="fas fa-suitcase-rolling fa-4x text-muted opacity-25"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">No tienes reservas activas</h3>
+                    <p class="text-muted mb-4">Parece que aún no has reservado tu próxima escapada.</p>
+                    <a href="{{ url_for('aco.home') }}" class="btn btn-primary fw-bold px-4 py-2">
+                        Buscar Alojamiento
+                    </a>
+                </div>
             {% endif %}
         </div>
     </div>

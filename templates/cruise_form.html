@@ -4,175 +4,270 @@
 
 {% block extra_css %}
 <style>
-    .timeline {
-        position: relative;
-        padding-left: 3rem;
-        margin-bottom: 2rem;
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
     }
-    .timeline::before {
-        content: '';
-        position: absolute;
-        left: 0.75rem;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background: #e9ecef;
+
+    body {
+        background-color: var(--b-bg-gray);
     }
-    .timeline-item {
-        position: relative;
-        margin-bottom: 2.5rem;
+
+    /* --- Stepper Layout --- */
+    .stepper-container {
+        max-width: 900px;
+        margin: 40px auto;
     }
-    .timeline-marker {
-        position: absolute;
-        left: -3rem;
-        width: 1.5rem;
-        height: 1.5rem;
+
+    .form-section-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        padding: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 15px;
+    }
+
+    .step-badge {
+        width: 30px;
+        height: 30px;
+        background-color: var(--b-blue);
+        color: white;
         border-radius: 50%;
-        background: var(--primary-color);
-        border: 4px solid #fff;
-        box-shadow: 0 0 0 3px #e9ecef;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-size: 0.7rem;
-        font-weight: bold;
+        font-weight: 700;
+        margin-right: 15px;
+    }
+
+    .section-title {
+        font-weight: 700;
+        color: var(--b-text);
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    /* --- Timeline Builder --- */
+    .timeline-builder {
+        position: relative;
+        padding-left: 20px;
+        margin-top: 20px;
+    }
+
+    .timeline-builder::before {
+        content: '';
+        position: absolute;
+        left: 9px;
+        top: 10px;
+        bottom: 20px;
+        width: 2px;
+        background: #e7e7e7;
+    }
+
+    .timeline-node {
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 30px;
+    }
+
+    .node-marker {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border: 4px solid var(--b-blue-light);
+        border-radius: 50%;
         z-index: 2;
     }
-    .timeline-item:last-child {
-        margin-bottom: 0;
+
+    .stop-box {
+        background: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 20px;
+        position: relative;
     }
-    .stop-card {
-        border: 1px solid #dee2e6;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
-    .stop-card:hover {
-        border-color: var(--primary-color);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-    .remove-stop {
+
+    .btn-remove-stop {
         position: absolute;
-        right: -10px;
-        top: -10px;
-        opacity: 0;
+        top: 10px;
+        right: 10px;
+        color: #d4111e;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0.5;
         transition: opacity 0.2s;
     }
-    .timeline-item:hover .remove-stop {
+    
+    .btn-remove-stop:hover {
         opacity: 1;
     }
-    .segment-price-card {
-        border-left: 5px solid var(--accent-color) !important;
+
+    /* --- Pricing Segment --- */
+    .segment-box {
+        background: white;
+        border-left: 4px solid var(--b-blue-light);
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid #e7e7e7; /* Borde completo */
+        border-left-width: 4px; /* Sobrescribir borde izq */
+    }
+
+    /* --- Buttons --- */
+    .btn-add-stop {
+        background-color: transparent;
+        color: var(--b-blue-light);
+        border: 1px dashed var(--b-blue-light);
+        width: 100%;
+        padding: 10px;
+        font-weight: 600;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .btn-add-stop:hover {
+        background-color: #f0f6fd;
+        border-style: solid;
+    }
+
+    .btn-publish {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        padding: 14px 30px;
+        border: none;
+        border-radius: 4px;
+        font-size: 1.1rem;
+        transition: background 0.2s;
+    }
+
+    .btn-publish:hover {
+        background-color: var(--b-blue);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card shadow border-0 overflow-hidden">
-                <div class="card-header bg-primary text-white p-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-ship fa-2x me-3"></i>
-                        <div>
-                            <h3 class="mb-0 fw-bold">Diseñador de Travesía</h3>
-                            <p class="mb-0 opacity-75">Define tu ruta y precios por tramos</p>
-                        </div>
-                    </div>
+<div class="container stepper-container">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Crear Nuevo Itinerario</h2>
+        <a href="{{ url_for('cruise.my_cruises') }}" class="text-decoration-none fw-bold text-muted">
+            <i class="fas fa-times me-1"></i> Cancelar
+        </a>
+    </div>
+
+    <form method="post" id="cruiseForm">
+        
+        <div class="form-section-card animate__animated animate__fadeInUp">
+            <div class="section-header">
+                <div class="step-badge">1</div>
+                <h3 class="section-title">Información del Crucero</h3>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small">Barco</label>
+                    <select name="idShip" class="form-select" required>
+                        <option value="" disabled selected>Selecciona un barco...</option>
+                        {% for ship in ships %}
+                        <option value="{{ ship.idCruise }}">{{ ship.cruiseName }} ({{ ship.capacity }} pax)</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                
-                <div class="card-body p-4 p-md-5">
-                    <form method="post" id="cruiseForm">
-                        <!-- Paso 1: Barco y Fechas -->
-                        <div class="row g-4 mb-5 pb-4 border-bottom">
-                            <div class="col-md-12">
-                                <h5 class="fw-bold mb-3 text-secondary text-uppercase small letter-spacing-1">1. Información General</h5>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small">Seleccionar Barco</label>
-                                <select name="idShip" class="form-select border-2" required>
-                                    <option value="" disabled selected>Escoge un barco de tu flota...</option>
-                                    {% for ship in ships %}
-                                    <option value="{{ ship.idCruise }}">{{ ship.cruiseName }} (Capacidad: {{ ship.capacity }})</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold small">Inicio del Viaje</label>
-                                <input type="datetime-local" name="startDate" class="form-control" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold small">Fin del Viaje</label>
-                                <input type="datetime-local" name="endDate" class="form-control" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label fw-bold small">Descripción de la Ruta</label>
-                                <textarea name="description" class="form-control" rows="2" placeholder="Describe los puntos fuertes de este crucero..."></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Paso 2: Línea de Tiempo de Paradas -->
-                        <div class="mb-5 pb-4 border-bottom">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h5 class="fw-bold mb-0 text-secondary text-uppercase small">2. Ruta del Crucero (Cronograma)</h5>
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="addStop()">
-                                    <i class="fas fa-plus-circle me-1"></i>Añadir Parada
-                                </button>
-                            </div>
-
-                            <div id="timelineContainer" class="timeline">
-                                <!-- Las paradas se inyectarán aquí -->
-                            </div>
-                        </div>
-
-                        <!-- Paso 3: Precios por Segmento -->
-                        <div class="mb-5">
-                            <h5 class="fw-bold mb-4 text-secondary text-uppercase small">3. Configuración de Precios por Tramo</h5>
-                            <div id="segmentsContainer" class="row g-3">
-                                <div class="col-12 text-center py-4 bg-light rounded text-muted">
-                                    <i class="fas fa-info-circle me-2"></i>Añade al menos 2 paradas para configurar los precios.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center pt-4 border-top">
-                            <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-link text-muted text-decoration-none">Cancelar y volver</a>
-                            <button type="submit" class="btn btn-primary btn-lg px-5 shadow rounded-pill">
-                                <i class="fas fa-save me-2"></i>Publicar Crucero
-                            </button>
-                        </div>
-                    </form>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small">Nombre de la Ruta</label>
+                    <input type="text" name="description" class="form-control" placeholder="Ej: Maravillas del Mediterráneo" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small">Fecha Salida</label>
+                    <input type="datetime-local" name="startDate" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small">Fecha Llegada</label>
+                    <input type="datetime-local" name="endDate" class="form-control" required>
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="form-section-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+            <div class="section-header">
+                <div class="step-badge">2</div>
+                <h3 class="section-title">Paradas y Horarios</h3>
+            </div>
+
+            <div id="timelineContainer" class="timeline-builder">
+                </div>
+
+            <button type="button" class="btn-add-stop mt-3" onclick="addStop()">
+                <i class="fas fa-plus-circle me-2"></i>Añadir Parada
+            </button>
+        </div>
+
+        <div class="form-section-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+            <div class="section-header">
+                <div class="step-badge">3</div>
+                <h3 class="section-title">Tarifas por Tramo</h3>
+            </div>
+
+            <div id="segmentsContainer">
+                <div class="text-center py-4 text-muted bg-light rounded border">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Define al menos 2 paradas para configurar los precios.
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mb-5">
+            <button type="submit" class="btn-publish shadow-sm">
+                Publicar Crucero
+            </button>
+        </div>
+
+    </form>
 </div>
 
-<!-- Template para Nueva Parada (Oculto) -->
 <template id="stopTemplate">
-    <div class="timeline-item animate__animated animate__fadeInLeft">
-        <div class="timeline-marker"></div>
-        <button type="button" class="btn btn-danger btn-sm rounded-circle remove-stop shadow-sm" onclick="removeStop(this)">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="stop-card card bg-white p-3">
+    <div class="timeline-node animate__animated animate__fadeInLeft">
+        <div class="node-marker"></div>
+        <div class="stop-box">
+            <button type="button" class="btn-remove-stop" onclick="removeStop(this)" title="Eliminar parada">
+                &times;
+            </button>
             <div class="row g-3">
+                <div class="col-md-12 mb-2">
+                    <span class="badge bg-light text-dark border">Parada <span class="stop-number">#</span></span>
+                </div>
                 <div class="col-md-4">
-                    <label class="form-label small fw-bold">Puerto / Destino</label>
+                    <label class="form-label small fw-bold text-muted">Puerto</label>
                     <select class="form-select stop-location" required onchange="updatePricingTable()">
-                        <option value="">Seleccionar puerto...</option>
+                        <option value="">Seleccionar...</option>
                         {% for loc in locations %}
                         <option value="{{ loc.idLocation }}">{{ loc.city }}, {{ loc.country }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label small fw-bold">Llegada (Arrival)</label>
+                    <label class="form-label small fw-bold text-muted">Llegada</label>
                     <input type="datetime-local" class="form-control stop-arrival" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label small fw-bold">Salida (Departure)</label>
+                    <label class="form-label small fw-bold text-muted">Salida</label>
                     <input type="datetime-local" class="form-control stop-departure" required>
                 </div>
             </div>
@@ -192,99 +287,88 @@
         const template = document.getElementById('stopTemplate');
         const clone = template.content.cloneNode(true);
         
-        // Configurar IDs y Names únicos
-        const marker = clone.querySelector('.timeline-marker');
-        marker.textContent = stopCount;
+        // Update visual index
+        clone.querySelector('.stop-number').textContent = stopCount;
         
-        const locationSelect = clone.querySelector('.stop-location');
-        locationSelect.name = `stop_location_${stopCount}`;
-        
-        const arrivalInput = clone.querySelector('.stop-arrival');
-        arrivalInput.name = `stop_arrival_${stopCount}`;
-        
-        const departureInput = clone.querySelector('.stop-departure');
-        departureInput.name = `stop_departure_${stopCount}`;
-        
-        const orderInput = clone.querySelector('.stop-order');
-        orderInput.name = `stop_order_${stopCount}`;
-        orderInput.value = stopCount;
+        // Set unique names
+        const inputs = ['stop-location', 'stop-arrival', 'stop-departure', 'stop-order'];
+        inputs.forEach(cls => {
+            const el = clone.querySelector(`.${cls}`);
+            // name format: stop_location_1, stop_arrival_1, etc.
+            el.name = cls.replace('-', '_') + '_' + stopCount; 
+            if(cls === 'stop-order') el.value = stopCount;
+        });
 
         container.appendChild(clone);
         updatePricingTable();
     }
 
     function removeStop(btn) {
-        const item = btn.closest('.timeline-item');
-        item.classList.add('animate__fadeOutLeft');
-        setTimeout(() => {
-            item.remove();
-            reindexStops();
-            updatePricingTable();
-        }, 300);
+        const node = btn.closest('.timeline-node');
+        node.remove();
+        reindexStops();
+        updatePricingTable();
     }
 
     function reindexStops() {
-        const items = document.querySelectorAll('.timeline-item');
-        stopCount = items.length;
-        items.forEach((item, index) => {
+        const nodes = document.querySelectorAll('.timeline-node');
+        stopCount = nodes.length;
+        nodes.forEach((node, index) => {
             const i = index + 1;
-            item.querySelector('.timeline-marker').textContent = i;
-            item.querySelector('.stop-location').name = `stop_location_${i}`;
-            item.querySelector('.stop-arrival').name = `stop_arrival_${i}`;
-            item.querySelector('.stop-departure').name = `stop_departure_${i}`;
-            item.querySelector('.stop-order').name = `stop_order_${i}`;
-            item.querySelector('.stop-order').value = i;
+            node.querySelector('.stop-number').textContent = i;
+            
+            // Update names
+            const inputs = ['stop-location', 'stop-arrival', 'stop-departure', 'stop-order'];
+            inputs.forEach(cls => {
+                const el = node.querySelector(`.${cls}`);
+                el.name = cls.replace('-', '_') + '_' + i;
+                if(cls === 'stop-order') el.value = i;
+            });
         });
     }
 
     function updatePricingTable() {
         const container = document.getElementById('segmentsContainer');
-        const stops = document.querySelectorAll('.timeline-item');
+        const nodes = document.querySelectorAll('.timeline-node');
         
-        if (stops.length < 2) {
-            container.innerHTML = '<div class="col-12 text-center py-4 bg-light rounded text-muted"><i class="fas fa-info-circle me-2"></i>Añade al menos 2 paradas para configurar los precios.</div>';
+        if (nodes.length < 2) {
+            container.innerHTML = '<div class="text-center py-4 text-muted bg-light rounded border"><i class="fas fa-info-circle me-2"></i>Define al menos 2 paradas para configurar los precios.</div>';
             return;
         }
 
         container.innerHTML = '';
-        for (let i = 0; i < stops.length - 1; i++) {
-            const currentStop = stops[i];
-            const nextStop = stops[i+1];
+        
+        for (let i = 0; i < nodes.length - 1; i++) {
+            const current = nodes[i];
+            const next = nodes[i+1];
             
-            const currentLocSelect = currentStop.querySelector('.stop-location');
-            const nextLocSelect = nextStop.querySelector('.stop-location');
+            const currentSel = current.querySelector('.stop-location');
+            const nextSel = next.querySelector('.stop-location');
             
-            const currentLocName = currentLocSelect.options[currentLocSelect.selectedIndex].text || `Parada ${i+1}`;
-            const nextLocName = nextLocSelect.options[nextLocSelect.selectedIndex].text || `Parada ${i+2}`;
+            const currentName = currentSel.options[currentSel.selectedIndex].text || `Parada ${i+1}`;
+            const nextName = nextSel.options[nextSel.selectedIndex].text || `Parada ${i+2}`;
             
-            const segmentHtml = `
-                <div class="col-md-6 animate__animated animate__fadeInUp" style="animation-delay: ${i * 0.1}s">
-                    <div class="card h-100 segment-price-card shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="fw-bold text-primary mb-0">Tramo ${i+1}</h6>
-                                <span class="badge bg-light text-muted border">ID ${i+1}</span>
-                            </div>
-                            <div class="small text-muted mb-3 d-flex align-items-center">
-                                <span class="text-truncate" style="max-width: 120px;">${currentLocName}</span>
-                                <i class="fas fa-long-arrow-alt-right mx-2 text-warning"></i>
-                                <span class="text-truncate" style="max-width: 120px;">${nextLocName}</span>
-                            </div>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-2">€</span>
-                                <input type="number" name="segment_price_${i+1}" class="form-control border-2" step="0.01" min="0" placeholder="0.00" required>
-                                <input type="hidden" name="segment_origin_${i+1}" value="${i+1}">
-                                <input type="hidden" name="segment_dest_${i+1}" value="${i+2}">
-                            </div>
+            const html = `
+                <div class="segment-box animate__animated animate__fadeIn">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h6 class="fw-bold mb-1">Tramo ${i+1}: ${currentName} <i class="fas fa-arrow-right mx-2 text-muted"></i> ${nextName}</h6>
+                            <small class="text-muted">ID Origen: ${i+1} &rarr; ID Destino: ${i+2}</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Precio (€)</label>
+                            <input type="number" name="segment_price_${i+1}" class="form-control" step="0.01" min="0" placeholder="0.00" required>
+                            <input type="hidden" name="segment_origin_${i+1}" value="${i+1}">
+                            <input type="hidden" name="segment_dest_${i+1}" value="${i+2}">
                         </div>
                     </div>
                 </div>
             `;
-            container.insertAdjacentHTML('beforeend', segmentHtml);
+            container.insertAdjacentHTML('beforeend', html);
         }
     }
 
-    // Inicializar con 2 paradas por defecto
+    // Init
     window.onload = () => {
         addStop();
         addStop();

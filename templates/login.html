@@ -4,110 +4,170 @@
 
 {% block extra_css %}
 <style>
-    .auth-container {
-        flex: 1;
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+    }
+
+    .login-wrapper {
+        min-height: calc(100vh - 200px); /* Ajuste para centrar descontando header/footer */
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 40px 20px;
-        background: linear-gradient(rgba(0, 53, 128, 0.05), rgba(0, 53, 128, 0.05));
+        padding: 40px 15px;
     }
 
-    .auth-card {
+    .login-card {
         background: white;
         padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border-radius: 4px; /* Borde menos redondeado estilo Booking */
+        border: 1px solid #e7e7e7;
         width: 100%;
-        max-width: 450px;
-        border-top: 5px solid var(--accent-color);
+        max-width: 400px;
+    }
+
+    .login-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 24px;
+        color: var(--b-text);
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+        color: #333;
     }
 
     .form-control {
-        padding: 12px;
-        border-radius: 8px;
-        background-color: #f8f9fa;
-        border: 1px solid #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px 12px;
+        font-size: 1rem;
+        background-color: white;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .form-control:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
-        background-color: white;
+        border-color: var(--b-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.15);
     }
 
-    .btn-auth {
-        background-color: var(--primary-color);
+    .btn-login {
+        background-color: var(--b-blue-light);
         color: white;
-        font-weight: 600;
+        font-weight: 700;
         padding: 12px;
         width: 100%;
-        border-radius: 8px;
-        transition: all 0.3s;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        margin-top: 10px;
+        transition: background 0.2s;
     }
 
-    .btn-auth:hover {
-        background-color: var(--secondary-color);
-        transform: translateY(-2px);
+    .btn-login:hover {
+        background-color: var(--b-blue);
+        color: white;
     }
 
-    .auth-footer a {
-        color: var(--primary-color);
-        text-decoration: none;
-        font-weight: 600;
+    .divider {
+        margin: 24px 0;
+        border-top: 1px solid #e7e7e7;
+        position: relative;
+        text-align: center;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 10px;
+        position: relative;
+        top: -10px;
+        font-size: 0.85rem;
+        color: #666;
     }
 
     .alert-error {
-        background-color: #fef2f2;
-        color: #991b1b;
+        background-color: #fde8ea;
+        color: #d4111e;
         border: 1px solid #fecaca;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 20px;
         font-size: 0.9rem;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .register-link {
+        color: var(--b-blue-light);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .register-link:hover {
+        text-decoration: underline;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="text-center mb-4">
-                <h3 class="fw-bold text-secondary">¡Hola de nuevo!</h3>
-                <p class="text-muted small">Accede para gestionar tus viajes o reservas</p>
+<div class="login-wrapper">
+    <div class="login-card animate__animated animate__fadeIn">
+        
+        <h3 class="login-title">Inicia sesión o crea una cuenta</h3>
+
+        {% if error %}
+            <div class="alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>{{ error }}</div>
+            </div>
+        {% endif %}
+
+        <form action="{{ url_for('userBp.login') }}" method="POST">
+            <div class="mb-3">
+                <label for="email" class="form-label">Dirección de e-mail</label>
+                <input type="email" name="email" id="email" class="form-control" required placeholder="ejemplo@correo.com">
             </div>
 
-            {% if error %}
-                <div class="alert-error">
-                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-                </div>
-            {% endif %}
-
-            <form action="{{ url_for('userBp.login') }}" method="POST">
-                <div class="mb-3">
-                    <label class="form-label fw-bold small text-secondary">Correo Electrónico</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
-                        <input type="email" name="email" class="form-control border-start-0" placeholder="ejemplo@correo.com" required>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold small text-secondary">Contraseña</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
-                        <input type="password" name="password" class="form-control border-start-0" placeholder="••••••••" required>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-auth mb-3">Iniciar Sesión</button>
-            </form>
-
-            <div class="text-center auth-footer mt-4 border-top pt-3">
-                <p class="small text-muted mb-0">¿Aún no tienes cuenta?</p>
-                <a href="{{ url_for('userBp.register') }}">Regístrate gratis</a>
+            <div class="mb-4">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" name="password" id="password" class="form-control" required>
             </div>
+
+            <button type="submit" class="btn-login">
+                Iniciar sesión
+            </button>
+        </form>
+
+        <div class="mt-3 text-center">
+            <a href="#" class="small text-decoration-none text-primary">¿Has olvidado tu contraseña?</a>
+        </div>
+
+        <div class="divider">
+            <span>o</span>
+        </div>
+
+        <div class="text-center">
+            <p class="small text-muted mb-2">¿Aún no tienes cuenta?</p>
+            <a href="{{ url_for('userBp.register') }}" class="btn btn-outline-primary w-100 fw-bold py-2">
+                Registrarse
+            </a>
+        </div>
+        
+        <div class="mt-4 pt-3 border-top text-center">
+             <small class="text-muted d-block" style="font-size: 0.75rem;">
+                Al iniciar sesión o crear una cuenta, aceptas nuestros <a href="#" class="text-muted">Términos y condiciones</a> y nuestra <a href="#" class="text-muted">Política de privacidad</a>.
+            </small>
         </div>
     </div>
+</div>
 {% endblock %}

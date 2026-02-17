@@ -1,83 +1,276 @@
 {% extends 'base.html' %}
 
-{% block title %}Detalles del Crucero | TravelDream{% endblock %}
+{% block title %}Itinerario: {{ cruise.ship.cruiseName if cruise.ship else 'Crucero' }} | TravelDream{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header --- */
+    .cruise-header-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .cruise-title {
+        font-weight: 800;
+        color: var(--b-text);
+        margin-bottom: 5px;
+    }
+
+    .ship-badge {
+        background-color: var(--b-blue);
+        color: white;
+        font-size: 0.8rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    /* --- Timeline (Itinerary) --- */
+    .timeline {
+        position: relative;
+        padding-left: 20px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 10px;
+        bottom: 20px;
+        width: 2px;
+        background: #e7e7e7;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 30px;
+        padding-bottom: 30px;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid var(--b-blue-light);
+        z-index: 1;
+    }
+
+    .timeline-content {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        padding: 15px;
+        transition: transform 0.2s;
+    }
+
+    .timeline-content:hover {
+        transform: translateX(5px);
+        border-color: var(--b-blue-light);
+    }
+
+    /* --- Segments (Pricing) --- */
+    .pricing-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        overflow: hidden;
+        position: sticky;
+        top: 80px; /* Sticky sidebar */
+    }
+
+    .pricing-header {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-bottom: 1px solid #e7e7e7;
+        font-weight: 700;
+        color: var(--b-text);
+    }
+
+    .segment-item {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .segment-item:last-child {
+        border-bottom: none;
+    }
+
+    .price-tag {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    /* --- Back Button --- */
+    .btn-back {
+        color: var(--b-blue-light);
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 20px;
+    }
+    
+    .btn-back:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold">Detalles del Crucero</h1>
-        <a href="{{ url_for('cruise.list_cruises') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver al listado
-        </a>
-    </div>
+<div class="container py-4">
+    
+    <a href="{{ url_for('cruise.list_cruises') }}" class="btn-back">
+        <i class="fas fa-chevron-left"></i> Volver a resultados
+    </a>
 
-    <div class="card shadow-sm mb-5">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"><i class="fas fa-ship me-2"></i>{{ cruise.ship.cruiseName if cruise.ship else 'Sin barco asignado' }}</h4>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <p><strong><i class="far fa-calendar-alt me-2 text-muted"></i>Inicio:</strong> {{ cruise.startDate.strftime('%d/%m/%Y %H:%M') }}</p>
+    <div class="cruise-header-card animate__animated animate__fadeIn">
+        <div class="row">
+            <div class="col-md-8">
+                <span class="ship-badge"><i class="fas fa-ship me-2"></i>{{ cruise.ship.cruiseName if cruise.ship else 'Barco sin asignar' }}</span>
+                <h1 class="cruise-title">{{ cruise.description or 'Itinerario de Crucero' }}</h1>
+                <div class="text-muted mt-2 d-flex gap-4">
+                    <span><i class="far fa-calendar-alt me-2"></i>Salida: <strong>{{ cruise.startDate.strftime('%d %b %Y') }}</strong></span>
+                    <span><i class="far fa-calendar-check me-2"></i>Llegada: <strong>{{ cruise.endDate.strftime('%d %b %Y') }}</strong></span>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <p><strong><i class="far fa-calendar-check me-2 text-muted"></i>Fin:</strong> {{ cruise.endDate.strftime('%d/%m/%Y %H:%M') }}</p>
-                </div>
-                <div class="col-12">
-                    <p><strong><i class="fas fa-info-circle me-2 text-muted"></i>Descripción:</strong> {{ cruise.description or 'Sin descripción disponible.' }}</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0 d-flex align-items-center justify-content-md-end">
+                <div class="text-end">
+                    <small class="text-muted d-block">Duración total</small>
+                    <span class="fs-4 fw-bold text-dark">
+                        {{ (cruise.endDate - cruise.startDate).days }} Días
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-header bg-light fw-bold">
-                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>Ruta de Paradas
-                </div>
-                <div class="list-group list-group-flush">
+        <div class="col-lg-8 mb-4">
+            <h4 class="fw-bold mb-3 text-dark">Itinerario de viaje</h4>
+            
+            <div class="timeline animate__animated animate__fadeInUp">
+                {% if stops %}
                     {% for stop in stops %}
-                    <div class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1 text-primary">Parada {{ stop.stopOrder }}: {{ stop.location.city }}</h5>
-                            <small class="text-muted">{{ stop.location.country }}</small>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="badge bg-light text-dark border mb-1">Parada {{ stop.stopOrder }}</span>
+                                    <h5 class="fw-bold mb-0 text-primary">{{ stop.location.city }}</h5>
+                                    <small class="text-muted">{{ stop.location.country }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <i class="fas fa-map-marker-alt text-danger opacity-50 fa-2x"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-2 mt-2 bg-light p-2 rounded">
+                                <div class="col-6 border-end">
+                                    <small class="text-muted d-block">Llegada</small>
+                                    <span class="fw-bold">{{ stop.arrivalDate.strftime('%d/%m %H:%M') }}</span>
+                                </div>
+                                <div class="col-6 ps-3">
+                                    <small class="text-muted d-block">Salida</small>
+                                    <span class="fw-bold">{{ stop.departureDate.strftime('%d/%m %H:%M') }}</span>
+                                </div>
+                            </div>
                         </div>
-                        <p class="mb-1 small">
-                            <span class="d-block"><i class="fas fa-plane-arrival me-1"></i> Llega: {{ stop.arrivalDate.strftime('%d/%m %H:%M') }}</span>
-                            <span class="d-block"><i class="fas fa-plane-departure me-1"></i> Sale: {{ stop.departureDate.strftime('%d/%m %H:%M') }}</span>
-                        </p>
                     </div>
-                    {% else %}
-                    <div class="list-group-item text-muted">No hay paradas registradas.</div>
                     {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No hay paradas definidas para esta ruta.
+                    </div>
+                {% endif %}
+                
+                <div class="timeline-item" style="padding-bottom: 0;">
+                    <div class="timeline-dot" style="background: var(--b-blue); border-color: var(--b-blue);"></div>
+                    <div class="ps-3 pt-1">
+                        <span class="fw-bold text-dark">Fin del trayecto</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-header bg-light fw-bold">
-                    <i class="fas fa-tags me-2 text-success"></i>Segmentos y Precios
+        <div class="col-lg-4">
+            <div class="pricing-card shadow-sm animate__animated animate__fadeInRight">
+                <div class="pricing-header">
+                    <i class="fas fa-tags me-2"></i>Tarifas por tramo
                 </div>
-                <div class="list-group list-group-flush">
-                    {% for seg in segments %}
-                    <div class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between align-items-center">
+                <div>
+                    {% if segments %}
+                        {% for seg in segments %}
+                        <div class="segment-item">
                             <div>
-                                <h6 class="mb-0 text-dark">
-                                    {{ seg.stop_origin.location.city }} <i class="fas fa-long-arrow-alt-right mx-2 text-muted"></i> {{ seg.stop_destination.location.city }}
-                                </h6>
-                                <small class="text-muted">Parada {{ seg.stop_origin.stopOrder }} &rarr; Parada {{ seg.stop_destination.stopOrder }}</small>
+                                <div class="fw-bold text-dark small">
+                                    {{ seg.stop_origin.location.city }} <i class="fas fa-arrow-right text-muted mx-1"></i> {{ seg.stop_destination.location.city }}
+                                </div>
+                                <small class="text-muted">Tramo individual</small>
                             </div>
-                            <span class="badge bg-success rounded-pill fs-6">{{ seg.price }} €</span>
+                            <div class="text-end">
+                                <div class="price-tag">{{ seg.price }}€</div>
+                            </div>
                         </div>
-                    </div>
+                        {% endfor %}
+                        
+                        <div class="p-3 bg-light border-top text-center">
+                            <small class="text-muted d-block mb-2">Precios por persona, tasas incluidas.</small>
+                            <button class="btn btn-primary w-100 fw-bold">Consultar Disponibilidad</button>
+                        </div>
                     {% else %}
-                    <div class="list-group-item text-muted">No hay segmentos de precio definidos.</div>
-                    {% endfor %}
+                        <div class="p-4 text-center text-muted">
+                            <i class="fas fa-clipboard-list fa-2x mb-2 opacity-25"></i>
+                            <p class="small mb-0">No hay precios publicados actualmente.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
+
+            {% if cruise.ship %}
+            <div class="card mt-3 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Sobre el barco</h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-light p-3 rounded text-primary">
+                            <i class="fas fa-ship fa-2x"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ cruise.ship.cruiseName }}</div>
+                            <small class="text-muted">Buque de clase premium</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

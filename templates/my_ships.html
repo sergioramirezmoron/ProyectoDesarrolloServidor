@@ -1,50 +1,175 @@
 {% extends 'base.html' %}
 
-{% block title %}Mis Barcos | TravelDream{% endblock %}
+{% block title %}Gestión de Flota | TravelDream Partner{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header --- */
+    .page-header {
+        background: white;
+        padding: 30px 0;
+        border-bottom: 1px solid #e7e7e7;
+        margin-bottom: 30px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* --- Ship Card --- */
+    .ship-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: box-shadow 0.2s, transform 0.2s;
+        display: flex;
+        align-items: center;
+    }
+
+    .ship-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #ccc;
+        transform: translateY(-2px);
+    }
+
+    .ship-icon-box {
+        width: 60px;
+        height: 60px;
+        background-color: #e6f2ff; /* Azul muy suave */
+        color: var(--b-blue);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-right: 20px;
+        flex-shrink: 0;
+    }
+
+    .ship-info {
+        flex-grow: 1;
+    }
+
+    .ship-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--b-blue);
+        margin-bottom: 4px;
+        text-decoration: none;
+    }
+
+    .ship-capacity {
+        font-size: 0.9rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        background-color: #e6f6e8;
+        color: var(--b-green);
+        border: 1px solid #bcebc3;
+    }
+
+    /* Empty State */
+    .empty-box {
+        background: white;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+        text-align: center;
+        padding: 60px 20px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Gestión de Flota</h1>
-        <a href="{{ url_for('ship.create_ship') }}" class="btn btn-success">
-            <i class="fas fa-plus me-2"></i>Registrar Nuevo Barco
-        </a>
-    </div>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 px-4">Nombre del Barco</th>
-                            <th class="py-3">Capacidad</th>
-                            <th class="py-3 text-end px-4">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ship in ships %}
-                        <tr>
-                            <td class="px-4 fw-bold">
-                                <i class="fas fa-ship me-2 text-muted"></i>{{ ship.cruiseName }}
-                            </td>
-                            <td>{{ ship.capacity }} pasajeros</td>
-                            <td class="text-end px-4">
-                                <span class="badge bg-success rounded-pill">Activo</span>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="3" class="text-center py-5 text-muted">
-                                <i class="fas fa-anchor fa-2x mb-3 d-block"></i>
-                                No tienes barcos registrados.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    
+    <div class="page-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">Mi Flota</h2>
+                    <p class="text-muted mb-0">Gestiona tus barcos y sus capacidades.</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{{ url_for('userBp.company_dashboard') }}" class="btn btn-outline-secondary fw-bold">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    <a href="{{ url_for('ship.create_ship') }}" class="btn btn-primary fw-bold">
+                        <i class="fas fa-plus me-2"></i>Registrar Barco
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                {% if ships %}
+                    {% for ship in ships %}
+                    <div class="ship-card animate__animated animate__fadeInUp">
+                        <div class="ship-icon-box">
+                            <i class="fas fa-ship"></i>
+                        </div>
+
+                        <div class="ship-info">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="ship-name">{{ ship.cruiseName }}</div>
+                                    <div class="ship-capacity">
+                                        <i class="fas fa-users text-secondary"></i> 
+                                        <span>Capacidad: <strong>{{ ship.capacity }}</strong> pasajeros</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="status-badge">
+                                        <i class="fas fa-check-circle me-1"></i> Activo
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                
+                {% else %}
+                    <div class="empty-box animate__animated animate__fadeIn">
+                        <div class="mb-3">
+                            <i class="fas fa-anchor fa-3x text-muted opacity-25"></i>
+                        </div>
+                        <h4 class="fw-bold">No tienes barcos registrados</h4>
+                        <p class="text-muted mb-4">Añade tu primera embarcación para empezar a crear rutas de crucero.</p>
+                        <a href="{{ url_for('ship.create_ship') }}" class="btn btn-primary fw-bold px-4">
+                            Registrar mi primer barco
+                        </a>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

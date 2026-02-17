@@ -1,58 +1,230 @@
 {% extends 'base.html' %}
 
-{% block title %}Mis Transportes | TravelDream{% endblock %}
+{% block title %}Mis Transportes | TravelDream Partner{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header --- */
+    .page-header {
+        background: white;
+        padding: 30px 0;
+        border-bottom: 1px solid #e7e7e7;
+        margin-bottom: 30px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* --- Transport Card --- */
+    .transport-manage-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .transport-manage-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #ccc;
+        transform: translateY(-2px);
+    }
+
+    /* Type Icon */
+    .transport-icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-right: 20px;
+        flex-shrink: 0;
+    }
+
+    .icon-bus { background-color: #fff8e1; color: #b86a04; }
+    .icon-train { background-color: #e6f2ff; color: var(--b-blue); }
+
+    /* Route Info */
+    .route-display {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--b-text);
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .route-arrow {
+        color: #999;
+        margin: 0 10px;
+        font-size: 0.9rem;
+    }
+
+    .transport-meta {
+        font-size: 0.9rem;
+        color: #666;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item i {
+        margin-right: 5px;
+        opacity: 0.7;
+    }
+
+    /* Actions */
+    .card-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        border-top: 1px solid #f0f0f0;
+        margin-top: 15px;
+        padding-top: 15px;
+    }
+
+    .btn-icon-action {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        color: #666;
+        transition: all 0.2s;
+        background: white;
+    }
+
+    .btn-icon-action:hover {
+        background-color: #f0f6fd;
+        border-color: var(--b-blue);
+        color: var(--b-blue);
+    }
+
+    .btn-delete:hover {
+        background-color: #fde8ea;
+        border-color: #d4111e;
+        color: #d4111e;
+    }
+
+    /* Empty State */
+    .empty-box {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Mis Transportes</h1>
-        <a href="{{ url_for('transport.create_transport') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Nuevo Transporte
-        </a>
-    </div>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 px-4">Tipo</th>
-                            <th class="py-3">Origen</th>
-                            <th class="py-3">Destino</th>
-                            <th class="py-3">Salida</th>
-                            <th class="py-3">Llegada</th>
-                            <th class="py-3 text-end px-4">Precio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for transport in transports %}
-                        <tr>
-                            <td class="px-4">
-                                {% if transport.type == 'bus' %}
-                                    <span class="badge bg-warning text-dark"><i class="fas fa-bus me-1"></i>Bus</span>
-                                {% else %}
-                                    <span class="badge bg-info text-dark"><i class="fas fa-train me-1"></i>Tren</span>
-                                {% endif %}
-                            </td>
-                            <td class="fw-bold">{{ transport.locationStart.city }}</td>
-                            <td class="fw-bold">{{ transport.locationEnd.city }}</td>
-                            <td>{{ transport.startDate.strftime('%d/%m/%Y %H:%M') }}</td>
-                            <td>{{ transport.endDate.strftime('%d/%m/%Y %H:%M') }}</td>
-                            <td class="text-end px-4 fw-bold">{{ transport.price }}€</td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-route fa-3x mb-3 opacity-50"></i>
-                                <p>No has registrado ningún transporte todavía.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    
+    <div class="page-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">Mis Transportes</h2>
+                    <p class="text-muted mb-0">Gestiona tus rutas de autobús y tren.</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{{ url_for('userBp.company_dashboard') }}" class="btn btn-outline-secondary fw-bold">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    <a href="{{ url_for('transport.create_transport') }}" class="btn btn-primary fw-bold">
+                        <i class="fas fa-plus me-2"></i>Nuevo Transporte
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                
+                {% if transports %}
+                    {% for t in transports %}
+                    <div class="transport-manage-card animate__animated animate__fadeInUp">
+                        <div class="d-flex align-items-start">
+                            <div class="transport-icon-box {% if t.type == 'bus' %}icon-bus{% else %}icon-train{% endif %}">
+                                {% if t.type == 'bus' %}
+                                    <i class="fas fa-bus"></i>
+                                {% else %}
+                                    <i class="fas fa-train"></i>
+                                {% endif %}
+                            </div>
+
+                            <div class="flex-grow-1">
+                                <div class="route-display">
+                                    {{ t.locationStart.city }} 
+                                    <i class="fas fa-arrow-right route-arrow"></i> 
+                                    {{ t.locationEnd.city }}
+                                </div>
+                                
+                                <div class="transport-meta">
+                                    <div class="meta-item">
+                                        <i class="far fa-calendar-alt"></i>
+                                        {{ t.startDate.strftime('%d/%m/%Y') }}
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="far fa-clock"></i>
+                                        {{ t.startDate.strftime('%H:%M') }} - {{ t.endDate.strftime('%H:%M') }}
+                                    </div>
+                                    <div class="meta-item text-dark fw-bold">
+                                        {{ t.price }}€
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-actions">
+                            <button class="btn-icon-action" title="Editar">
+                                <i class="fas fa-pen small"></i>
+                            </button>
+                            
+                            <button class="btn-icon-action btn-delete" title="Eliminar">
+                                <i class="fas fa-trash-alt small"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                
+                {% else %}
+                    <div class="empty-box animate__animated animate__fadeIn">
+                        <div class="mb-3">
+                            <i class="fas fa-route fa-3x text-muted opacity-25"></i>
+                        </div>
+                        <h4 class="fw-bold">No tienes transportes registrados</h4>
+                        <p class="text-muted mb-4">Empieza a conectar destinos ahora mismo.</p>
+                        <a href="{{ url_for('transport.create_transport') }}" class="btn btn-primary fw-bold px-4">
+                            Crear mi primer transporte
+                        </a>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

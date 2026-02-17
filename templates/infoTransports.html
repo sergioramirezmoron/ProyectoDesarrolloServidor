@@ -2,63 +2,221 @@
 
 {% block title %}Transportes Disponibles | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+        --b-yellow: #febb02;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Page Header --- */
+    .page-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+    }
+
+    /* --- Ticket Card Style --- */
+    .transport-ticket {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+    }
+
+    .transport-ticket:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #c6c6c6;
+    }
+
+    .transport-type-icon {
+        font-size: 1.5rem;
+        color: var(--b-blue);
+        width: 50px;
+        text-align: center;
+    }
+
+    .transport-times {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--b-text);
+    }
+
+    .transport-route {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        font-size: 0.95rem;
+        color: #333;
+        position: relative;
+        padding-left: 20px;
+    }
+
+    /* Línea vertical de ruta */
+    .transport-route::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background-color: #e7e7e7;
+    }
+
+    .route-dot-start, .route-dot-end {
+        position: absolute;
+        left: -4px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: white;
+        border: 2px solid var(--b-blue-light);
+    }
+    .route-dot-start { top: 6px; }
+    .route-dot-end { bottom: 6px; border-color: var(--b-text); }
+
+    .duration-text {
+        font-size: 0.75rem;
+        color: #666;
+        margin-left: 50px; /* Alineado visualmente */
+    }
+
+    .price-large {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #333;
+        line-height: 1;
+    }
+
+    .btn-select {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        width: 100%;
+        transition: background 0.2s;
+    }
+    .btn-select:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    /* Badge Company */
+    .company-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #f0f6fd;
+        color: var(--b-blue);
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-route me-2 text-primary"></i>Transportes (Bus/Tren)</h1>
-        {% if user and user.role == 'company' %}
+    
+    <div class="page-header">
         <div>
-            <a href="{{ url_for('transport.create_transport') }}" class="btn btn-primary me-2">
-                <i class="fas fa-plus me-2"></i>Crear Transporte
+            <h1 class="fw-bold mb-1">Billetes de Tren y Autobús</h1>
+            <p class="text-muted mb-0">Compara y reserva tus traslados al mejor precio.</p>
+        </div>
+        
+        {% if user and user.role == 'company' %}
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('transport.my_transports') }}" class="btn btn-outline-secondary btn-sm fw-bold">
+                <i class="fas fa-list me-1"></i> Gestionar
             </a>
-            <a href="{{ url_for('transport.my_transports') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-list me-2"></i>Mis Transportes
+            <a href="{{ url_for('transport.create_transport') }}" class="btn btn-primary btn-sm fw-bold">
+                <i class="fas fa-plus me-1"></i> Nuevo Transporte
             </a>
         </div>
         {% endif %}
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 px-4">Tipo</th>
-                            <th class="py-3">Origen</th>
-                            <th class="py-3">Destino</th>
-                            <th class="py-3">Salida</th>
-                            <th class="py-3">Llegada</th>
-                            <th class="py-3 text-end px-4">Precio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for transport in transports %}
-                        <tr>
-                            <td class="px-4">
-                                {% if transport.type == 'bus' %}
-                                    <span class="badge bg-warning text-dark"><i class="fas fa-bus me-1"></i>Bus</span>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {% if transports %}
+                {% for t in transports %}
+                <div class="transport-ticket animate__animated animate__fadeInUp">
+                    <div class="company-badge">Transporte Oficial</div>
+
+                    <div class="row align-items-center">
+                        
+                        <div class="col-md-1 d-none d-md-flex justify-content-center">
+                            <div class="transport-type-icon">
+                                {% if t.type == 'bus' %}
+                                    <i class="fas fa-bus"></i>
                                 {% else %}
-                                    <span class="badge bg-info text-dark"><i class="fas fa-train me-1"></i>Tren</span>
+                                    <i class="fas fa-train"></i>
                                 {% endif %}
-                            </td>
-                            <td class="fw-bold text-secondary">{{ transport.locationStart.city }}</td>
-                            <td class="fw-bold text-secondary">{{ transport.locationEnd.city }}</td>
-                            <td>{{ transport.startDate.strftime('%d/%m/%Y %H:%M') }}</td>
-                            <td>{{ transport.endDate.strftime('%d/%m/%Y %H:%M') }}</td>
-                            <td class="text-end px-4 fw-bold text-success">{{ transport.price }}€</td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-search-location fa-3x mb-3 opacity-50"></i>
-                                <p>No hay transportes disponibles en este momento.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 col-8">
+                            <div class="d-flex gap-3">
+                                <div class="transport-times">
+                                    <div>{{ t.startDate.strftime('%H:%M') }}</div>
+                                    <div class="text-muted small fw-normal my-1 py-2"></div> <div>{{ t.endDate.strftime('%H:%M') }}</div>
+                                </div>
+
+                                <div class="transport-route w-100">
+                                    <div class="route-dot-start"></div>
+                                    <div class="fw-bold">{{ t.locationStart.city }} <small class="text-muted fw-normal">({{ t.locationStart.country }})</small></div>
+                                    
+                                    <div class="text-muted small my-1 py-1 ps-1">
+                                        <i class="far fa-clock me-1"></i> Directo • {{ t.startDate.strftime('%d %b') }}
+                                    </div>
+                                    
+                                    <div class="route-dot-end"></div>
+                                    <div class="fw-bold">{{ t.locationEnd.city }} <small class="text-muted fw-normal">({{ t.locationEnd.country }})</small></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 col-4 text-end border-start-md ps-md-4">
+                            <div class="mb-3">
+                                <div class="small text-muted">Precio por persona</div>
+                                <div class="price-large">{{ t.price }}€</div>
+                            </div>
+                            <button class="btn-select">
+                                Seleccionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5 bg-white border rounded shadow-sm">
+                    <i class="fas fa-route fa-4x text-muted mb-3 opacity-25"></i>
+                    <h3 class="fw-bold text-dark">No hay rutas disponibles</h3>
+                    <p class="text-muted">Intenta buscar en otras fechas o destinos.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

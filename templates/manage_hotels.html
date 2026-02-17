@@ -1,61 +1,286 @@
 {% extends 'base.html' %}
 
-{% block title %}Manage Properties - HorizonStays{% endblock %}
+{% block title %}Mis Alojamientos | TravelDream Partner{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Header --- */
+    .page-header {
+        background: white;
+        padding: 30px 0;
+        border-bottom: 1px solid #e7e7e7;
+        margin-bottom: 30px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* --- Property List Card (Horizontal) --- */
+    .property-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 4px; /* Booking style: bordes poco redondeados */
+        margin-bottom: 16px;
+        transition: box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+        .property-card {
+            flex-direction: row;
+            height: 180px;
+        }
+    }
+
+    .property-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #ccc;
+    }
+
+    /* Image */
+    .prop-img-container {
+        width: 100%;
+        height: 200px;
+        position: relative;
+        background-color: #eee;
+    }
+
+    @media (min-width: 768px) {
+        .prop-img-container {
+            width: 240px;
+            height: 100%;
+            flex-shrink: 0;
+        }
+    }
+
+    .prop-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .prop-id-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 2px;
+    }
+
+    /* Content */
+    .prop-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .prop-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .prop-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--b-blue);
+        margin-bottom: 4px;
+        text-decoration: none;
+    }
+    
+    .prop-title:hover { text-decoration: underline; }
+
+    .prop-address {
+        font-size: 0.9rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .prop-meta {
+        font-size: 0.85rem;
+        color: #333;
+        margin-top: 10px;
+        display: flex;
+        gap: 15px;
+    }
+
+    /* Actions */
+    .prop-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 15px;
+        align-items: center;
+    }
+
+    .btn-manage {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 6px 16px;
+        border-radius: 2px;
+        border: 1px solid var(--b-blue-light);
+        text-decoration: none;
+    }
+    
+    .btn-manage:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .btn-icon-secondary {
+        color: #666;
+        border: 1px solid #ccc;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-icon-secondary:hover {
+        background-color: #f0f0f0;
+        color: #333;
+    }
+
+    .btn-delete:hover {
+        background-color: #fde8ea;
+        color: #d4111e;
+        border-color: #fde8ea;
+    }
+
+    /* Empty State */
+    .empty-box {
+        background: white;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+        text-align: center;
+        padding: 60px 20px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="flex justify-between items-center" style="margin-bottom: var(--spacing-lg);">
-        <h1 style="margin: 0;">My Properties</h1>
-        <a href="{{ url_for('aco.create') }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Property</a>
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% for accommodation in accommodations %}
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://placehold.co/400x200?text={{ accommodation.name }}" alt="{{ accommodation.name }}"
-                    class="card-img-top">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                            <h3 class="card-title h5">{{ accommodation.name }}</h3>
-                            <p class="text-muted small mb-0"><i class="fa-solid fa-map-pin"></i> {{ accommodation.address }}</p>
-                        </div>
-                        <span class="badge bg-primary">{{ accommodation.type }}</span>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="d-flex gap-3 text-muted small">
-                            <span><i class="fa-solid fa-star text-warning"></i> {{
-                                accommodation.stars_quality }} Stars</span>
-                            <span><i class="fa-solid fa-door-open"></i> {{ accommodation.rooms|length }} Rooms</span>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <a href="{{ url_for('aco.manage_rooms', id=accommodation.id) }}" class="btn btn-outline-primary btn-sm"><i
-                                class="fa-solid fa-bed"></i> Manage Rooms</a>
-                        <div class="btn-group">
-                            <a href="{{ url_for('aco.edit', id=accommodation.id) }}" class="btn btn-outline-secondary btn-sm"><i
-                                    class="fa-solid fa-pen"></i></a>
-                            <form action="{{ url_for('aco.delete', id=accommodation.id) }}" method="POST"
-                                onsubmit="return confirm('Are you sure?')" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm"><i
-                                        class="fa-solid fa-trash"></i></button>
-                            </form>
-                        </div>
-                    </div>
+    
+    <div class="page-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">Mis Alojamientos</h2>
+                    <p class="text-muted mb-0">Gestiona disponibilidad y tarifas de tus propiedades.</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{{ url_for('userBp.company_dashboard') }}" class="btn btn-outline-secondary fw-bold">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    <a href="{{ url_for('aco.create') }}" class="btn btn-primary fw-bold">
+                        <i class="fas fa-plus me-2"></i>Añadir Nuevo
+                    </a>
                 </div>
             </div>
         </div>
-        {% else %}
-        <div class="col-12 text-center py-5 bg-white rounded border">
-            <i class="fa-solid fa-hotel display-4 text-muted mb-3"></i>
-            <h3>No properties found</h3>
-            <p class="text-muted mb-3">You haven't listed any properties yet.</p>
-            <a href="{{ url_for('aco.create') }}" class="btn btn-primary">Add your first property</a>
-        </div>
-        {% endfor %}
     </div>
-</div>
+
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                {% for accommodation in accommodations %}
+                <div class="property-card animate__animated animate__fadeInUp">
+                    <div class="prop-img-container">
+                        <img src="https://placehold.co/400x300?text={{ accommodation.name|urlencode }}" alt="{{ accommodation.name }}" class="prop-img">
+                        <span class="prop-id-badge">ID: {{ accommodation.id }}</span>
+                    </div>
+
+                    <div class="prop-content">
+                        <div>
+                            <div class="prop-header">
+                                <div>
+                                    <a href="{{ url_for('aco.edit', id=accommodation.id) }}" class="prop-title">{{ accommodation.name }}</a>
+                                    <div class="prop-address">
+                                        <i class="fas fa-map-marker-alt text-muted small"></i> {{ accommodation.address }}
+                                    </div>
+                                </div>
+                                <span class="badge bg-light text-dark border">{{ accommodation.type|capitalize }}</span>
+                            </div>
+
+                            <div class="prop-meta">
+                                <span>
+                                    <i class="fas fa-star text-warning"></i> 
+                                    <strong>{{ accommodation.stars_quality }}</strong>
+                                </span>
+                                <span class="text-muted">|</span>
+                                <span>
+                                    <i class="fas fa-door-open text-secondary"></i> 
+                                    <strong>{{ accommodation.rooms|length }}</strong> Habitaciones
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="prop-actions">
+                            <a href="{{ url_for('aco.manage_rooms', id=accommodation.id) }}" class="btn-manage">
+                                <i class="fas fa-calendar-alt me-2"></i>Gestionar Habitaciones
+                            </a>
+                            
+                            <div class="ms-auto d-flex gap-2">
+                                <a href="{{ url_for('aco.edit', id=accommodation.id) }}" class="btn-icon-secondary" title="Editar Propiedad">
+                                    <i class="fas fa-pen small"></i>
+                                </a>
+                                
+                                <form action="{{ url_for('aco.delete', id=accommodation.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta propiedad? Esta acción no se puede deshacer.');">
+                                    <button type="submit" class="btn-icon-secondary btn-delete" title="Eliminar Propiedad">
+                                        <i class="fas fa-trash-alt small"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                
+                <div class="empty-box animate__animated animate__fadeIn">
+                    <div class="mb-3">
+                        <i class="fas fa-hotel fa-3x text-muted opacity-25"></i>
+                    </div>
+                    <h4 class="fw-bold">Aún no tienes propiedades</h4>
+                    <p class="text-muted mb-4">Empieza a ganar dinero registrando tu primer alojamiento.</p>
+                    <a href="{{ url_for('aco.create') }}" class="btn btn-primary fw-bold px-4">
+                        Registrar mi primera propiedad
+                    </a>
+                </div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

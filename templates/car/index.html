@@ -1,69 +1,231 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Mi Flota de Vehículos | TravelDream{% endblock %}
+{% block title %}Mi Flota de Vehículos | TravelDream Partner{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Page Header --- */
+    .page-header {
+        background: white;
+        padding: 30px 0;
+        border-bottom: 1px solid #e7e7e7;
+        margin-bottom: 30px;
+    }
+
+    /* --- Inventory Card --- */
+    .inventory-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.2s;
+    }
+
+    .inventory-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .inventory-img-container {
+        height: 180px;
+        background-color: #f2f6fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        position: relative;
+    }
+
+    .inventory-img-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .status-pill {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background-color: #e6f6e8;
+        color: var(--b-green);
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border: 1px solid #bcebc3;
+    }
+
+    .inventory-body {
+        padding: 20px;
+        flex-grow: 1;
+    }
+
+    .inventory-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--b-blue);
+        margin-bottom: 2px;
+    }
+
+    .inventory-subtitle {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .inventory-specs {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: #555;
+        margin-bottom: 20px;
+        padding-top: 10px;
+        border-top: 1px solid #f8f9fa;
+    }
+
+    .inventory-specs i {
+        color: var(--b-blue-light);
+    }
+
+    /* --- Actions --- */
+    .inventory-actions {
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #eee;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-inv {
+        flex: 1;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 8px;
+        border-radius: 4px;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-inv-view {
+        background: white;
+        color: var(--b-blue-light);
+        border: 1px solid var(--b-blue-light);
+    }
+
+    .btn-inv-view:hover {
+        background-color: #f0f6fd;
+    }
+
+    .btn-inv-edit {
+        background: #f0f0f0;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+
+    .btn-inv-edit:hover {
+        background-color: #e0e0e0;
+    }
+
+    .empty-fleet {
+        background: white;
+        border: 1px dashed #ccc;
+        border-radius: 8px;
+        padding: 60px 20px;
+        text-align: center;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="display-5 fw-bold"><i class="fas fa-warehouse me-3"></i>Mi Flota de Vehículos</h1>
-            <p class="text-muted">Gestiona los vehículos disponibles para alquiler</p>
+    
+    <div class="page-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">Mi Flota de Vehículos</h2>
+                    <p class="text-muted mb-0">Control de inventario y tarifas de alquiler.</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{{ url_for('userBp.company_dashboard') }}" class="btn btn-outline-secondary fw-bold me-2">
+                        <i class="fas fa-arrow-left me-1"></i> Panel
+                    </a>
+                    <a href="{{ url_for('car.show_create_form') }}" class="btn btn-primary fw-bold px-4 shadow-sm">
+                        <i class="fas fa-plus-circle me-1"></i> Añadir Vehículo
+                    </a>
+                </div>
+            </div>
         </div>
-        <a href="{{ url_for('car.show_create_form') }}" class="btn btn-primary btn-lg rounded-pill px-4">
-            <i class="fas fa-plus-circle me-2"></i>Añadir Vehículo
-        </a>
     </div>
 
-    {% if cars %}
-    <div class="row g-4">
-        {% for car in cars %}
-        <div class="col-md-6 col-lg-4">
-            <div class="car-card">
-                <div class="car-card-image">
-                    {% if car.image %}
-                    <img src="{{ car.image }}" alt="{{ car.brand }} {{ car.model }}">
-                    {% else %}
-                    <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=600&auto=format&fit=crop" alt="Vehículo">
-                    {% endif %}
-                    <div class="car-card-badge">
-                        <span class="badge bg-success">Activo</span>
+    <div class="container pb-5">
+        {% if cars %}
+        <div class="row g-4">
+            {% for car in cars %}
+            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
+                <div class="inventory-card">
+                    <div class="inventory-img-container">
+                        <span class="status-pill">ACTIVO</span>
+                        {% if car.image %}
+                            <img src="{{ car.image }}" alt="{{ car.brand }}">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=600&auto=format&fit=crop" alt="Vehículo">
+                        {% endif %}
                     </div>
-                </div>
-                <div class="car-card-body">
-                    <h3 class="car-card-title">{{ car.brand }}</h3>
-                    <p class="car-card-subtitle">{{ car.model }}</p>
-                    
-                    <div class="car-card-specs">
-                        <span><i class="fas fa-users"></i> {{ car.maxPeople }}</span>
-                        <span><i class="fas fa-euro-sign"></i> {{ car.pricePerDay }}/día</span>
+
+                    <div class="inventory-body">
+                        <div class="inventory-title">{{ car.brand }}</div>
+                        <div class="inventory-subtitle">{{ car.model }}</div>
+                        
+                        <div class="inventory-specs">
+                            <span><i class="fas fa-users"></i> {{ car.maxPeople }} plazas</span>
+                            <span><i class="fas fa-tag"></i> {{ car.pricePerDay }}€ / día</span>
+                        </div>
                     </div>
-                    
-                    <div class="car-card-actions">
-                        <a href="{{ url_for('car.view_car', idCar=car.idCar) }}" class="btn btn-outline-primary flex-fill">
-                            <i class="fas fa-eye me-1"></i>Ver
+
+                    <div class="inventory-actions">
+                        <a href="{{ url_for('car.view_car', idCar=car.idCar) }}" class="btn-inv btn-inv-view">
+                            <i class="fas fa-eye me-1"></i> Ver Ficha
                         </a>
-                        <a href="{{ url_for('car.show_edit_form', idCar=car.idCar) }}" class="btn btn-outline-secondary flex-fill">
-                            <i class="fas fa-edit me-1"></i>Editar
+                        <a href="{{ url_for('car.show_edit_form', idCar=car.idCar) }}" class="btn-inv btn-inv-edit">
+                            <i class="fas fa-edit me-1"></i> Editar
                         </a>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        {% else %}
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="empty-fleet animate__animated animate__fadeIn">
+                    <div class="mb-4">
+                        <i class="fas fa-warehouse fa-4x text-muted opacity-25"></i>
+                    </div>
+                    <h4 class="fw-bold">Tu garaje está vacío</h4>
+                    <p class="text-muted mb-4">Registra tus vehículos para que los viajeros puedan alquilarlos en sus próximas vacaciones.</p>
+                    <a href="{{ url_for('car.show_create_form') }}" class="btn btn-primary btn-lg fw-bold px-5 rounded-pill shadow-sm">
+                        Registrar mi primer coche
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="text-center py-5">
-        <i class="fas fa-car-side fa-5x text-muted mb-4"></i>
-        <h3 class="text-muted">No tienes vehículos en tu flota</h3>
-        <p class="text-muted mb-4">Añade tu primer vehículo para empezar a recibir reservas</p>
-        <a href="{{ url_for('car.show_create_form') }}" class="btn btn-primary btn-lg rounded-pill px-5">
-            <i class="fas fa-plus-circle me-2"></i>Añadir Primer Vehículo
-        </a>
-    </div>
-    {% endif %}
-</div>
+
 {% endblock %}

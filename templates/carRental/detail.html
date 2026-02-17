@@ -1,139 +1,282 @@
 {% extends "base.html" %}
 
-{% block title %}{{ car.brand }} {{ car.model }} | Alquiler{% endblock %}
+{% block title %}{{ car.brand }} {{ car.model }} | Alquiler TravelDream{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
 <style>
-    .detail-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
-        margin-bottom: 2rem;
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
     }
-    
-    .detail-image-wrapper {
-        position: relative;
-        height: 500px;
-        overflow: hidden;
-        background: #000;
+
+    body {
+        background-color: var(--b-bg-gray);
     }
-    
-    .detail-image {
+
+    .car-detail-container {
+        max-width: 1100px;
+        margin: 20px auto;
+    }
+
+    /* --- Header Section --- */
+    .car-header {
+        margin-bottom: 20px;
+    }
+
+    .car-title {
+        font-weight: 800;
+        font-size: 1.75rem;
+        color: var(--b-text);
+        margin-bottom: 5px;
+    }
+
+    .car-category-badge {
+        background-color: #333;
+        color: white;
+        font-size: 0.7rem;
+        padding: 3px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        vertical-align: middle;
+    }
+
+    /* --- Image Gallery --- */
+    .main-image-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .car-large-img {
         width: 100%;
-        height: 100%;
+        height: 450px;
         object-fit: cover;
+        background-color: #fff;
     }
-    
-    .detail-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-        padding: 2rem;
-        color: white;
+
+    /* --- Info Card --- */
+    .info-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 30px;
+        margin-bottom: 24px;
     }
-    
-    .price-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 20px;
-        padding: 2rem;
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        border: 1px solid #f0f0f0;
+        border-radius: 8px;
+        transition: border-color 0.2s;
+    }
+
+    .feature-item:hover {
+        border-color: var(--b-blue-light);
+    }
+
+    .feature-icon {
+        font-size: 1.5rem;
+        color: var(--b-blue-light);
+        width: 30px;
         text-align: center;
     }
-    
-    .price-amount {
-        font-size: 3.5rem;
-        font-weight: 900;
+
+    /* --- Price Sidebar --- */
+    .booking-sidebar {
+        position: sticky;
+        top: 20px;
+    }
+
+    .price-box {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .price-label {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .price-big {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--b-text);
+        line-height: 1;
+        margin: 5px 0;
+    }
+
+    .btn-reserve {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        width: 100%;
+        padding: 14px;
+        border-radius: 4px;
+        border: none;
+        transition: background 0.2s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .btn-reserve:hover {
+        background-color: var(--b-blue);
+        color: white;
+    }
+
+    .guarantee-list {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0 0 0;
+        font-size: 0.85rem;
+    }
+
+    .guarantee-list li {
+        color: var(--b-green);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+    }
+
+    .breadcrumb-item a {
+        color: var(--b-blue-light);
+        text-decoration: none;
+        font-weight: 600;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container car-detail-container py-4">
+    
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('carRental.browse_cars') }}"><i class="fas fa-car me-2"></i>Vehículos</a></li>
-            <li class="breadcrumb-item active">{{ car.brand }} {{ car.model }}</li>
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{{ url_for('carRental.browse_cars') }}">Alquiler de coches</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ car.brand }} {{ car.model }}</li>
         </ol>
     </nav>
 
-    <div class="detail-hero">
-        <div class="detail-image-wrapper">
-            {% if car.image %}
-            <img src="{{ car.image }}" class="detail-image" alt="{{ car.brand }} {{ car.model }}">
-            {% else %}
-            <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=1200&auto=format&fit=crop" class="detail-image" alt="Vehículo">
-            {% endif %}
-            <div class="detail-overlay">
-                <span class="badge bg-success mb-2">Disponible para Alquiler</span>
-                <h1 class="display-4 fw-bold">{{ car.brand }}</h1>
-                <p class="h3">{{ car.model }}</p>
-            </div>
-        </div>
+    <div class="car-header">
+        <span class="car-category-badge">Premium Fleet</span>
+        <h1 class="car-title">{{ car.brand }} {{ car.model }}</h1>
+        <p class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> Disponible en oficina central y aeropuertos</p>
     </div>
 
     <div class="row g-4">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 p-4">
-                <h3 class="fw-bold mb-4"><i class="fas fa-star me-2"></i>Características</h3>
+            <div class="main-image-card animate__animated animate__fadeIn">
+                {% if car.image %}
+                    <img src="{{ car.image }}" class="car-large-img" alt="{{ car.brand }}">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=1200&auto=format&fit=crop" class="car-large-img" alt="Vehículo">
+                {% endif %}
+            </div>
+
+            <div class="info-card">
+                <h4 class="fw-bold mb-4">Especificaciones del vehículo</h4>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
-                            <i class="fas fa-users text-primary fs-4 me-3"></i>
+                        <div class="feature-item">
+                            <i class="fas fa-users feature-icon"></i>
                             <div>
                                 <small class="text-muted d-block">Capacidad</small>
-                                <strong>{{ car.maxPeople }} Pasajeros</strong>
+                                <span class="fw-bold">{{ car.maxPeople }} Pasajeros</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
-                            <i class="fas fa-shield-alt text-primary fs-4 me-3"></i>
+                        <div class="feature-item">
+                            <i class="fas fa-briefcase feature-icon"></i>
                             <div>
-                                <small class="text-muted d-block">Seguro</small>
-                                <strong>Todo Riesgo Incluido</strong>
+                                <small class="text-muted d-block">Maletero</small>
+                                <span class="fw-bold">2 Maletas grandes</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
-                            <i class="fas fa-gas-pump text-primary fs-4 me-3"></i>
+                        <div class="feature-item">
+                            <i class="fas fa-cog feature-icon"></i>
                             <div>
-                                <small class="text-muted d-block">Combustible</small>
-                                <strong>Incluido</strong>
+                                <small class="text-muted d-block">Transmisión</small>
+                                <span class="fw-bold">Manual / Automático</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
-                            <i class="fas fa-road text-primary fs-4 me-3"></i>
+                        <div class="feature-item">
+                            <i class="fas fa-snowflake feature-icon"></i>
                             <div>
-                                <small class="text-muted d-block">Kilometraje</small>
-                                <strong>Ilimitado</strong>
+                                <small class="text-muted d-block">Climatización</small>
+                                <span class="fw-bold">Aire acondicionado</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="fw-bold mb-3">Información importante</h4>
+                <div class="row g-4 text-muted small">
+                    <div class="col-md-6">
+                        <p class="mb-1 fw-bold text-dark"><i class="fas fa-info-circle me-1"></i> Requisitos del conductor</p>
+                        <p>Edad mínima de 21 años y 2 años de antigüedad de carné.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 fw-bold text-dark"><i class="fas fa-gas-pump me-1"></i> Política de combustible</p>
+                        <p>Lleno a Lleno: te lo entregamos lleno y lo devuelves igual.</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="price-card mb-4">
-                <p class="mb-2 opacity-75">Precio por día</p>
-                <div class="price-amount">{{ car.pricePerDay }}€</div>
-                <p class="mt-2 opacity-75">IVA incluido</p>
-            </div>
+            <div class="booking-sidebar">
+                <div class="price-box">
+                    <span class="price-label">Precio por día desde</span>
+                    <div class="price-big">{{ car.pricePerDay }}€</div>
+                    <p class="text-muted small">Incluye IVA y tasas aeroportuarias</p>
+                    
+                    <div class="d-grid mt-4">
+                        <a href="{{ url_for('carRental.show_booking_form', idCar=car.idCar) }}" class="btn-reserve">
+                            Reservar ahora
+                        </a>
+                    </div>
 
-            <div class="d-grid gap-3">
-                <a href="{{ url_for('carRental.show_booking_form', idCar=car.idCar) }}" class="btn btn-primary btn-lg rounded-pill">
-                    <i class="fas fa-calendar-check me-2"></i>Reservar Ahora
-                </a>
-                <a href="{{ url_for('carRental.browse_cars') }}" class="btn btn-link text-decoration-none">
-                    <i class="fas fa-arrow-left me-2"></i>Ver más vehículos
-                </a>
+                    <ul class="guarantee-list">
+                        <li><i class="fas fa-check"></i> Cancelación GRATUITA</li>
+                        <li><i class="fas fa-check"></i> Kilometraje ilimitado</li>
+                        <li><i class="fas fa-check"></i> Asistencia en carretera 24/7</li>
+                        <li><i class="fas fa-check"></i> Confirmación inmediata</li>
+                    </ul>
+
+                    <div class="mt-4 pt-3 border-top text-center">
+                        <a href="{{ url_for('carRental.browse_cars') }}" class="text-decoration-none small fw-bold">
+                            <i class="fas fa-search me-1"></i> Comparar otros vehículos
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-3 p-3 bg-white border rounded d-flex align-items-center gap-3">
+                    <i class="fas fa-user-shield text-primary fa-2x"></i>
+                    <div class="small">
+                        <div class="fw-bold">Alquiler Protegido</div>
+                        <div class="text-muted">Garantía de mejor precio TravelDream</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

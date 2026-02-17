@@ -2,99 +2,307 @@
 
 {% block title %}Cruceros | TravelDream{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+        --b-yellow: #febb02;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    /* --- Page Header & Actions --- */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .btn-create {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+    .btn-create:hover { background-color: var(--b-blue); color: white; }
+
+    /* --- Search Bar (Booking Style) --- */
+    .search-container {
+        background-color: var(--b-yellow);
+        padding: 4px;
+        border-radius: 4px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .search-inner {
+        background-color: white;
+        padding: 20px;
+        border-radius: 2px;
+    }
+
+    .form-label-search {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #666;
+        margin-bottom: 4px;
+    }
+
+    .form-select-search {
+        border: 2px solid transparent;
+        background-color: #f2f2f2;
+        font-weight: 500;
+        height: 48px;
+    }
+    
+    .form-select-search:focus {
+        background-color: white;
+        border-color: var(--b-blue-light);
+        box-shadow: none;
+    }
+
+    .btn-search-main {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 700;
+        height: 48px;
+        border: none;
+        width: 100%;
+        border-radius: 4px;
+        font-size: 1.1rem;
+    }
+    .btn-search-main:hover { background-color: var(--b-blue); }
+
+    /* --- Cruise List Card --- */
+    .cruise-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cruise-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #c6c6c6;
+    }
+
+    .cruise-img-wrap {
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cruise-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cruise-content {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+    }
+
+    .ship-name {
+        font-weight: 800;
+        font-size: 1.25rem;
+        color: var(--b-blue);
+        margin-bottom: 5px;
+    }
+
+    .cruise-route-dates {
+        font-size: 0.9rem;
+        color: #333;
+        margin-bottom: 10px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .cruise-desc {
+        font-size: 0.9rem;
+        color: #666;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Price Section (Right) */
+    .price-section {
+        padding: 20px;
+        border-left: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-end;
+        height: 100%;
+    }
+
+    .price-label { font-size: 0.8rem; color: #666; }
+    .price-value { font-size: 1.6rem; font-weight: 800; color: #333; line-height: 1; }
+    
+    .btn-view-deal {
+        background-color: var(--b-blue-light);
+        color: white;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.2s;
+    }
+    .btn-view-deal:hover { background-color: var(--b-blue); color: white; }
+
+    /* Responsive tweaks for mobile */
+    @media (max-width: 768px) {
+        .cruise-img-wrap { height: 180px; }
+        .price-section { border-left: none; border-top: 1px solid #f0f0f0; align-items: center; flex-direction: row; }
+        .btn-view-deal { width: auto; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-md-9">
-            <h1 class="fw-bold">Explora nuestros Cruceros</h1>
-            <p class="text-muted">Descubre el mundo desde el mar con nuestras rutas exclusivas.</p>
+    
+    <div class="page-header">
+        <div>
+            <h1 class="fw-bold mb-1">Cruceros Disponibles</h1>
+            <p class="text-muted mb-0">Encuentra las mejores rutas marítimas al mejor precio.</p>
         </div>
         {% if user and user.role == 'company' %}
-        <div class="col-md-3 text-end">
-            <a href="{{ url_for('cruise.create_cruise') }}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Crear Crucero</a>
-            <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-outline-secondary mt-2"><i class="fas fa-list me-2"></i>Mis Cruceros</a>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('cruise.my_cruises') }}" class="btn btn-outline-secondary btn-sm fw-bold">Gestionar</a>
+            <a href="{{ url_for('cruise.create_cruise') }}" class="btn-create btn-sm">
+                <i class="fas fa-plus me-1"></i> Publicar Crucero
+            </a>
         </div>
         {% endif %}
     </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form method="get" action="{{ url_for('cruise.list_cruises') }}" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="from" class="form-label fw-bold small">Origen</label>
-                    <select name="from" id="from" class="form-select">
-                        <option value="">Cualquier origen</option>
-                        {% for loc in locations %}
-                        <option value="{{ loc.idLocation }}" {% if request.args.get('from') == loc.idLocation|string %}selected{% endif %}>{{ loc.city }} ({{ loc.country }})</option>
-                        {% endfor %}
-                    </select>
+    <div class="search-container">
+        <div class="search-inner">
+            <form method="get" action="{{ url_for('cruise.list_cruises') }}" class="row g-2 align-items-end">
+                <div class="col-lg-5 col-md-12">
+                    <label for="from" class="form-label-search">Puerto de Salida</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i class="fas fa-map-marker-alt text-muted"></i></span>
+                        <select name="from" id="from" class="form-select form-select-search ps-2">
+                            <option value="">Cualquier origen</option>
+                            {% for loc in locations %}
+                            <option value="{{ loc.idLocation }}" {% if request.args.get('from') == loc.idLocation|string %}selected{% endif %}>
+                                {{ loc.city }} ({{ loc.country }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <label for="to" class="form-label fw-bold small">Destino</label>
-                    <select name="to" id="to" class="form-select">
-                        <option value="">Cualquier destino</option>
-                        {% for loc in locations %}
-                        <option value="{{ loc.idLocation }}" {% if request.args.get('to') == loc.idLocation|string %}selected{% endif %}>{{ loc.city }} ({{ loc.country }})</option>
-                        {% endfor %}
-                    </select>
+                <div class="col-lg-5 col-md-12">
+                    <label for="to" class="form-label-search">Destino</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i class="fas fa-anchor text-muted"></i></span>
+                        <select name="to" id="to" class="form-select form-select-search ps-2">
+                            <option value="">Cualquier destino</option>
+                            {% for loc in locations %}
+                            <option value="{{ loc.idLocation }}" {% if request.args.get('to') == loc.idLocation|string %}selected{% endif %}>
+                                {{ loc.city }} ({{ loc.country }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-2"></i>Filtrar</button>
-                </div>
-                 <div class="col-md-2">
-                    <a href="{{ url_for('cruise.list_cruises') }}" class="btn btn-light w-100">Limpiar</a>
+                <div class="col-lg-2 col-md-12">
+                    <button type="submit" class="btn-search-main">Buscar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="table-responsive bg-white rounded shadow-sm">
-        <table class="table table-hover mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th class="py-3 px-4">Barco</th>
-                    <th class="py-3">Salida</th>
-                    <th class="py-3">Llegada</th>
-                    <th class="py-3">Descripción</th>
-                    <th class="py-3">Precio</th>
-                    <th class="py-3 px-4">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for c in cruises %}
-                <tr>
-                    <td class="px-4 fw-bold">
-                        {{ c.cruise.ship.cruiseName if c.cruise.ship else '-' }}
-                    </td>
-                    <td>
-                        <i class="far fa-calendar-alt text-muted me-2"></i>
-                        {{ c.cruise.startDate.strftime('%d/%m/%Y') }}
-                    </td>
-                    <td>
-                        <i class="far fa-calendar-check text-muted me-2"></i>
-                        {{ c.cruise.endDate.strftime('%d/%m/%Y') }}
-                    </td>
-                    <td>
-                        <small class="text-muted">
-                        {{ c.cruise.description or '-' }}
-                        </small>
-                    </td>
-                    <td class="fw-bold text-success">
-                        {{ c.price }} €
-                    </td>
-                    <td class="px-4">
-                        <a href="{{ url_for('cruise.cruise_detail', idCruise=c.cruise.idCruiseRoute, from=request.args.get('from'), to=request.args.get('to')) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                            Ver Detalles
-                        </a>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="6" class="text-center py-5 text-muted">No se encontraron cruceros disponibles con estos filtros.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="results-container">
+        {% if cruises %}
+            {% for c in cruises %}
+            <div class="cruise-card animate__animated animate__fadeInUp">
+                <div class="row g-0 h-100">
+                    <div class="col-md-3">
+                        <div class="cruise-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1599640845513-26c25907930d?auto=format&fit=crop&w=600&q=80" alt="Crucero" class="cruise-img">
+                            <span class="badge bg-success position-absolute top-0 start-0 m-2">Oferta</span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="cruise-content">
+                            <div>
+                                <h3 class="ship-name">{{ c.cruise.ship.cruiseName if c.cruise.ship else 'Crucero Especial' }}</h3>
+                                
+                                <div class="cruise-route-dates">
+                                    <span class="d-flex align-items-center gap-1">
+                                        <i class="far fa-calendar-alt text-primary"></i> 
+                                        <strong>Salida:</strong> {{ c.cruise.startDate.strftime('%d/%m/%Y') }}
+                                    </span>
+                                    <i class="fas fa-arrow-right text-muted small"></i>
+                                    <span class="d-flex align-items-center gap-1">
+                                        <i class="far fa-calendar-check text-primary"></i> 
+                                        <strong>Regreso:</strong> {{ c.cruise.endDate.strftime('%d/%m/%Y') }}
+                                    </span>
+                                </div>
+
+                                <p class="cruise-desc">
+                                    {{ c.cruise.description or 'Disfruta de una experiencia inolvidable a bordo con todas las comodidades y destinos exóticos.' }}
+                                </p>
+                            </div>
+                            
+                            <div class="mt-2">
+                                <span class="badge bg-light text-dark border"><i class="fas fa-check text-success me-1"></i> Pensión Completa</span>
+                                <span class="badge bg-light text-dark border"><i class="fas fa-check text-success me-1"></i> Cancelación Gratis</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="price-section">
+                            <div class="text-md-end">
+                                <div class="price-label">Precio por persona desde</div>
+                                <div class="price-value">{{ c.price }} €</div>
+                                <div class="small text-muted">Tasas incluidas</div>
+                            </div>
+                            <div class="mt-3 w-100 text-end">
+                                <a href="{{ url_for('cruise.cruise_detail', idCruise=c.cruise.idCruiseRoute, from=request.args.get('from'), to=request.args.get('to')) }}" class="btn-view-deal w-100 text-center">
+                                    Ver Disponibilidad <i class="fas fa-chevron-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5 bg-white border rounded">
+                <i class="fas fa-ship fa-4x text-muted mb-3 opacity-25"></i>
+                <h3 class="fw-bold text-dark">No hemos encontrado cruceros</h3>
+                <p class="text-muted">Prueba a cambiar las fechas o los puertos de destino.</p>
+                <a href="{{ url_for('cruise.list_cruises') }}" class="btn btn-outline-primary">Ver todos los cruceros</a>
+            </div>
+        {% endif %}
     </div>
+
 </div>
 {% endblock %}

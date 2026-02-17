@@ -1,97 +1,231 @@
 {% extends "base.html" %}
 
-{% block title %}Mis Reservas | TravelDream{% endblock %}
+{% block title %}Mis Alquileres | TravelDream{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/carRenting.css') }}">
 <style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+        --b-red: #d4111e;
+    }
+
+    body {
+        background-color: var(--b-bg-gray);
+        color: var(--b-text);
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    /* --- Rental Card --- */
     .rental-card {
         background: white;
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        margin-bottom: 1.5rem;
-        transition: transform 0.3s ease;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
-    
+
     .rental-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #ccc;
     }
-    
+
+    .car-thumb-container {
+        background-color: #f2f6fa;
+        border-radius: 4px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+    }
+
+    .car-thumb {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .car-info-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--b-blue);
+        margin-bottom: 5px;
+    }
+
+    .car-specs {
+        font-size: 0.9rem;
+        color: #666;
+        display: flex;
+        gap: 15px;
+    }
+
+    /* Period Timeline */
+    .rental-period {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 0.9rem;
+    }
+
+    .date-box {
+        text-align: center;
+    }
+
+    .date-box strong {
+        display: block;
+        font-size: 1rem;
+        color: var(--b-text);
+    }
+
+    .arrow-divider {
+        color: #ccc;
+        font-size: 0.8rem;
+    }
+
+    /* Status Badges */
     .status-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
     }
     
-    .status-pending { background: #fef3c7; color: #92400e; }
-    .status-confirmed { background: #d1fae5; color: #065f46; }
-    .status-completed { background: #dbeafe; color: #1e40af; }
-    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-pending { background: #fff8e1; color: #b86a04; }
+    .status-confirmed { background: #e6f6e8; color: var(--b-green); }
+    .status-completed { background: #f0f6fd; color: var(--b-blue-light); }
+    .status-cancelled { background: #fde8ea; color: var(--b-red); }
+
+    .price-display {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--b-text);
+        text-align: right;
+    }
+
+    .btn-cancel-rental {
+        background: transparent;
+        border: 1px solid #ccc;
+        color: #666;
+        width: 35px;
+        height: 35px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel-rental:hover {
+        background-color: #fde8ea;
+        color: var(--b-red);
+        border-color: var(--b-red);
+    }
+
+    .empty-state {
+        background: white;
+        border: 1px dashed #ccc;
+        border-radius: 8px;
+        padding: 60px 20px;
+        text-align: center;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <div class="mb-4">
-        <h1 class="display-5 fw-bold"><i class="fas fa-list-alt me-3"></i>Mis Reservas</h1>
-        <p class="text-muted">Gestiona tus alquileres de vehículos</p>
+    
+    <div class="page-header">
+        <h1 class="fw-bold mb-1"><i class="fas fa-car me-2 text-primary"></i>Mis Alquileres</h1>
+        <p class="text-muted mb-0">Gestiona tus reservas de vehículos y comprobantes.</p>
     </div>
 
     {% if rentals %}
-    {% for rental in rentals %}
-    <div class="rental-card">
-        <div class="row align-items-center">
-            <div class="col-md-2">
-                {% if rental.car.image %}
-                <img src="{{ rental.car.image }}" class="img-fluid rounded" alt="{{ rental.car.brand }}">
-                {% else %}
-                <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=200&auto=format&fit=crop" class="img-fluid rounded" alt="Vehículo">
-                {% endif %}
-            </div>
-            <div class="col-md-4">
-                <h5 class="fw-bold mb-1">{{ rental.car.brand }} {{ rental.car.model }}</h5>
-                <p class="text-muted mb-0"><i class="fas fa-users me-1"></i> {{ rental.car.maxPeople }} pasajeros</p>
-            </div>
-            <div class="col-md-3">
-                <small class="text-muted d-block">Periodo</small>
-                <strong>{{ rental.startDate.strftime("%d/%m/%Y") }}</strong>
-                <br>
-                <small class="text-muted">hasta</small>
-                <br>
-                <strong>{{ rental.endDate.strftime("%d/%m/%Y") }}</strong>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="mb-2">
-                    <span class="status-badge status-{{ rental.status }}">
-                        {{ rental.status|capitalize }}
-                    </span>
+        {% for rental in rentals %}
+        <div class="rental-card animate__animated animate__fadeInUp">
+            <div class="row align-items-center">
+                
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <div class="car-thumb-container">
+                        {% if rental.car.image %}
+                            <img src="{{ rental.car.image }}" class="car-thumb" alt="{{ rental.car.brand }}">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=200&auto=format&fit=crop" class="car-thumb" alt="Vehículo">
+                        {% endif %}
+                    </div>
                 </div>
-                <h5 class="text-success mb-0">{{ rental.totalPrice }}€</h5>
-            </div>
-            <div class="col-md-1 text-end">
-                {% if rental.status in ['pending', 'confirmed'] %}
-                <form action="{{ url_for('carRental.cancel_rental', idCarRental=rental.idCarRental) }}" method="post" onsubmit="return confirm('¿Cancelar esta reserva?');">
-                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </form>
-                {% endif %}
+
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="car-info-title">{{ rental.car.brand }} {{ rental.car.model }}</div>
+                    <div class="car-specs">
+                        <span><i class="fas fa-users"></i> {{ rental.car.maxPeople }} Plazas</span>
+                        <span><i class="fas fa-briefcase"></i> Maletas</span>
+                    </div>
+                    <small class="text-muted mt-2 d-block">ID Reserva: #{{ rental.idCarRental }}</small>
+                </div>
+
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="rental-period">
+                        <div class="date-box text-start">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Recogida</small>
+                            <strong>{{ rental.startDate.strftime("%d %b %Y") }}</strong>
+                        </div>
+                        <div class="arrow-divider">
+                            <i class="fas fa-long-arrow-alt-right fa-lg"></i>
+                        </div>
+                        <div class="date-box text-start">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Entrega</small>
+                            <strong>{{ rental.endDate.strftime("%d %b %Y") }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 text-md-end mb-3 mb-md-0">
+                    <div class="mb-2">
+                        <span class="status-badge status-{{ rental.status }}">
+                            {{ rental.status|capitalize }}
+                        </span>
+                    </div>
+                    <div class="price-display">{{ rental.totalPrice }}€</div>
+                    <small class="text-muted">Total pagado</small>
+                </div>
+
+                <div class="col-md-1 text-end">
+                    {% if rental.status in ['pending', 'confirmed'] %}
+                    <form action="{{ url_for('carRental.cancel_rental', idCarRental=rental.idCarRental) }}" method="post" onsubmit="return confirm('¿Estás seguro de que quieres cancelar este alquiler?');">
+                        <button type="submit" class="btn-cancel-rental ms-auto" title="Cancelar Reserva">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+
             </div>
         </div>
-    </div>
-    {% endfor %}
+        {% endfor %}
+    
     {% else %}
-    <div class="text-center py-5">
-        <i class="fas fa-calendar-times fa-5x text-muted mb-4"></i>
-        <h3 class="text-muted">No tienes reservas</h3>
-        <p class="text-muted mb-4">Explora nuestros vehículos y haz tu primera reserva</p>
-        <a href="{{ url_for('carRental.browse_cars') }}" class="btn btn-primary btn-lg rounded-pill px-5">
-            <i class="fas fa-car me-2"></i>Ver Vehículos Disponibles
-        </a>
-    </div>
+        <div class="empty-state animate__animated animate__fadeIn">
+            <div class="mb-4">
+                <i class="fas fa-car-side fa-4x text-muted opacity-25"></i>
+            </div>
+            <h3 class="fw-bold text-dark">No hay alquileres activos</h3>
+            <p class="text-muted mb-4">Cuando reserves un vehículo para tu viaje, aparecerá aquí.</p>
+            <a href="{{ url_for('carRental.browse_cars') }}" class="btn btn-primary btn-lg fw-bold px-5 rounded-pill shadow-sm">
+                Buscar un coche
+            </a>
+        </div>
     {% endif %}
+
 </div>
 {% endblock %}
