@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Añadir Localización | TravelDream{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 600px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0"><i class="fas fa-map-marker-alt me-2"></i>Añadir Nueva Localización</h1>
+        </div>
+        <div class="card-body p-4">
+
+            <form action="{{ url_for('location.create') }}" method="POST">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="country" class="form-label fw-bold">País</label>
+                        <input type="text" id="country" name="country" class="form-control" required
+                            placeholder="Ej: España">
+                    </div>
+
+                    <div class="col-12">
+                        <label for="city" class="form-label fw-bold">Ciudad</label>
+                        <input type="text" id="city" name="city" class="form-control" required
+                            placeholder="Ej: Madrid">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                    <a href="{{ url_for('aco.admin_dashboard') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Crear Localización
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

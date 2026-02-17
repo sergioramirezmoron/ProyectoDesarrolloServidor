@@ -12,6 +12,7 @@ from controllers.TripController import trip_bp
 from controllers.acomodationController import acomodation_bp
 from controllers.carRentingController import carRentingBlueprint
 from controllers.Booking import booking_bp
+from controllers.LocationController import location_bp
 
 app = Flask(__name__)
 
@@ -36,6 +37,7 @@ app.register_blueprint(transport_bp, url_prefix='/transports')
 app.register_blueprint(trip_bp, url_prefix='/trips')
 app.register_blueprint(carRentingBlueprint, url_prefix='/car-renting')
 app.register_blueprint(booking_bp, url_prefix='/bookings')
+app.register_blueprint(location_bp, url_prefix='/locations')
 
 # Registramos el de acomodation al final si va a manejar la raíz '/'
 app.register_blueprint(acomodation_bp, url_prefix='/')
