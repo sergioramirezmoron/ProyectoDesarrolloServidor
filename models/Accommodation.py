@@ -12,6 +12,7 @@ class Accommodation(db.Model):
     stars_quality = db.Column(db.Integer)
     description = db.Column(db.Text)
     type = db.Column(db.String(20), nullable=False)  # hotel o house
+    image = db.Column(db.String(255), nullable=True)
 
     # Foreign key a User
     idCompany = db.Column(db.Integer, db.ForeignKey('user.idUser'), nullable=False)

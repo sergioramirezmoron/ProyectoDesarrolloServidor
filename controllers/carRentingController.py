@@ -4,8 +4,15 @@
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
 
+<<<<<<< HEAD
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from models import db, Car, CarRental, User
+=======
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from models import db, CarRenting
+import os
+from werkzeug.utils import secure_filename
+>>>>>>> 4168c0925220e68bf1093d69348bfc81e4783bd5
 
 carRentingBlueprint = Blueprint("carRental", __name__, url_prefix="/car-rental")
 
@@ -67,6 +74,7 @@ def create_booking(idCar: int):
     car = Car.query.get_or_404(idCar)
     
     try:
+<<<<<<< HEAD
         start_date = parse_datetime(request.form["startDate"])
         end_date = parse_datetime(request.form["endDate"])
         
@@ -102,6 +110,29 @@ def create_booking(idCar: int):
         )
         
         db.session.add(rental)
+=======
+        rent = CarRenting(
+            maxPeople=int(request.form["maxPeople"]),
+            brand=request.form["brand"].strip(),
+            model=request.form["model"].strip(),
+            startDate=parse_datetime(request.form["startDate"]),
+            endDate=parse_datetime(request.form["endDate"]),
+            price=Decimal(request.form["price"]),
+        )
+
+        # Handle Image Upload
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                rent.image = filename
+
+        rent.validate_dates()
+
+        db.session.add(rent)
+>>>>>>> 4168c0925220e68bf1093d69348bfc81e4783bd5
         db.session.commit()
         
         flash(f"¡Reserva creada! Total: {total_price}€ por {days} días.", "success")
@@ -163,7 +194,28 @@ def cancel_rental(idCarRental: int):
         return redirect(url_for("carRental.my_rentals"))
     
     try:
+<<<<<<< HEAD
         rental.status = 'cancelled'
+=======
+        rent.maxPeople = int(request.form["maxPeople"])
+        rent.brand = request.form["brand"].strip()
+        rent.model = request.form["model"].strip()
+        rent.startDate = parse_datetime(request.form["startDate"])
+        rent.endDate = parse_datetime(request.form["endDate"])
+        rent.price = Decimal(request.form["price"])
+
+        # Handle Image Upload
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                rent.image = filename
+
+        rent.validate_dates()
+
+>>>>>>> 4168c0925220e68bf1093d69348bfc81e4783bd5
         db.session.commit()
         flash("Reserva cancelada exitosamente.", "success")
     except Exception as ex:
