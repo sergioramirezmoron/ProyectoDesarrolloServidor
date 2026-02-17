@@ -213,11 +213,24 @@
                   >
                 </li>
                 <li>
+                  <a class="dropdown-item py-2" href="{{ url_for('car.list_cars') }}">
+                    <i class="fas fa-car-side me-2 w-20"></i>Mi Flota
+                  </a>
+                </li>
+                <li>
                   <a
                     class="dropdown-item py-2"
                     href="{{ url_for('booking.company_bookings') }}"
-                    ><i class="fas fa-calendar-check me-2 w-20"></i>Gestionar
-                    Reservas</a
+                    ><i class="fas fa-calendar-check me-2 w-20"></i>Reservas
+                    Alojamientos</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item py-2"
+                    href="{{ url_for('car.list_rentals') }}"
+                    ><i class="fas fa-car me-2 w-20"></i>Reservas
+                    Vehículos</a
                   >
                 </li>
                 <li><hr class="dropdown-divider" /></li>

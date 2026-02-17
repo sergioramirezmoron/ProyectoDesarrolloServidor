@@ -44,21 +44,24 @@ class Car(db.Model):
             "createdAt": self.createdAt.strftime("%Y/%m/%d %H:%M:%S"),
         }
     
-    def is_available(self, start_date, end_date):
+    def is_available(self, start_date, end_date, exclude_id=None):
         """
         Check if this car is available for the given date range.
         Returns True if no confirmed rentals overlap with the dates.
         """
         from .CarRental import CarRental
         
-        overlapping_rentals = CarRental.query.filter(
+        query = CarRental.query.filter(
             CarRental.idCar == self.idCar,
-            CarRental.status.in_(['pending', 'confirmed']),
+            CarRental.status == 'confirmed',
             CarRental.startDate < end_date,
             CarRental.endDate > start_date
-        ).count()
+        )
         
-        return overlapping_rentals == 0
+        if exclude_id:
+            query = query.filter(CarRental.idCarRental != exclude_id)
+            
+        return query.count() == 0
     
     def __repr__(self):
         return f'<Car {self.brand} {self.model}>'

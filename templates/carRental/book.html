@@ -193,7 +193,9 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Use a 5-minute buffer in the UI too to avoid immediate errors
         const now = new Date();
+        now.setMinutes(now.getMinutes() - 5); 
         
         // Configuración de Inicio
         const startPicker = flatpickr("#startDate", {
@@ -201,9 +203,9 @@
             dateFormat: "Y/m/d H:i:S",
             time_24hr: true,
             minDate: now,
-            defaultDate: now,
+            defaultDate: new Date(), // Set to actual now
             onChange: function(selectedDates, dateStr, instance) {
-                endPicker.set('minDate', dateStr); // No permitir devolver antes de recoger
+                endPicker.set('minDate', dateStr);
             }
         });
         

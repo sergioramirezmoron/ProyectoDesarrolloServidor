@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestionar Reservas de Vehículos | TravelDream Partner{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --b-blue: #003580;
+        --b-blue-light: #006ce4;
+        --b-bg-gray: #f5f5f5;
+        --b-text: #1a1a1a;
+        --b-green: #008009;
+        --b-red: #d4111e;
+        --b-yellow: #febb02;
+    }
+
+    body { background-color: var(--b-bg-gray); color: var(--b-text); }
+
+    .page-header { background: white; padding: 30px 0; border-bottom: 1px solid #e7e7e7; margin-bottom: 30px; }
+
+    .rental-card {
+        background: white;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+        transition: box-shadow 0.2s;
+        border-left: 5px solid #ddd;
+    }
+
+    .rental-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+    .rental-confirmed { border-left-color: var(--b-green); }
+    .rental-pending { border-left-color: var(--b-yellow); }
+    .rental-cancelled { border-left-color: var(--b-red); }
+
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .badge-confirmed { background: #e6f6e8; color: var(--b-green); }
+    .badge-pending { background: #fff8e1; color: #b86a04; }
+    .badge-cancelled { background: #fde8ea; color: var(--b-red); }
+
+    .car-info { display: flex; align-items: center; gap: 15px; }
+    .car-thumb { width: 60px; height: 40px; object-fit: contain; background: #f8f9fa; border-radius: 4px; }
+
+    .date-box { background: #f8f9fa; padding: 10px; border-radius: 4px; border: 1px solid #eee; }
+    
+    .conflict-warning {
+        background-color: #fff5f5;
+        border: 1px solid #feb2b2;
+        color: #c53030;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1">Reservas de Vehículos</h2>
+                <p class="text-muted mb-0">Gestiona las solicitudes de alquiler de tus clientes.</p>
+            </div>
+            <a href="{{ url_for('car.list_cars') }}" class="btn btn-outline-secondary fw-bold">
+                <i class="fas fa-arrow-left me-1"></i> Volver a Flota
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            {% if rentals %}
+                {% for r in rentals %}
+                <div class="rental-card rental-{{ r.status }} animate__animated animate__fadeInUp">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="car-info">
+                                {% if r.car.image %}
+                                    <img src="{{ r.car.image }}" class="car-thumb">
+                                {% else %}
+                                    <i class="fas fa-car fa-2x text-muted opacity-25"></i>
+                                {% endif %}
+                                <div>
+                                    <h6 class="fw-bold mb-0">{{ r.car.brand }} {{ r.car.model }}</h6>
+                                    <small class="text-muted"><i class="fas fa-user me-1"></i> {{ r.user.name }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="date-box flex-fill text-center">
+                                    <small class="text-muted d-block">Recogida</small>
+                                    <span class="fw-bold small">{{ r.startDate.strftime('%d/%m/%Y %H:%M') }}</span>
+                                </div>
+                                <i class="fas fa-arrow-right text-muted"></i>
+                                <div class="date-box flex-fill text-center">
+                                    <small class="text-muted d-block">Entrega</small>
+                                    <span class="fw-bold small">{{ r.endDate.strftime('%d/%m/%Y %H:%M') }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                            <div class="mb-2">
+                                <span class="status-badge badge-{{ r.status }}">{{ r.status }}</span>
+                            </div>
+                            <div class="fw-bold fs-5">{{ r.totalPrice }}€</div>
+                            
+                            {% if r.status == 'pending' %}
+                                <div class="d-flex gap-2 mt-3 justify-content-md-end">
+                                    <form action="{{ url_for('car.accept_rental', idRental=r.idCarRental) }}" method="POST">
+                                        <button type="submit" class="btn btn-success btn-sm fw-bold" {% if conflicts.get(r.idCarRental) %}disabled title="Existe un conflicto con otra reserva confirmada"{% endif %}>
+                                            Aceptar
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('car.reject_rental', idRental=r.idCarRental) }}" method="POST">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm fw-bold">
+                                            Rechazar
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                {% if conflicts.get(r.idCarRental) %}
+                                <div class="conflict-warning text-center">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> Hay un conflicto de fechas
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5 bg-white border rounded shadow-sm">
+                    <i class="fas fa-calendar-times fa-3x text-muted opacity-25 mb-3"></i>
+                    <h5 class="fw-bold">No hay reservas registradas</h5>
+                    <p class="text-muted">Cuando un cliente reserve uno de tus coches, aparecerá aquí.</p>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

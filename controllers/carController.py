@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from models import db, Car, User
+from models import db, Car, User, CarRental
 
 carBlueprint = Blueprint("car", __name__, url_prefix="/fleet")
 
@@ -157,3 +157,77 @@ def delete_car(idCar: int):
         flash(f"Error al eliminar: {str(ex)}", "danger")
     
     return redirect(url_for("car.list_cars"))
+
+
+# --- RENTAL MANAGEMENT (APPROVALS) ---
+
+@carBlueprint.get("/rentals")
+def list_rentals():
+    """List all rentals for cars owned by the company"""
+    user = get_current_user()
+    if not user or user.role not in ["admin", "company"]:
+        flash("Acceso denegado.", "danger")
+        return redirect(url_for("userBp.login"))
+    
+    # Get rentals for cars belonging to this company
+    if user.role == "admin":
+        rentals = CarRental.query.order_by(CarRental.createdAt.desc()).all()
+    else:
+        # Join with Car to filter by company
+        rentals = CarRental.query.join(Car).filter(Car.idCompany == user.idUser).order_by(CarRental.createdAt.desc()).all()
+    
+    # Check for conflicts for pending rentals
+    conflicts = {}
+    for r in rentals:
+        if r.status == 'pending':
+            # Use the model method for consistency
+            if not r.car.is_available(r.startDate, r.endDate, exclude_id=r.idCarRental):
+                conflicts[r.idCarRental] = True
+
+    return render_template("car/rentals.html", rentals=rentals, user=user, conflicts=conflicts)
+
+
+@carBlueprint.post("/rentals/<int:idRental>/accept")
+def accept_rental(idRental: int):
+    """Accept a pending rental"""
+    user = get_current_user()
+    if not user or user.role not in ["admin", "company"]:
+        return redirect(url_for("userBp.login"))
+    
+    rental = CarRental.query.get_or_404(idRental)
+    car = rental.car
+    
+    # Security check
+    if user.role == "company" and car.idCompany != user.idUser:
+        flash("No tienes permiso.", "danger")
+        return redirect(url_for("car.list_rentals"))
+    
+    # Double check for availability (conflict detection)
+    if not car.is_available(rental.startDate, rental.endDate, exclude_id=idRental):
+        flash("No se puede aceptar: Existe un conflicto de fechas con una reserva ya confirmada.", "warning")
+        return redirect(url_for("car.list_rentals"))
+    
+    rental.status = 'confirmed'
+    db.session.commit()
+    flash(f"Reserva para {car.brand} {car.model} confirmada.", "success")
+    return redirect(url_for("car.list_rentals"))
+
+
+@carBlueprint.post("/rentals/<int:idRental>/reject")
+def reject_rental(idRental: int):
+    """Reject/Cancel a pending rental from the owner side"""
+    user = get_current_user()
+    if not user or user.role not in ["admin", "company"]:
+        return redirect(url_for("userBp.login"))
+    
+    rental = CarRental.query.get_or_404(idRental)
+    
+    # Security check
+    if user.role == "company" and rental.car.idCompany != user.idUser:
+        flash("No tienes permiso.", "danger")
+        return redirect(url_for("car.list_rentals"))
+    
+    rental.status = 'cancelled'
+    db.session.commit()
+    flash("Reserva denegada correctamente.", "info")
+    return redirect(url_for("car.list_rentals"))

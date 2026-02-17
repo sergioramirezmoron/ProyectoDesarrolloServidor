@@ -74,8 +74,11 @@ def create_booking(idCar: int):
         if end_date <= start_date:
             raise ValueError("La fecha de fin debe ser posterior a la fecha de inicio.")
         
-        if start_date < datetime.now():
-            raise ValueError("La fecha de inicio no puede ser en el pasado.")
+        # Allow a 15-minute grace period for "past" dates to account for server/client lag
+        grace_period = timedelta(minutes=15)
+        if start_date < (datetime.now() - grace_period):
+            server_time = datetime.now().strftime("%H:%M")
+            raise ValueError(f"La fecha de inicio no puede ser en el pasado (Hora servidor: {server_time}).")
         
         # Check availability
         if not car.is_available(start_date, end_date):
