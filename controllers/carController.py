@@ -4,7 +4,9 @@
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+import os
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from werkzeug.utils import secure_filename
 from models import db, Car, User, CarRental
 
 carBlueprint = Blueprint("car", __name__, url_prefix="/fleet")
@@ -54,12 +56,28 @@ def create_car():
         return redirect(url_for("userBp.login"))
 
     try:
+        brand = request.form["brand"].strip()
+        model = request.form["model"].strip()
+        maxPeople = int(request.form["maxPeople"])
+        pricePerDay = Decimal(request.form["pricePerDay"])
+        
+        # Handle Image Upload
+        image_filename = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                # Create uploads folder if not exists
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                image_filename = filename
+
         car = Car(
-            brand=request.form["brand"].strip(),
-            model=request.form["model"].strip(),
-            maxPeople=int(request.form["maxPeople"]),
-            pricePerDay=Decimal(request.form["pricePerDay"]),
-            image=(request.form.get("image", "").strip() or None),
+            brand=brand,
+            model=model,
+            maxPeople=maxPeople,
+            pricePerDay=pricePerDay,
+            image=image_filename,
             idCompany=user.idUser,
             isActive=True
         )
@@ -120,7 +138,15 @@ def update_car(idCar: int):
         car.model = request.form["model"].strip()
         car.maxPeople = int(request.form["maxPeople"])
         car.pricePerDay = Decimal(request.form["pricePerDay"])
-        car.image = request.form.get("image", "").strip() or None
+        
+        # Handle Image Upload
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                car.image = filename
 
         db.session.commit()
         flash(f"Vehículo {car.brand} {car.model} actualizado exitosamente.", "success")

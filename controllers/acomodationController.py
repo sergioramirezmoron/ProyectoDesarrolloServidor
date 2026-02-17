@@ -214,8 +214,8 @@ def edit(id):
             file = request.files['image']
             if file and file.filename != '':
                 filename = secure_filename(file.filename)
-                os.makedirs(current_app.app_context().app.config['UPLOAD_FOLDER'], exist_ok=True)
-                file.save(os.path.join(current_app.app_context().app.config['UPLOAD_FOLDER'], filename))
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
                 accommodation.image = filename
 
         db.session.commit()

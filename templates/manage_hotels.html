@@ -216,7 +216,15 @@
                 {% for accommodation in accommodations %}
                 <div class="property-card animate__animated animate__fadeInUp">
                     <div class="prop-img-container">
-                        <img src="https://placehold.co/400x300?text={{ accommodation.name|urlencode }}" alt="{{ accommodation.name }}" class="prop-img">
+                        {% if accommodation.image %}
+                            {% if accommodation.image.startswith('http') %}
+                                <img src="{{ accommodation.image }}" alt="{{ accommodation.name }}" class="prop-img">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/' + accommodation.image) }}" alt="{{ accommodation.name }}" class="prop-img">
+                            {% endif %}
+                        {% else %}
+                            <img src="https://placehold.co/400x300?text={{ accommodation.name|urlencode }}" alt="{{ accommodation.name }}" class="prop-img">
+                        {% endif %}
                         <span class="prop-id-badge">ID: {{ accommodation.id }}</span>
                     </div>
 

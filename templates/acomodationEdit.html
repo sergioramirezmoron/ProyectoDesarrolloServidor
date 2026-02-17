@@ -111,20 +111,28 @@
         </div>
         <div class="card-body p-4">
 
-            <form action="{{ url_for('aco.edit', id=accommodation.id) }}" method="POST">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label for="name" class="form-label fw-bold">Nombre de la Propiedad</label>
-                        <input type="text" id="name" name="name" class="form-control" value="{{ accommodation.name }}"
-                            required>
-                    </div>
-
     <div class="form-card animate__animated animate__fadeInUp">
-        <form action="{{ url_for('aco.edit', id=accommodation.id) }}" method="POST">
+        <form action="{{ url_for('aco.edit', id=accommodation.id) }}" method="POST" enctype="multipart/form-data">
             
             <h5 class="form-section-title">Información General</h5>
             
             <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <label for="image" class="form-label fw-bold">Imagen de la Propiedad</label>
+                    <input type="file" id="image" name="image" class="form-control" accept="image/*">
+                    {% if accommodation.image %}
+                        <div class="mt-2">
+                            <small class="text-muted d-block mb-1">Imagen actual:</small>
+                            {% if accommodation.image.startswith('http') %}
+                                <img src="{{ accommodation.image }}" alt="Preview" style="height: 80px; border-radius: 4px; border: 1px solid #ddd;">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/' + accommodation.image) }}" alt="Preview" style="height: 80px; border-radius: 4px; border: 1px solid #ddd;">
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="helper-text">Sube una foto nueva si quieres cambiar la actual.</div>
+                </div>
+
                 <div class="col-12">
                     <label for="name" class="form-label">Nombre del alojamiento <span class="text-danger">*</span></label>
                     <input type="text" id="name" name="name" class="form-control" value="{{ accommodation.name }}" required>
@@ -138,6 +146,7 @@
                         <option value="apartment" {% if accommodation.type == 'apartment' %}selected{% endif %}>Apartamento</option>
                         <option value="resort" {% if accommodation.type == 'resort' %}selected{% endif %}>Resort</option>
                         <option value="hostel" {% if accommodation.type == 'hostel' %}selected{% endif %}>Hostal</option>
+                        <option value="villa" {% if accommodation.type == 'villa' %}selected{% endif %}>Villa</option>
                     </select>
                 </div>
 

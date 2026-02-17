@@ -108,7 +108,7 @@
     </div>
 
     <div class="form-card animate__animated animate__fadeInUp">
-        <form method="post" action="{% if car %}{{ url_for('car.update_car', idCar=car.idCar) }}{% else %}{{ url_for('car.create_car') }}{% endif %}">
+        <form method="post" action="{% if car %}{{ url_for('car.update_car', idCar=car.idCar) }}{% else %}{{ url_for('car.create_car') }}{% endif %}" enctype="multipart/form-data">
             
             <h5 class="form-section-title">Información del Modelo</h5>
             <div class="row g-4 mb-4">
@@ -145,12 +145,18 @@
             <h5 class="form-section-title">Imagen del Vehículo</h5>
             <div class="row g-4">
                 <div class="col-12">
-                    <label for="image" class="form-label-custom">URL de la Fotografía</label>
+                    <label for="image" class="form-label-custom">Fotografía del Vehículo</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-image"></i></span>
-                        <input type="text" id="image" name="image" class="form-control" value="{{ car.image if car else '' }}" placeholder="https://tusitio.com/imagen-coche.jpg">
+                        <input type="file" id="image" name="image" class="form-control" accept="image/*">
                     </div>
-                    <small class="text-muted mt-2 d-block">Utiliza una imagen con fondo neutro para mejores resultados en el catálogo.</small>
+                    {% if car and car.image %}
+                        <div class="mt-2">
+                            <small class="text-muted d-block mb-1">Imagen actual:</small>
+                            <img src="{{ url_for('static', filename='uploads/' + car.image) }}" alt="Car Image" style="height: 60px; border-radius: 4px;">
+                        </div>
+                    {% endif %}
+                    <small class="text-muted mt-2 d-block">Sube una imagen nítida. Se recomienda formato PNG o JPG.</small>
                 </div>
             </div>
 

@@ -89,7 +89,11 @@
                         <div class="col-md-4">
                             <div class="car-info">
                                 {% if r.car.image %}
-                                    <img src="{{ r.car.image }}" class="car-thumb">
+                                    {% if r.car.image.startswith('http') %}
+                                        <img src="{{ r.car.image }}" class="car-thumb">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename='uploads/' + r.car.image) }}" class="car-thumb">
+                                    {% endif %}
                                 {% else %}
                                     <i class="fas fa-car fa-2x text-muted opacity-25"></i>
                                 {% endif %}
