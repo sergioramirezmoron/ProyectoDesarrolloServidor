@@ -104,6 +104,25 @@
         margin-bottom: 8px;
     }
 
+    .segment-selector {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+    }
+    
+    .segment-selector label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 4px;
+        display: block;
+    }
+    
+    .form-select-sm {
+        font-size: 0.9rem;
+        border-color: #ddd;
+    }
+
     .price-section {
         margin-top: 15px;
         padding-top: 15px;
@@ -166,14 +185,14 @@
                 
                 <div class="mb-4">
                     <h2 class="fw-bold mb-1">Añade un crucero a tu itinerario</h2>
-                    <p class="text-muted">Selecciona una ruta marítima o continúa con el siguiente paso.</p>
+                    <p class="text-muted">Selecciona una ruta marítima y personaliza tus puertos de embarque y desembarque.</p>
                 </div>
 
                 {% if routes %}
                 <div class="row">
                     {% for route in routes %}
                     <div class="col-md-6 mb-4">
-                        <div class="cruise-card h-100 animate__animated animate__fadeInUp">
+                        <div class="cruise-card h-100 animate__animated animate__fadeInUp" id="card-{{ route.idCruiseRoute }}">
                             <div class="cruise-img-container">
                                 <img src="https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=800&q=80" class="cruise-img" alt="Crucero">
                                 <span class="cruise-badge">
@@ -186,21 +205,50 @@
                                 
                                 <div class="cruise-info-row">
                                     <i class="far fa-calendar-alt text-primary"></i>
-                                    <span>Salida: <strong>{{ route.startDate.strftime('%d/%m/%Y') }}</strong></span>
+                                    <span>Salida Ruta: <strong>{{ route.startDate.strftime('%d/%m/%Y') }}</strong></span>
                                 </div>
                                 <div class="cruise-info-row">
                                     <i class="fas fa-map-marker-alt text-primary"></i>
                                     <span>Ruta: {{ route.idCruiseRoute }}</span>
                                 </div>
+                                
+                                <!-- Segment Selector -->
+                                <div class="segment-selector">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="origin-{{ route.idCruiseRoute }}">Embarque en:</label>
+                                            <select class="form-select form-select-sm origin-select" 
+                                                    data-route-id="{{ route.idCruiseRoute }}" 
+                                                    id="origin-{{ route.idCruiseRoute }}">
+                                                <!-- Populated by JS -->
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="destination-{{ route.idCruiseRoute }}">Desembarque en:</label>
+                                            <select class="form-select form-select-sm destination-select" 
+                                                    data-route-id="{{ route.idCruiseRoute }}" 
+                                                    id="destination-{{ route.idCruiseRoute }}">
+                                                <!-- Populated by JS -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-muted small">
+                                        <i class="far fa-clock me-1"></i> <span id="dates-{{ route.idCruiseRoute }}">Fechas calculadas...</span>
+                                    </div>
+                                </div>
 
                                 <div class="price-section">
                                     <div>
                                         <div class="text-muted small">Precio total</div>
-                                        <div class="price-value">500€</div> </div>
+                                        <div class="price-value" id="price-{{ route.idCruiseRoute }}">Calculando...</div> 
+                                    </div>
                                     
                                     <form method="POST" action="{{ url_for('tripBuilder.save_cruise') }}">
                                         <input type="hidden" name="route_id" value="{{ route.idCruiseRoute }}">
                                         <input type="hidden" name="action" value="add">
+                                        <input type="hidden" name="origin_id" id="input-origin-{{ route.idCruiseRoute }}">
+                                        <input type="hidden" name="destination_id" id="input-destination-{{ route.idCruiseRoute }}">
+                                        
                                         <button type="submit" class="btn btn-select-cruise">
                                             Seleccionar
                                         </button>
@@ -239,4 +287,156 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Routes data injected from backend
+        const routesData = {{ routes_data|tojson|safe }};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize each route card
+            Object.keys(routesData).forEach(routeId => {
+                const data = routesData[routeId];
+                const stops = data.stops;
+                const originSelect = document.getElementById(`origin-${routeId}`);
+                const destSelect = document.getElementById(`destination-${routeId}`);
+                
+                if (!originSelect || !destSelect) return;
+                
+                // Populate Origin Options (all stops except last)
+                stops.slice(0, stops.length - 1).forEach((stop, index) => {
+                    const option = new Option(`${stop.name} (${stop.date})`, stop.id);
+                    originSelect.add(option);
+                });
+                
+                // Event listener for Origin change
+                originSelect.addEventListener('change', () => {
+                   updateDestinationOptions(routeId);
+                });
+                
+                // Event listener for Destination change
+                destSelect.addEventListener('change', () => {
+                    updatePriceAndInputs(routeId);
+                });
+                
+                // Initial population
+                // Set initial values if stops exist
+                if (stops.length > 0) {
+                    originSelect.value = stops[0].id;
+                    updateDestinationOptions(routeId);
+                }
+            });
+        });
+        
+        function updateDestinationOptions(routeId) {
+            const data = routesData[routeId];
+            const stops = data.stops;
+            const originSelect = document.getElementById(`origin-${routeId}`);
+            const destSelect = document.getElementById(`destination-${routeId}`);
+            
+            const selectedOriginId = parseInt(originSelect.value);
+            const selectedOriginStop = stops.find(s => s.id === selectedOriginId);
+            
+            // Save current selection if possible
+            const currentDestId = parseInt(destSelect.value);
+            
+            // Clear current options
+            destSelect.innerHTML = '';
+            
+            // Add options that are strictly AFTER the selected origin order
+            let lastOptionValue = null;
+            stops.forEach(stop => {
+                if (stop.order > selectedOriginStop.order) {
+                    const option = new Option(`${stop.name} (${stop.date})`, stop.id);
+                    destSelect.add(option);
+                    lastOptionValue = stop.id;
+                }
+            });
+            
+            // Restore selection if valid, otherwise select last
+            const options = Array.from(destSelect.options);
+            const stillExists = options.some(opt => parseInt(opt.value) === currentDestId);
+            
+            if (stillExists) {
+                destSelect.value = currentDestId;
+            } else if (lastOptionValue !== null) {
+                destSelect.value = lastOptionValue; 
+            }
+            
+            // Trigger price update after options update
+            updatePriceAndInputs(routeId);
+        }
+        
+        function updatePriceAndInputs(routeId) {
+            const data = routesData[routeId];
+            const stops = data.stops;
+            const segments = data.segments;
+            
+            const originSelect = document.getElementById(`origin-${routeId}`);
+            const destSelect = document.getElementById(`destination-${routeId}`);
+            const priceDisplay = document.getElementById(`price-${routeId}`);
+            const dateDisplay = document.getElementById(`dates-${routeId}`);
+            
+            const inputOrigin = document.getElementById(`input-origin-${routeId}`);
+            const inputDest = document.getElementById(`input-destination-${routeId}`);
+            
+            const originId = parseInt(originSelect.value);
+            const destId = parseInt(destSelect.value);
+            
+            if (!originId || !destId) return;
+            
+            // Update hidden inputs
+            inputOrigin.value = originId;
+            inputDest.value = destId;
+            
+            // Find start and end logical order
+            const originStop = stops.find(s => s.id === originId);
+            const destStop = stops.find(s => s.id === destId);
+            
+            // Calculate Date Range String
+            if (originStop && destStop) {
+                dateDisplay.textContent = `${originStop.date} - ${destStop.date}`;
+            }
+            
+            // Calculate Price
+            let totalPrice = 0;
+            
+            // Iterate through stops from origin to destination to find connecting segments
+            let currentOrder = originStop.order;
+            const endOrder = destStop.order;
+            
+            // Safety break
+            let attempts = 0;
+            
+            while (currentOrder < endOrder && attempts < 50) {
+                // Find segment where origin matches current logical step
+                
+                // Find the stop object for current order
+                const currentStopObj = stops.find(s => s.order === currentOrder);
+                
+                if (!currentStopObj) break;
+                
+                // Find segment starting at this stop ID
+                const segment = segments.find(s => s.origin === currentStopObj.id);
+                
+                if (segment) {
+                    totalPrice += segment.price;
+                    // Find the order of the destination of this segment
+                    const nextStopObj = stops.find(s => s.id === segment.destination);
+                    if (nextStopObj) {
+                        currentOrder = nextStopObj.order;
+                    } else {
+                        break; 
+                    }
+                } else {
+                    break; // Gap in segments
+                }
+                attempts++;
+            }
+            
+            // Fallback if price is 0 (shouldn't happen with correct data)
+            if (totalPrice === 0) totalPrice = data.base_price;
+            
+            priceDisplay.textContent = totalPrice.toFixed(2) + '€';
+        }
+    </script>
 {% endblock %}

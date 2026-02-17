@@ -248,10 +248,39 @@ def step_cruises():
     
     routes = query.limit(20).all()
     
+    # Prepare data for frontend (stops and segments for each route)
+    routes_data = {}
+    for route in routes:
+        # Get stops sorted by order
+        stops = sorted(route.stops, key=lambda x: x.stopOrder)
+        stops_data = [{
+            'id': stop.idCruiseStop,
+            'name': stop.location.city,
+            'order': stop.stopOrder,
+            'date': stop.arrivalDate.strftime('%d/%m/%Y'),
+            'idLocation': stop.idLocation
+        } for stop in stops]
+        
+        # Get segments
+        segments_data = []
+        for seg in route.segments:
+            segments_data.append({
+                'origin': seg.idStopOrigin,
+                'destination': seg.idStopDestination,
+                'price': seg.price
+            })
+            
+        routes_data[route.idCruiseRoute] = {
+            'stops': stops_data,
+            'segments': segments_data,
+            'base_price': segments_data[0]['price'] if segments_data else 500
+        }
+    
     return render_template("tripBuilder/step-cruises.html",
                          routes=routes,
                          user=user,
-                         trip_data=trip_data)
+                         trip_data=trip_data,
+                         routes_data=routes_data)
 
 
 @tripBuilderBlueprint.route("/step/cruises", methods=["POST"])
@@ -266,14 +295,66 @@ def save_cruise():
     action = request.form.get("action")
     if action == "add":
         route_id = request.form.get("route_id")
+        origin_id = request.form.get("origin_id")
+        destination_id = request.form.get("destination_id")
+        
         if route_id:
-            from models import CruiseRoute
+            from models import CruiseRoute, CruiseStops
             route = CruiseRoute.query.get(route_id)
             if route:
-                # Default price from first segment if available, else 500
-                price = 500.0
-                if route.segments:
-                    price = route.segments[0].price
+                price = 0.0
+                start_date_str = ""
+                end_date_str = ""
+                origin_name = ""
+                destination_name = ""
+                
+                # If specific stops are selected
+                if origin_id and destination_id:
+                    origin_stop = CruiseStops.query.get(origin_id)
+                    dest_stop = CruiseStops.query.get(destination_id)
+                    
+                    if origin_stop and dest_stop and origin_stop.idCruiseRoute == route.idCruiseRoute and dest_stop.idCruiseRoute == route.idCruiseRoute:
+                        # Calculate price based on segments
+                        # We need to find all segments that form the path from origin to destination
+                        # Assuming sequential stops for simplicity: sum price of segments between start_order and end_order
+                        
+                        start_order = origin_stop.stopOrder
+                        end_order = dest_stop.stopOrder
+                        
+                        current_order = start_order
+                        while current_order < end_order:
+                            # Find segment starting at current_order
+                            # This logical simplification assumes segments are linked. 
+                            # In practice, we look for a segment where idStopOrigin has stopOrder == current_order
+                            
+                            segment = None
+                            for seg in route.segments:
+                                if seg.stop_origin.stopOrder == current_order:
+                                    segment = seg
+                                    break
+                            
+                            if segment:
+                                price += segment.price
+                                current_order = segment.stop_destination.stopOrder
+                            else:
+                                # Break if no connecting segment found (should not happen if data is consistent)
+                                break
+                                
+                        start_date_str = origin_stop.departureDate.strftime('%d/%m/%Y')
+                        end_date_str = dest_stop.arrivalDate.strftime('%d/%m/%Y')
+                        origin_name = origin_stop.location.city
+                        destination_name = dest_stop.location.city
+                
+                # Fallback to default full route if calculation failed or specific stops not selected
+                if price == 0.0:
+                    if route.segments:
+                        price = sum(s.price for s in route.segments) # Approximate full price
+                    else:
+                        price = 500.0
+                    start_date_str = route.startDate.strftime('%d/%m/%Y')
+                    end_date_str = route.endDate.strftime('%d/%m/%Y')
+                    origin_name = route.stops[0].location.city if route.stops else "Inicio"
+                    destination_name = route.stops[-1].location.city if route.stops else "Fin"
                 
                 session['trip_builder']['items'].append({
                     'type': 'cruise',
@@ -281,7 +362,10 @@ def save_cruise():
                     'price': float(price),
                     'details': json.dumps({
                         'name': route.ship.cruiseName if route.ship else 'Crucero',
-                        'description': route.description
+                        'description': route.description,
+                        'origin': origin_name,
+                        'destination': destination_name,
+                        'dates': f"{start_date_str} - {end_date_str}"
                     })
                 })
                 session.modified = True
