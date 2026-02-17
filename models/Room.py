@@ -15,6 +15,22 @@ class Room(db.Model):
 
     accommodation = db.relationship('Accommodation', backref='rooms')
 
+    def is_available(self, start_date, end_date):
+        """
+        Check if this room is available for the given date range.
+        Returns True if no confirmed bookings overlap with the dates.
+        """
+        from .AccommodationBookingLine import AccommodationBookingLine
+        
+        overlapping_bookings = AccommodationBookingLine.query.filter(
+            AccommodationBookingLine.idRoom == self.id,
+            AccommodationBookingLine.status == 'confirmed',
+            AccommodationBookingLine.startDate < end_date,
+            AccommodationBookingLine.endDate > start_date
+        ).count()
+        
+        return overlapping_bookings == 0
+
     def to_dict(self):
         return {
             'id': self.id,

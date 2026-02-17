@@ -101,14 +101,34 @@ def create():
 @acomodation_bp.route('/acomodation/show/<int:id>', methods=['GET'])
 def show(id):
     accommodation = Accommodation.query.get_or_404(id)
+    
     # Get dates from query params if available
     checkin = request.args.get('checkin')
     checkout = request.args.get('checkout')
     
-    # In a real scenario, we would filter rooms based on availability here
-    # For now, we pass all rooms and let the template handle the basic booking form
+    # If dates are provided, filter or flag rooms based on availability
+    rooms_data = []
+    if checkin and checkout:
+        try:
+            start_date = datetime.strptime(checkin, '%Y-%m-%d').date()
+            end_date = datetime.strptime(checkout, '%Y-%m-%d').date()
+            for room in accommodation.rooms:
+                is_available = room.is_available(start_date, end_date)
+                rooms_data.append({
+                    'room': room,
+                    'is_available': is_available
+                })
+        except ValueError:
+            # If dates are invalid, just show all as available
+            rooms_data = [{'room': r, 'is_available': True} for r in accommodation.rooms]
+    else:
+        rooms_data = [{'room': r, 'is_available': True} for r in accommodation.rooms]
     
-    return render_template('acomodationShow.html', accommodation=accommodation, checkin=checkin, checkout=checkout)
+    return render_template('acomodationShow.html', 
+                           accommodation=accommodation, 
+                           rooms_data=rooms_data,
+                           checkin=checkin, 
+                           checkout=checkout)
 
 
 # =========================

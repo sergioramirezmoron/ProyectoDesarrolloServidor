@@ -56,46 +56,86 @@ def cancel_booking(id):
         return redirect(url_for('booking.list_user_bookings_html', user_id=session["user_id"]))
 
 # =========================
-# FORMULARIO RESERVA
+# ACCEPT BOOKING
 # =========================
-@booking_bp.route('/book', methods=['GET', 'POST'])
+@booking_bp.route('/booking/accept/<int:id>', methods=['POST'])
+def accept_booking(id):
+    if "user_id" not in session or session.get("role") != "company":
+        flash('Acceso denegado')
+        return redirect(url_for('userBp.login'))
+
+    booking = AccommodationBookingLine.query.get_or_404(id)
+    accommodation = Accommodation.query.get(booking.idAccommodation)
+
+    if accommodation.idCompany != session["user_id"]:
+        flash('No tienes permiso para gestionar esta reserva')
+        return redirect(url_for('aco.home'))
+
+    # Double check availability before confirming
+    room = Room.query.get(booking.idRoom)
+    if room and not room.is_available(booking.startDate, booking.endDate):
+        flash('No se puede confirmar: Existe un conflicto de fechas con otra reserva confirmada.', 'danger')
+        return redirect(url_for('booking.company_bookings'))
+
+    booking.status = 'confirmed'
+    db.session.commit()
+    
+    flash('Reserva confirmada correctamente', 'success')
+    return redirect(url_for('booking.company_bookings'))
+
+# =========================
+# PROCESAR RESERVA
+# =========================
+@booking_bp.route('/book', methods=['POST'])
 def book_accommodation():
-    if request.method == 'POST':
-        user_id = request.form.get('user_id') or session.get('user_id')
-        accommodation_id = request.form.get('accommodationId')
-        room_id = request.form.get('roomId') # Added roomId
-        start_date = request.form.get('startDate')
-        end_date = request.form.get('endDate')
-        total_price = request.form.get('totalPrice')
+    user_id = request.form.get('user_id') or session.get('user_id')
+    accommodation_id = request.form.get('accommodationId')
+    room_id = request.form.get('roomId')
+    start_date = request.form.get('startDate')
+    end_date = request.form.get('endDate')
+    total_price = request.form.get('totalPrice')
 
-        try:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    if not all([accommodation_id, room_id, start_date, end_date]):
+        flash('Datos de reserva incompletos', 'danger')
+        return redirect(url_for('aco.show', id=accommodation_id) if accommodation_id else url_for('aco.home'))
 
-            if start_date > end_date:
-                return render_template('book.html', error='La fecha de inicio no puede ser posterior a la fecha de fin.')
+    try:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
 
-            booking = AccommodationBookingLine(
-                idUser=user_id,
-                idAccommodation=accommodation_id,
-                idRoom=room_id, # Added idRoom
-                startDate=start_date,
-                endDate=end_date,
-                totalPrice=total_price,
-                status='pending'
-            )
+        if start_date >= end_date:
+            flash('La fecha de salida debe ser posterior a la de entrada.', 'warning')
+            return redirect(url_for('aco.show', id=accommodation_id))
 
-            db.session.add(booking)
-            db.session.commit()
-            return redirect(url_for('accommodation.list_user_bookings_html', user_id=user_id))
+        # Check room availability before creating a pending booking
+        room = Room.query.get(room_id)
+        if not room:
+             flash('Habitación no encontrada.', 'danger')
+             return redirect(url_for('aco.show', id=accommodation_id))
 
-        except Exception as e:
-            db.session.rollback()
-            return render_template('book.html', error=str(e))
+        if not room.is_available(start_date, end_date):
+             flash('Lo sentimos, esta habitación ya está reservada para las fechas seleccionadas.', 'warning')
+             return redirect(url_for('aco.show', id=accommodation_id))
 
-    accommodations = Accommodation.query.all()
-    users = User.query.all()
-    return render_template('book.html', accommodations=accommodations, users=users)
+        booking = AccommodationBookingLine(
+            idUser=user_id,
+            idAccommodation=accommodation_id,
+            idRoom=room_id,
+            startDate=start_date,
+            endDate=end_date,
+            totalPrice=total_price,
+            status='pending'
+        )
+
+        db.session.add(booking)
+        db.session.commit()
+        flash('Reserva enviada. Pendiente de confirmación por el dueño.', 'success')
+        return redirect(url_for('booking.list_user_bookings_html', user_id=user_id))
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al procesar la reserva: {str(e)}', 'danger')
+        return redirect(url_for('aco.show', id=accommodation_id))
 
 
 # =========================

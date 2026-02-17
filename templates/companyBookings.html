@@ -138,6 +138,35 @@
         border-color: var(--b-red);
     }
 
+    .btn-icon-accept {
+        color: var(--b-green);
+        background: white;
+        border: 1px solid var(--b-green);
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        margin-right: 5px;
+    }
+
+    .btn-icon-accept:hover {
+        color: white;
+        background: var(--b-green);
+    }
+
+    .availability-warning {
+        font-size: 0.75rem;
+        color: var(--b-red);
+        font-weight: 600;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
     .btn-primary-action {
         background-color: var(--b-blue-light);
         color: white;
@@ -238,17 +267,36 @@
                             </td>
 
                             <td class="text-end">
-                                {% if booking.status != 'cancelled' %}
-                                <form action="{{ url_for('booking.cancel_booking', id=booking.id) }}" method="POST" 
-                                      onsubmit="return confirm('¿Está seguro de que desea cancelar esta reserva? Se notificará al huésped.');"
-                                      style="display: inline-block;">
-                                    <button type="submit" class="btn-icon-cancel" title="Cancelar Reserva">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </form>
-                                {% else %}
-                                <span class="text-muted small">-</span>
-                                {% endif %}
+                                <div class="d-flex justify-content-end">
+                                    {% if booking.status == 'pending' %}
+                                        {# Check if there's a conflict before showing Accept button alone #}
+                                        {% set is_available = booking.room.is_available(booking.startDate, booking.endDate) if booking.room else True %}
+                                        
+                                        {% if is_available %}
+                                            <form action="{{ url_for('booking.accept_booking', id=booking.id) }}" method="POST" style="display: inline-block;">
+                                                <button type="submit" class="btn-icon-accept" title="Confirmar Reserva">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <div class="availability-warning me-2" title="Esta habitación ya tiene una reserva confirmada en estas fechas">
+                                                <i class="fas fa-exclamation-triangle"></i> Conflicto
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if booking.status != 'cancelled' %}
+                                    <form action="{{ url_for('booking.cancel_booking', id=booking.id) }}" method="POST" 
+                                          onsubmit="return confirm('¿Está seguro de que desea cancelar esta reserva? Se notificará al huésped.');"
+                                          style="display: inline-block;">
+                                        <button type="submit" class="btn-icon-cancel" title="Cancelar Reserva">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted small">-</span>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
