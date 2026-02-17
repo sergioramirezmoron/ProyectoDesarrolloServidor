@@ -451,14 +451,22 @@ def step_tours():
     start_date = trip_data.get('start_date')
     end_date = trip_data.get('end_date')
     
+    print(f"DEBUG: step_tours - Dates: {start_date} to {end_date}")
+    
     query = Tour.query
     if start_date and end_date:
+        from datetime import timedelta
         start_obj = datetime.strptime(start_date, '%Y-%m-%d')
         end_obj = datetime.strptime(end_date, '%Y-%m-%d')
         # Tours that occur within the trip window
-        query = query.filter(Tour.startDate >= start_obj, Tour.startDate <= end_obj)
+        end_obj_inclusive = end_obj + timedelta(days=1)
+        
+        print(f"DEBUG: Filtering Tours between {start_obj} and {end_obj_inclusive}")
+        
+        query = query.filter(Tour.startDate >= start_obj, Tour.startDate < end_obj_inclusive)
     
     tours = query.limit(20).all()
+    print(f"DEBUG: Found {len(tours)} tours")
     
     return render_template("tripBuilder/step-tours.html",
                          tours=tours,
