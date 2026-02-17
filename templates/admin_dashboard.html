@@ -163,12 +163,29 @@
 {% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
     <div class="admin-header">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h1 class="fw-bold mb-1">Panel de Administración</h1>
                     <p class="mb-0 opacity-75">Visión general del sistema y gestión de datos.</p>
+=======
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Admin Dashboard</h1>
+        <a href="{{ url_for('location.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nueva Localización
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="display-4 fw-bold text-primary">{{ users_count }}</h2>
+                    <p class="text-muted">Total Users</p>
+>>>>>>> 194b3632d8a4f8a0f0dfbf57c8f483ad91a739ff
                 </div>
                 <div class="d-none d-md-block">
                     <span class="badge bg-white text-dark"><i class="fas fa-shield-alt me-1"></i> Modo Admin</span>

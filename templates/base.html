@@ -243,6 +243,14 @@
                     >Administración</a
                   >
                 </li>
+                 <li>
+                  <a
+                    class="dropdown-item py-2"
+                    href="{{ url_for('location.index') }}"
+                    ><i class="fas fa-map-marker-alt me-2 w-20"></i
+                    >Gestión de Localizaciones</a
+                  >
+                </li>
                 <li><hr class="dropdown-divider" /></li>
                 {% endif %} {% if session.get('role') == 'user' %}
                 <li>

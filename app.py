@@ -14,6 +14,7 @@ from controllers.carController import carBlueprint  # New: Fleet management
 from controllers.carRentingController import carRentingBlueprint  # Updated: Rental bookings
 from controllers.tripBuilderController import tripBuilderBlueprint  # New: Trip Builder
 from controllers.Booking import booking_bp
+from controllers.LocationController import location_bp
 
 app = Flask(__name__)
 
@@ -40,6 +41,7 @@ app.register_blueprint(carBlueprint)  # Fleet management at /fleet
 app.register_blueprint(carRentingBlueprint)  # Rental bookings at /car-rental
 app.register_blueprint(tripBuilderBlueprint)  # Trip builder wizard at /trip-builder
 app.register_blueprint(booking_bp, url_prefix='/bookings')
+app.register_blueprint(location_bp, url_prefix='/locations')
 
 # Registramos el de acomodation al final si va a manejar la raíz '/'
 app.register_blueprint(acomodation_bp, url_prefix='/')

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Localización | Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 fw-bold"><i class="fas fa-map-marker-alt me-2"></i>{{ action }} Localización</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="country" class="form-label fw-bold">País</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-globe-americas text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="country" name="country" 
+                                       value="{{ location.country if location else '' }}" required placeholder="Ej. España">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="city" class="form-label fw-bold">Ciudad</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-city text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="city" name="city" 
+                                       value="{{ location.city if location else '' }}" required placeholder="Ej. Madrid">
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary fw-bold py-2">
+                                <i class="fas fa-save me-1"></i> Guardar
+                            </button>
+                            <a href="{{ url_for('location.index') }}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
